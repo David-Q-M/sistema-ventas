@@ -41,7 +41,8 @@ public class SecurityConfig {
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
         // Allow all origins safely
-        configuration.setAllowedOriginPatterns(java.util.Collections.singletonList("*"));
+        configuration
+                .setAllowedOriginPatterns(java.util.Arrays.asList("*", "https://sistemaventa-david.netlify.app"));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
