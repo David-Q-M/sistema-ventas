@@ -1,0 +1,88 @@
+<div class="container animate-fade-in mt-5">
+    <div class="card border-0 shadow-lg mx-auto overflow-hidden" style="max-width: 550px; border-radius: 1rem;">
+        <div class="card-header bg-primary text-white py-4 text-center border-0">
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-person-circle display-4 d-block mb-3"></i>
+                {{ isEdit ? 'Editar Usuario' : 'Nuevo Usuario' }}
+            </h3>
+            <p class="mb-0 text-white-50 small text-uppercase fw-bold ls-1">Gestión de Accesos</p>
+        </div>
+
+        <div class="card-body p-4 p-md-5 bg-white">
+            <form (ngSubmit)="onSubmit()">
+                <!-- Nombre -->
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">NOMBRE COMPLETO</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-0 text-primary"><i
+                                class="bi bi-person-vcard"></i></span>
+                        <input type="text" class="form-control bg-light border-0" [(ngModel)]="usuario.nombreCompleto"
+                            name="nombreCompleto" required placeholder="Ej: Juan Pérez">
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">NOMBRE DE USUARIO</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-0 text-primary"><i class="bi bi-at"></i></span>
+                        <input type="text" class="form-control bg-light border-0" [(ngModel)]="usuario.username"
+                            name="username" required placeholder="usuario123">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">
+                        CONTRASEÑA
+                        <span *ngIf="isEdit" class="text-warning small mx-2 fw-normal">(Opcional para mantener
+                            actual)</span>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-0 text-primary"><i class="bi bi-key"></i></span>
+                        <input type="password" class="form-control bg-light border-0" [(ngModel)]="usuario.password"
+                            name="password" [required]="!isEdit" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">ROL DEL USUARIO</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-0 text-primary"><i
+                                class="bi bi-shield-lock"></i></span>
+                        <select class="form-select bg-light border-0" [(ngModel)]="usuario.rolNombre" name="rolNombre"
+                            required>
+                            <option value="" disabled>Seleccione un rol...</option>
+                            <option *ngFor="let r of roles" [value]="r.nombre">{{ r.nombre }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Active Switch -->
+                <div
+                    class="mb-4 p-3 rounded-3 bg-light border border-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-dark">Estado de la cuenta</div>
+                        <div class="small text-muted">{{ usuario.activo ? 'El usuario puede acceder al sistema' :
+                            'Acceso bloqueado' }}</div>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input fs-4" type="checkbox" [(ngModel)]="usuario.activo" name="activo"
+                            style="cursor: pointer;">
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-5">
+                    <a routerLink="/usuarios" class="btn btn-outline-secondary fw-bold px-4 py-2 rounded-pill">
+                        <i class="bi bi-arrow-left me-2"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 py-2 rounded-pill shadow-sm hover-scale">
+                        <i class="bi bi-check-lg me-2"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

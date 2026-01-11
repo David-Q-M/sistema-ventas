@@ -1,0 +1,127 @@
+/* Animation */
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Utilities */
+.ls-1 {
+    letter-spacing: 1px;
+}
+
+.z-index-10 {
+    z-index: 10;
+}
+
+/* Form inputs focus */
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: #86b7fe;
+}
+
+/* Image Upload Wrapper */
+.image-upload-wrapper:hover button {
+    transform: scale(1.1);
+    transition: transform 0.2s;
+}
+
+/* Scanner Overlay */
+.scanner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    /* Darker breakdown */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    backdrop-filter: blur(8px);
+    /* Stronger blur */
+}
+
+.scanner-container {
+    width: 100%;
+    max-width: 450px;
+    /* Slimmer mobile-like container */
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scanner-wrapper {
+    min-height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Scanner Guide Overlay */
+.scanner-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px;
+    height: 180px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.scanner-corners {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+    /* Viewfinder effect */
+}
+
+/* Laser Line */
+.scanner-laser {
+    width: 80%;
+    height: 2px;
+    background: #ff3b3b;
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    animation: scan 2.5s infinite ease-in-out;
+    box-shadow: 0 0 10px #ff3b3b;
+    z-index: 12;
+}
+
+@keyframes scan {
+    0% {
+        top: 10%;
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 90%;
+        opacity: 0;
+    }
+}

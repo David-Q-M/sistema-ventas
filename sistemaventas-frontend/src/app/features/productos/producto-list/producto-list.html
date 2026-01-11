@@ -1,0 +1,141 @@
+<div class="container container-xl mt-4 animate-fade-in pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark">Productos</h2>
+            <p class="text-muted mb-0">Gestiona tu inventario de manera visual</p>
+        </div>
+        <div class="d-flex gap-2 w-100 w-md-auto">
+            <!-- Search Bar -->
+            <div class="input-group shadow-sm" style="max-width: 400px;">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por nombre o código..."
+                    [(ngModel)]="searchTerm" (keyup)="onSearch()">
+                <button *ngIf="searchTerm" class="btn btn-white border-start-0 border"
+                    (click)="searchTerm=''; onSearch()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <a routerLink="/productos/nuevo"
+                class="btn btn-primary d-flex align-items-center shadow-sm px-4 fw-bold text-nowrap">
+                <i class="bi bi-plus-lg me-2"></i>Nuevo
+            </a>
+        </div>
+    </div>
+
+    <!-- Category View -->
+    <div *ngIf="viewMode === 'categories'" class="category-grid animate-fade-in">
+        <div *ngFor="let cat of categories" class="category-card" (click)="selectCategory(cat)">
+            <div class="card-icon shadow-sm mb-3">
+                <i class="bi bi-tag-fill"></i>
+            </div>
+            <h3 class="fw-bold text-dark">{{ cat.nombre }}</h3>
+            <span class="badge bg-light text-dark border">Ver productos</span>
+        </div>
+
+        <!-- Empty State for Categories -->
+        <div *ngIf="categories.length === 0 && !loading" class="col-12 text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-folder-x fs-1 text-muted opacity-25" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark">No hay categorías</h4>
+            <p class="text-muted">Comienza agregando categorías en la base de datos.</p>
+        </div>
+    </div>
+
+    <!-- Product View (Category or Search) -->
+    <div *ngIf="viewMode === 'products' || viewMode === 'search'" class="animate-fade-in">
+        <!-- Breadcrumb / Header -->
+        <div class="d-flex align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border">
+            <button class="btn btn-light btn-sm me-3 border fw-medium px-3" (click)="backToCategories()">
+                <i class="bi bi-arrow-left me-1"></i> Categorías
+            </button>
+            <div class="vr mx-2 text-muted"></div>
+
+            <span class="ms-2 fs-5 fw-bold text-primary d-flex align-items-center" *ngIf="selectedCategory">
+                <i class="bi bi-folder2-open me-2"></i>{{ selectedCategory.nombre }}
+            </span>
+            <span class="ms-2 fs-5 fw-bold text-primary d-flex align-items-center" *ngIf="viewMode === 'search'">
+                <i class="bi bi-search me-2"></i>Resultados de búsqueda: "{{ searchTerm }}"
+            </span>
+        </div>
+
+        <div class="product-grid" *ngIf="filteredProductos.length > 0; else noProductsInCat">
+            <div *ngFor="let p of filteredProductos" class="product-card h-100">
+                <div class="product-image-wrapper p-4 bg-light position-relative">
+                    <img [src]="p.urlImagen || 'assets/no-image.png'" alt="{{ p.nombre }}" class="product-img"
+                        (error)="p.urlImagen = ''">
+
+                    <!-- Badges -->
+                    <div class="position-absolute top-0 end-0 m-2 d-flex flex-column gap-1 align-items-end">
+                        <span class="badge rounded-pill shadow-sm" [ngClass]="{
+                                  'bg-danger': p.stock === 0,
+                                  'bg-warning text-dark': p.stock > 0 && p.stock < 10,
+                                  'bg-success': p.stock >= 10
+                              }">
+                            {{ p.stock === 0 ? 'AGOTADO' : (p.stock < 10 ? 'POCO STOCK' : 'DISPONIBLE' ) }} </span>
+                    </div>
+                </div>
+
+                <div class="product-content p-3 d-flex flex-column flex-grow-1">
+                    <div class="mb-2">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">
+                            {{ p.categoria?.nombre || 'Sin Categoría' }}
+                        </small>
+                        <h5 class="product-title fw-bold text-dark mb-1 text-truncate" title="{{ p.nombre }}">
+                            {{ p.nombre }}
+                        </h5>
+                        <div *ngIf="p.codigoBarras" class="text-muted small font-monospace">
+                            <i class="bi bi-barcode me-1"></i>{{ p.codigoBarras }}
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-end mb-3">
+                            <div>
+                                <span class="d-block text-muted small">Precio</span>
+                                <span class="fs-4 fw-bold text-primary">{{ p.precioVenta |
+                                    currency:'USD':'symbol':'1.2-2' }}</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="d-block text-muted small">Stock</span>
+                                <span class="fw-bold text-dark">{{ p.stock }} un.</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a [routerLink]="['/productos/editar', p.id]"
+                                class="btn btn-outline-primary btn-sm flex-grow-1 fw-bold">
+                                <i class="bi bi-pencil me-1"></i> Editar
+                            </a>
+                            <button (click)="p.id && deleteProducto(p.id!)" class="btn btn-outline-danger btn-sm"
+                                title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #noProductsInCat>
+            <div class="empty-state bg-white rounded-4 shadow-sm border p-5 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-box-seam fs-1 text-muted opacity-25" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Sin resultados</h3>
+                <p class="text-muted mb-4">
+                    {{ viewMode === 'search' ? 'No encontramos productos que coincidan con tu búsqueda.' : 'Esta
+                    categoría aún no tiene productos asignados.' }}
+                </p>
+                <a routerLink="/productos/nuevo" class="btn btn-primary px-4 shadow-sm" *ngIf="viewMode !== 'search'">
+                    <i class="bi bi-plus-lg me-2"></i>Agregar Producto
+                </a>
+                <button class="btn btn-outline-secondary px-4" *ngIf="viewMode === 'search'"
+                    (click)="searchTerm = ''; onSearch()">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>Limpiar búsqueda
+                </button>
+            </div>
+        </ng-template>
+    </div>
+</div>

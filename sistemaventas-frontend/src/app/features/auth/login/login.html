@@ -1,0 +1,31 @@
+<div class="login-container">
+  <div class="login-card card">
+    <div class="login-header">
+      <h2 class="text-center">Sistema Ventas</h2>
+      <p class="text-center text-muted">Ingresa a tu cuenta</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input type="text" class="form-control" [(ngModel)]="credentials.username" name="username" required
+          placeholder="admin" autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input type="password" class="form-control" [(ngModel)]="credentials.password" name="password" required
+          placeholder="••••••" autocomplete="current-password">
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+        <span *ngIf="!loading">Ingresar</span>
+        <span *ngIf="loading">Cargando...</span>
+      </button>
+    </form>
+  </div>
+</div>

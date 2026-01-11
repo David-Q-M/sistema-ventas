@@ -1,0 +1,88 @@
+/* Animation */
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-item {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Utilities */
+.ls-1 {
+    letter-spacing: 1px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Filter Cards */
+.filter-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.filter-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.active-card {
+    border-bottom: 4px solid var(--bs-primary) !important;
+    background-color: #f8f9fa;
+}
+
+.active-card .icon-box {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+/* Avatar */
+.avatar-initial {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0043a5 100%);
+}
+
+/* Hover Scale */
+.hover-scale {
+    transition: transform 0.2s;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* List Item Hover */
+tr.fade-in-item:hover td {
+    background-color: #f8faff;
+}

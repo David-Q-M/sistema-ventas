@@ -1,0 +1,54 @@
+<div class="layout-wrapper" [class.sidebar-closed]="!sidebarOpen">
+    <app-loading></app-loading>
+    <app-toast></app-toast>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Sistema Ventas</h3>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+                <i class="icon">🏠</i> Dashboard
+            </a>
+
+            <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item">
+                <i class="icon">👥</i> Usuarios
+            </a>
+
+            <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/productos" routerLinkActive="active"
+                class="nav-item">
+                <i class="icon">📦</i> Productos
+            </a>
+
+            <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active"
+                class="nav-item">
+                <i class="icon">🛒</i> Ventas
+            </a>
+
+            <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-item">
+                <i class="icon">📊</i> Reportes
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button (click)="logout()" class="nav-item logout-btn">
+                <i class="icon">🚪</i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="toggle-btn" (click)="toggleSidebar()">☰</button>
+            <div class="user-info">
+                <span class="badge badge-success">{{ role }}</span>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

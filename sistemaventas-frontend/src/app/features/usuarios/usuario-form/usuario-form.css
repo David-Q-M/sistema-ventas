@@ -1,0 +1,60 @@
+/* Animation */
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Utilities */
+.ls-1 {
+    letter-spacing: 1px;
+}
+
+/* Form Inputs Focus */
+.form-control:focus,
+.form-select:focus {
+    box-shadow: none;
+    background-color: #fff !important;
+    border: 1px solid #0d6efd !important;
+}
+
+.input-group:focus-within .input-group-text {
+    background-color: #fff !important;
+    border: 1px solid #0d6efd !important;
+    border-right: none !important;
+    color: #0d6efd !important;
+}
+
+.input-group:focus-within .form-control,
+.input-group:focus-within .form-select {
+    border-left: none !important;
+}
+
+/* Hover Effects */
+.hover-scale {
+    transition: transform 0.2s;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Switch Customization */
+.form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}

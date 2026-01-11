@@ -1,0 +1,176 @@
+<div class="container mt-4 animate-fade-in pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Reportes
+            </h2>
+            <p class="text-muted mb-0">Análisis detallado de ventas y rendimiento.</p>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="d-flex flex-wrap gap-2 align-items-center bg-white p-2 rounded shadow-sm border">
+            <!-- Filter Type -->
+            <select class="form-select border-0 bg-light fw-bold" style="width: auto;" [(ngModel)]="filterType">
+                <option value="TODAY">📅 Ventas de Hoy</option>
+                <option value="SPECIFIC">📆 Fecha Específica</option>
+                <option value="ALL">🗂️ Todo el Historial</option>
+            </select>
+
+            <!-- Specific Date Picker -->
+            <input type="date" class="form-control border-0 bg-light" style="width: auto;"
+                *ngIf="filterType === 'SPECIFIC'" [(ngModel)]="specificDate">
+
+            <div class="vr mx-2"></div>
+
+            <!-- Buttons -->
+            <button (click)="exportToExcel()"
+                class="btn btn-success d-flex align-items-center gap-2 fw-bold hover-scale">
+                <i class="bi bi-file-earmark-excel-fill"></i> Descargar Excel
+            </button>
+            <button (click)="cargarDatos()"
+                class="btn btn-light text-primary d-flex align-items-center gap-2 fw-bold border-0" title="Actualizar">
+                <i class="bi bi-arrow-clockwise fs-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Top Product -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 kpi-card bg-primary-subtle border-start border-4 border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="text-primary fw-bold text-uppercase small ls-1 mb-1">Más Vendido</h6>
+                            <h3 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 200px;"
+                                title="{{ topProduct?.name }}">
+                                {{ topProduct?.name || '---' }}
+                            </h3>
+                        </div>
+                        <div class="icon-box bg-white text-primary rounded-circle shadow-sm">
+                            <i class="bi bi-trophy-fill"></i>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted small" *ngIf="topProduct">
+                        <span class="fw-bold text-dark">{{ topProduct.quantity }}</span> unidades vendidas
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regular Product -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 kpi-card bg-info-subtle border-start border-4 border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="text-info fw-bold text-uppercase small ls-1 mb-1">Rotación Media</h6>
+                            <h3 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 200px;"
+                                title="{{ regularProduct?.name }}">
+                                {{ regularProduct?.name || '---' }}
+                            </h3>
+                        </div>
+                        <div class="icon-box bg-white text-info rounded-circle shadow-sm">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted small" *ngIf="regularProduct">
+                        <span class="fw-bold text-dark">{{ regularProduct.quantity }}</span> unidades vendidas
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Product -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 kpi-card bg-danger-subtle border-start border-4 border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="text-danger fw-bold text-uppercase small ls-1 mb-1">Menos Vendido</h6>
+                            <h3 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 200px;"
+                                title="{{ lowProduct?.name }}">
+                                {{ lowProduct?.name || '---' }}
+                            </h3>
+                        </div>
+                        <div class="icon-box bg-white text-danger rounded-circle shadow-sm">
+                            <i class="bi bi-arrow-down-circle-fill"></i>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted small" *ngIf="lowProduct">
+                        <span class="fw-bold text-dark">{{ lowProduct.quantity }}</span> unidades vendidas
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">Tendencia de Ingresos</h5>
+        </div>
+        <div class="card-body">
+            <div style="display: block; height: 350px;">
+                <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div
+            class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <h5 class="fw-bold mb-0">Detalle de Transacciones</h5>
+            <div class="input-group" style="max-width: 300px;">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control bg-light border-0" placeholder="Buscar ticket, usuario..."
+                    [(ngModel)]="searchTerm" (input)="filterList()">
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-secondary text-uppercase fw-bold small border-0">ID Venta</th>
+                        <th class="py-3 text-secondary text-uppercase fw-bold small border-0">Fecha</th>
+                        <th class="py-3 text-secondary text-uppercase fw-bold small border-0">Vendedor</th>
+                        <th class="py-3 text-secondary text-uppercase fw-bold small border-0">Comprobante</th>
+                        <th class="py-3 text-secondary text-uppercase fw-bold small border-0">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let venta of filteredVentas" class="fade-in-item">
+                        <td class="ps-4 fw-bold text-primary">#{{ venta.id }}</td>
+                        <td class="text-muted">{{ venta.fechaVenta | date:'medium' }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-mini bg-light text-primary rounded-circle me-2 fw-bold">
+                                    {{ venta.usuario.username.charAt(0).toUpperCase() }}
+                                </div>
+                                <span class="fw-bold text-dark">{{ venta.usuario.username }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill border fw-normal text-dark px-3"
+                                [class.bg-warning-subtle]="venta.tipoComprobante === 'BOLETA'"
+                                [class.bg-info-subtle]="venta.tipoComprobante === 'FACTURA'">
+                                {{ venta.tipoComprobante }}
+                            </span>
+                        </td>
+                        <td class="fw-bold text-success fs-6">{{ venta.total | currency:'USD' }}</td>
+                    </tr>
+                    <tr *ngIf="filteredVentas.length === 0">
+                        <td colspan="5" class="text-center py-5">
+                            <div class="py-4">
+                                <i class="bi bi-search fs-1 text-muted opacity-25 d-block mb-3"></i>
+                                <h5 class="text-muted fw-bold">No se encontraron resultados</h5>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
