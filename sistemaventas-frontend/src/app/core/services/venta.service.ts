@@ -3,11 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Venta, VentaDTO } from '../../shared/models/models';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
     providedIn: 'root'
 })
 export class VentaService {
-    private apiUrl = 'http://localhost:8080/api/ventas';
+    private apiUrl = `${environment.apiUrl}/ventas`;
 
     constructor(private http: HttpClient) { }
 
