@@ -25,7 +25,8 @@ public class AuthController {
         Usuario user = usuarioRepo.findByUsername(request.get("username"))
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (user.getPassword().equals(request.get("password"))) { // Nota: Usar BCrypt en producción
+        org.springframework.security.crypto.password.PasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        if (encoder.matches(request.get("password"), user.getPassword())) {
             String token = jwtUtil.generateToken(user.getUsername(), user.getRol().getNombre());
             return ResponseEntity.ok(Map.of(
                     "token", token,
