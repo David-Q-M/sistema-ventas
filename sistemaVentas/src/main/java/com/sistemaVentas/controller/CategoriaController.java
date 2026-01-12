@@ -14,7 +14,6 @@ import com.sistemaVentas.entity.Categoria;
 
 @RestController
 @RequestMapping("/api/categorias")
-@CrossOrigin("*")
 public class CategoriaController {
 
     @Autowired
