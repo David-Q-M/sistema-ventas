@@ -43,7 +43,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                 type: 'bar',
                 data: [],
                 label: 'Ventas ($)',
-                backgroundColor: 'rgba(13, 110, 253, 0.7)', // Bootstrap Primary
+                backgroundColor: 'rgba(13, 110, 253, 0.7)',
                 hoverBackgroundColor: 'rgba(13, 110, 253, 0.9)',
                 borderColor: 'rgba(13, 110, 253, 1)',
                 borderWidth: 1,
@@ -57,7 +57,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                 type: 'line',
                 data: [],
                 label: 'Tendencia',
-                borderColor: '#198754', // Success Green
+                borderColor: '#198754',
                 backgroundColor: 'rgba(25, 135, 84, 0.1)',
                 pointBackgroundColor: '#fff',
                 pointBorderColor: '#198754',
@@ -66,7 +66,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                 pointRadius: 4,
                 pointHoverRadius: 6,
                 fill: true,
-                tension: 0.4, // Smooth Key
+                tension: 0.4,
                 yAxisID: 'y1',
                 order: 1
             }
@@ -126,7 +126,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                 display: true,
                 position: 'right',
                 grid: { display: false },
-                ticks: { display: false } // Hide numbers on right to look cleaner
+                ticks: { display: false }
             },
             x: {
                 grid: { display: false },
@@ -178,7 +178,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
         this.cantidadVentas = ventas.length;
         this.totalVentas = ventas.reduce((acc, v) => acc + v.total, 0);
 
-        // Chart Data Helper
+
         const mapDate = new Map<string, number>();
         ventas.forEach(v => {
             const date = v.fechaVenta ? v.fechaVenta.toString().substring(0, 10) : 'N/A';
@@ -194,10 +194,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
         this.barChartData.datasets[0].data = data;
         this.barChartData.datasets[1].data = cumData;
 
-        // Product Stats Logic (Simplified for brevity, assuming same logic as before)
-        // ... (Keep existing stats logic if preferred, or simplified)
 
-        // Re-implementing simplified stats for context
         const productsMap = new Map<string, number>();
         ventas.forEach(v => {
             v.detalles?.forEach(d => {
@@ -227,7 +224,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
     }
 
     exportToExcel() {
-        // 1. Filter Data based on selection
+
         let dataToExport = [...this.allVentas];
         const todayStr = new Date().toISOString().substring(0, 10);
 
@@ -236,14 +233,13 @@ export class ReportesComponent implements OnInit, OnDestroy {
         } else if (this.filterType === 'SPECIFIC' && this.specificDate) {
             dataToExport = this.allVentas.filter(v => v.fechaVenta && v.fechaVenta.startsWith(this.specificDate));
         }
-        // 'ALL' and 'MONTH' (logic for month omitted for simplicity, treating default as ALL)
 
         if (dataToExport.length === 0) {
             alert('No hay datos para exportar en el rango seleccionado.');
             return;
         }
 
-        // 2. Flatten and Format Data
+
         const excelData = dataToExport.map(v => {
             return {
                 'ID Venta': v.id,
@@ -255,7 +251,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
             };
         });
 
-        // 3. Export
+
         this.excelService.exportAsExcelFile(excelData, 'reporte_ventas');
     }
 }

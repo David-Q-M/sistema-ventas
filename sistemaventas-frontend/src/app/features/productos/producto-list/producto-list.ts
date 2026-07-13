@@ -90,7 +90,7 @@ export class ProductoListComponent implements OnInit {
     selectCategory(category: Categoria) {
         this.selectedCategory = category;
         this.viewMode = 'products';
-        this.searchTerm = ''; // Clear search when picking category
+        this.searchTerm = '';
 
         this.filteredProductos = this.productos.filter(p =>
             p.categoria?.id === category.id

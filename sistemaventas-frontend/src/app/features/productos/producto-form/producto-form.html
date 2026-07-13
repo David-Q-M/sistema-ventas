@@ -87,7 +87,7 @@
                 <div class="card border-0 shadow-sm rounded-4 h-100">
                     <div class="card-header bg-white border-0 py-3">
                         <h6 class="fw-bold mb-0 text-secondary text-uppercase small ls-1"><i
-                                class="bi bi-card-text me-2"></i>Información General</h6>
+                                class="bi bi-card-text me-2"></i>Información</h6>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-3">
@@ -171,7 +171,29 @@
                 <zxing-scanner [formats]="allowedFormats" [tryHarder]="true" [device]="currentDevice"
                     (camerasFound)="onCamerasFound($event)" (camerasNotFound)="onCamerasNotFound()"
                     (scanError)="onScanError($event)" (scanSuccess)="handleScanSuccess($event)"
+                    (permissionResponse)="onPermissionResponse($event)"
                     class="rounded-3 overflow-hidden"></zxing-scanner>
+
+                <!-- Error Message Display -->
+                <div *ngIf="scanError || hasPermission === false"
+                    class="position-absolute top-50 start-50 translate-middle text-center w-100 p-3 z-index-20">
+                    <div class="alert alert-danger shadow-sm border-0 d-inline-block">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {{ scanError || 'No hay acceso a la cámara' }}
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-danger bg-white" (click)="reloadScanner()">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Recargar Cámara
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Reload Button (Always visible if scanner is open) -->
+                <button *ngIf="!scanError && hasPermission !== false"
+                    class="btn btn-sm btn-dark position-absolute bottom-0 start-0 m-3 z-index-20 opacity-75"
+                    (click)="reloadScanner()" title="Reiniciar escaner">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
 
                 <!-- Visual Guide -->
                 <div class="scanner-guide">

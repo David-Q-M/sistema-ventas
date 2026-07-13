@@ -7,22 +7,22 @@
             <p class="text-muted mb-0">Análisis detallado de ventas y rendimiento.</p>
         </div>
 
-        <!-- Action Toolbar -->
+
         <div class="d-flex flex-wrap gap-2 align-items-center bg-white p-2 rounded shadow-sm border">
-            <!-- Filter Type -->
+
             <select class="form-select border-0 bg-light fw-bold" style="width: auto;" [(ngModel)]="filterType">
                 <option value="TODAY">📅 Ventas de Hoy</option>
                 <option value="SPECIFIC">📆 Fecha Específica</option>
                 <option value="ALL">🗂️ Todo el Historial</option>
             </select>
 
-            <!-- Specific Date Picker -->
+
             <input type="date" class="form-control border-0 bg-light" style="width: auto;"
                 *ngIf="filterType === 'SPECIFIC'" [(ngModel)]="specificDate">
 
             <div class="vr mx-2"></div>
 
-            <!-- Buttons -->
+
             <button (click)="exportToExcel()"
                 class="btn btn-success d-flex align-items-center gap-2 fw-bold hover-scale">
                 <i class="bi bi-file-earmark-excel-fill"></i> Descargar Excel
@@ -34,9 +34,9 @@
         </div>
     </div>
 
-    <!-- KPI Cards -->
+
     <div class="row g-4 mb-4">
-        <!-- Top Product -->
+
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100 kpi-card bg-primary-subtle border-start border-4 border-primary">
                 <div class="card-body">
@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        <!-- Regular Product -->
+
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100 kpi-card bg-info-subtle border-start border-4 border-info">
                 <div class="card-body">
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <!-- Low Product -->
+
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100 kpi-card bg-danger-subtle border-start border-4 border-danger">
                 <div class="card-body">
@@ -106,7 +106,6 @@
         </div>
     </div>
 
-    <!-- Chart Section -->
     <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
         <div class="card-header bg-white border-0 py-3">
             <h5 class="fw-bold mb-0">Tendencia de Ingresos</h5>
@@ -118,7 +117,7 @@
         </div>
     </div>
 
-    <!-- Sales Table -->
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div
             class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">

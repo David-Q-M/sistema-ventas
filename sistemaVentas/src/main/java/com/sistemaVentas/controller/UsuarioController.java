@@ -24,7 +24,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/guardar")
-    public ResponseEntity<?> guardar(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<?> guardar(@Valid @RequestBody UsuarioDTO dto) {
         return ResponseEntity.ok(service.guardar(dto));
     }
 
@@ -34,7 +34,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizar(@PathVariable Integer id, @RequestBody UsuarioDTO dto) {
+    public ResponseEntity<Usuario> actualizar(@PathVariable Integer id, @Valid @RequestBody UsuarioDTO dto) {
         return ResponseEntity.ok(service.actualizar(id, dto));
     }
 

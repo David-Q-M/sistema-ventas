@@ -15,6 +15,9 @@ public class ProductoService {
     private ProductoRepository repo;
 
     public Producto guardar(Producto producto) {
+        if (producto.getCodigoBarras() != null && producto.getCodigoBarras().trim().isEmpty()) {
+            producto.setCodigoBarras(null);
+        }
         return repo.save(producto);
     }
 
@@ -29,7 +32,10 @@ public class ProductoService {
     public Producto actualizar(Long id, Producto productoDetalles) {
         Producto producto = obtenerPorId(id);
         producto.setNombre(productoDetalles.getNombre());
-        producto.setCodigoBarras(productoDetalles.getCodigoBarras());
+
+        String codigo = productoDetalles.getCodigoBarras();
+        producto.setCodigoBarras((codigo != null && codigo.trim().isEmpty()) ? null : codigo);
+
         producto.setDescripcion(productoDetalles.getDescripcion());
         producto.setStock(productoDetalles.getStock());
         producto.setPrecioVenta(productoDetalles.getPrecioVenta());

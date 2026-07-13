@@ -46,7 +46,8 @@ export class ProductoFormComponent implements OnInit {
     availableDevices: MediaDeviceInfo[] = [];
     currentDevice: MediaDeviceInfo | undefined;
     hasDevices = false;
-    hasPermission = false;
+    hasPermission: boolean | null = null;
+    scanError: string = '';
 
     constructor(
         private productoService: ProductoService,
@@ -100,13 +101,33 @@ export class ProductoFormComponent implements OnInit {
         this.showScannerHelp = !this.showScannerHelp;
     }
 
+    reloadScanner() {
+        this.showScanner = false;
+        this.scanError = '';
+        this.hasPermission = null;
+        this.currentDevice = undefined; // Force fresh device selection
+        // Increase timeout to ensure camera resource is typically released by browser
+        setTimeout(() => {
+            this.showScanner = true;
+        }, 1000);
+    }
+
+    onPermissionResponse(permission: boolean) {
+        this.hasPermission = permission;
+        if (!permission) {
+            this.scanError = 'Permiso de cámara denegado. Por favor permite el acceso y recarga.';
+        }
+    }
+
     onCamerasFound(devices: MediaDeviceInfo[]) {
         this.availableDevices = devices;
         this.hasDevices = Boolean(devices && devices.length);
 
         // Auto-select the first device (usually back camera on mobile or webcam on laptop)
-        if (this.hasDevices) {
-            this.currentDevice = devices[0];
+        if (this.hasDevices && !this.currentDevice) {
+            // Prioritize Iriun if found, for this specific user request
+            const iriun = devices.find(d => d.label.toLowerCase().includes('iriun'));
+            this.currentDevice = iriun || devices[0];
         }
     }
 
@@ -116,8 +137,15 @@ export class ProductoFormComponent implements OnInit {
     }
 
     onScanError(error: any) {
-        console.error(error);
-        // Do not toast on every error as tryHarder causes many failed attempts before success
+        console.error('Scan Error:', error);
+        // Only show error if it's not a common "searching" error
+        if (error?.message && !error.message.includes('No MultiFormat Readers')) {
+            let msg = error.message || 'Error desconocido';
+            if (msg.includes('Could not start video source')) {
+                msg = 'La cámara está ocupada. IMPORTANTE: Cierra la ventana del programa Iriun en tu PC (la que muestra el video) y dale a Recargar.';
+            }
+            this.scanError = 'Error: ' + msg;
+        }
     }
 
     handleScanSuccess(resultString: string) {

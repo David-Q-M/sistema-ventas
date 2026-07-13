@@ -19,6 +19,9 @@ public class UsuarioService {
     @Autowired
     private RolRepository rolRepo;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     public List<Usuario> listar() {
         return usuarioRepo.findAll();
     }
@@ -27,7 +30,7 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNombreCompleto(dto.getNombreCompleto());
         usuario.setUsername(dto.getUsername());
-        usuario.setPassword(dto.getPassword()); // En prod usar BCrypt
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         usuario.setActivo(true);
 
         Rol rol = rolRepo.findByNombre(dto.getRolNombre())
@@ -46,7 +49,7 @@ public class UsuarioService {
         usuario.setNombreCompleto(dto.getNombreCompleto());
         usuario.setUsername(dto.getUsername());
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            usuario.setPassword(dto.getPassword());
+            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         Rol rol = rolRepo.findByNombre(dto.getRolNombre())

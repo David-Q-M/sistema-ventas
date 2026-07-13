@@ -19,13 +19,15 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         Usuario user = usuarioRepo.findByUsername(request.get("username"))
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        org.springframework.security.crypto.password.PasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-        if (encoder.matches(request.get("password"), user.getPassword())) {
+        if (passwordEncoder.matches(request.get("password"), user.getPassword())) {
             String token = jwtUtil.generateToken(user.getUsername(), user.getRol().getNombre());
             return ResponseEntity.ok(Map.of(
                     "token", token,

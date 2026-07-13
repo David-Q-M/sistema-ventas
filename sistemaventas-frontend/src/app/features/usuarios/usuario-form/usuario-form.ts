@@ -47,7 +47,7 @@ export class UsuarioFormComponent implements OnInit {
                         id: data.id,
                         nombreCompleto: data.nombreCompleto,
                         username: data.username,
-                        password: '', // Don't show password
+                        password: '',
                         rolNombre: data.rol.nombre,
                         activo: data.activo
                     };
