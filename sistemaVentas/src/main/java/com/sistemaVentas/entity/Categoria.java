@@ -10,7 +10,7 @@ import lombok.Data;
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "El nombre de la categoría es obligatorio")
     @Column(unique = true, nullable = false)

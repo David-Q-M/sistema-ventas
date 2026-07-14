@@ -26,6 +26,14 @@
                 <i class="icon">🛒</i> Ventas
             </a>
 
+            <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item">
+                <i class="icon">🤝</i> Proveedores
+            </a>
+
+            <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active" class="nav-item">
+                <i class="icon">📋</i> Registrar Compra
+            </a>
+
             <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-item">
                 <i class="icon">📊</i> Reportes
             </a>

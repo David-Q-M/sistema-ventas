@@ -1,30 +1,114 @@
 <div class="login-container">
-  <div class="login-card card">
-    <div class="login-header">
-      <h2 class="text-center">Sistema Ventas</h2>
-      <p class="text-center text-muted">Ingresa a tu cuenta</p>
+  <!-- Background Image Overlay -->
+  <div class="background-overlay"></div>
+
+  <!-- Decorative screen footer icons -->
+  <div class="screen-footer-icons">
+    <span class="icon-btn">⚙️</span>
+    <span class="icon-btn">🚪</span>
+  </div>
+
+  <!-- Glassmorphic Card -->
+  <div class="login-card">
+    <!-- Card header decorative icons -->
+    <div class="card-decor-header">
+      <span class="decor-icon">🛒</span>
+      <span class="decor-icon">🚪</span>
     </div>
 
+    <!-- Glowing Neon Z logo -->
+    <div class="neon-logo-container">
+      <svg class="neon-z-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Outer Glow Pink -->
+          <filter id="glow-pink" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur1" />
+            <feGaussianBlur stdDeviation="15" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <!-- Outer Glow Cyan -->
+          <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur1" />
+            <feGaussianBlur stdDeviation="8" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        
+        <!-- Thick Base Pink Glow -->
+        <path class="neon-path base-pink" d="M 25 30 C 35 20, 65 20, 75 30 C 85 40, 15 80, 25 90 C 35 100, 65 100, 75 90" 
+              fill="none" stroke="#ec4899" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-pink)" />
+              
+        <!-- Thick Base Cyan Glow -->
+        <path class="neon-path base-cyan" d="M 25 30 C 35 20, 65 20, 75 30 C 85 40, 15 80, 25 90 C 35 100, 65 100, 75 90" 
+              fill="none" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-cyan)" />
+
+        <!-- Fiber 1 (Flowing Cyan) -->
+        <path class="neon-path fiber-cyan-1" d="M 23 32 C 33 22, 63 22, 73 32 C 83 42, 13 82, 23 92 C 33 102, 63 102, 73 92" 
+              fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- Fiber 2 (Flowing Pink) -->
+        <path class="neon-path fiber-pink-1" d="M 27 28 C 37 18, 67 18, 77 28 C 87 38, 17 78, 27 88 C 37 98, 67 98, 77 88" 
+              fill="none" stroke="#ff007f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- Fiber 3 (Flowing White Core) -->
+        <path class="neon-path fiber-white" d="M 25 30 C 35 20, 65 20, 75 30 C 85 40, 15 80, 25 90 C 35 100, 65 100, 75 90" 
+              fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- Fiber 4 (Flowing Light Cyan) -->
+        <path class="neon-path fiber-cyan-2" d="M 25 29 C 35 19, 65 19, 75 29 C 85 39, 15 79, 25 89 C 35 99, 65 99, 75 89" 
+              fill="none" stroke="#e0f2fe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+
+    <!-- Login Header -->
+    <div class="login-header text-center">
+      <h2>Minimarket Z</h2>
+      <p class="text-muted">Ingresa a tu cuenta</p>
+    </div>
+
+    <!-- Form -->
     <form (ngSubmit)="onSubmit()">
+      <!-- User Input Group -->
       <div class="form-group">
         <label class="form-label">Usuario</label>
-        <input type="text" class="form-control" [(ngModel)]="credentials.username" name="username" required
-          placeholder="admin" autocomplete="username">
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input type="text" class="form-control" [(ngModel)]="credentials.username" name="username" required
+            placeholder="admin" autocomplete="username">
+        </div>
       </div>
 
+      <!-- Password Input Group -->
       <div class="form-group">
         <label class="form-label">Contraseña</label>
-        <input type="password" class="form-control" [(ngModel)]="credentials.password" name="password" required
-          placeholder="••••••" autocomplete="current-password">
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-control" [(ngModel)]="credentials.password" name="password" required
+            placeholder="••••••" autocomplete="current-password">
+        </div>
       </div>
 
-      <div *ngIf="error" class="alert alert-danger">
+      <!-- Error Alert -->
+      <div *ngIf="error" class="alert alert-danger text-center">
         {{ error }}
       </div>
 
-      <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-login w-100" [disabled]="loading">
         <span *ngIf="!loading">Ingresar</span>
-        <span *ngIf="loading">Cargando...</span>
+        <span *ngIf="loading" class="spinner-container">
+          <span class="spinner-dot"></span>
+          <span class="spinner-dot"></span>
+          <span class="spinner-dot"></span>
+        </span>
       </button>
     </form>
   </div>

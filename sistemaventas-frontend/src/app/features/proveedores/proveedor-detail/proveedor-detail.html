@@ -1,0 +1,96 @@
+<div class="proveedor-detail-container" *ngIf="proveedor">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="title-area">
+            <h2>👥 Ficha Detallada del Proveedor</h2>
+            <p>Información de contacto, compras e inventario suministrado</p>
+        </div>
+        <button class="btn btn-secondary" routerLink="/proveedores">⬅️ Regresar</button>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="detail-layout">
+        <!-- Left Side: Profile Card -->
+        <div class="card profile-card">
+            <div class="avatar-area">
+                <div class="provider-avatar">🏢</div>
+                <h3>{{ proveedor.nombre }}</h3>
+                <span class="badge" [ngClass]="proveedor.activo ? 'badge-success' : 'badge-danger'">
+                    {{ proveedor.activo ? 'ACTIVO' : 'INACTIVO' }}
+                </span>
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="detail-label">RUC</span>
+                    <span class="detail-value">{{ proveedor.ruc || 'No registrado' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Persona de Contacto</span>
+                    <span class="detail-value">{{ proveedor.contacto || 'No registrado' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Teléfono</span>
+                    <span class="detail-value">{{ proveedor.telefono || 'No registrado' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Dirección Completa</span>
+                    <span class="detail-value">{{ proveedor.direccion || 'No registrada' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Correo Electrónico</span>
+                    <span class="detail-value">{{ proveedor.email || 'No registrado' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Stats & Catalog -->
+        <div class="main-stats-area">
+            <!-- Stats Panel Cards -->
+            <div class="stats-panel card">
+                <div class="panel-stat">
+                    <span class="panel-label">última orden de Compra</span>
+                    <span class="panel-value">{{ proveedor.ultimaOrden || 'Ninguna' }}</span>
+                </div>
+                <div class="panel-stat">
+                    <span class="panel-label">Monto total comprado</span>
+                    <span class="panel-value text-primary">S/. {{ proveedor.montoTotal | number:'1.2-2' }}</span>
+                </div>
+                <div class="panel-stat">
+                    <span class="panel-label">Días Promedio de Pago</span>
+                    <span class="panel-value">{{ proveedor.diasPago || 0 }}</span>
+                </div>
+            </div>
+
+            <!-- Supplied Products Catalog -->
+            <div class="catalog-section">
+                <h3>📦 Productos Suministrados por el Proveedor</h3>
+                
+                <div class="products-grid" *ngIf="productosSuministrados.length > 0">
+                    <div class="product-card card" *ngFor="let prod of productosSuministrados">
+                        <div class="prod-image-wrapper">
+                            <img [src]="prod.urlImagen || 'assets/placeholder.png'" [alt]="prod.nombre" onerror="this.src='https://placehold.co/150x150?text=Producto'" />
+                        </div>
+                        <div class="prod-info">
+                            <span class="prod-category">{{ prod.categoria?.nombre || 'General' }}</span>
+                            <h4 class="prod-title">{{ prod.nombre }}</h4>
+                            <p class="prod-desc">{{ prod.descripcion || 'Sin descripción' }}</p>
+                            <div class="prod-footer">
+                                <span class="prod-price">S/. {{ prod.precioVenta | number:'1.2-2' }} <small>x Und</small></span>
+                                <span class="prod-stock" [ngClass]="prod.stock > 10 ? 'text-success' : 'text-danger'">Stock: {{ prod.stock }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="no-products-alert card" *ngIf="productosSuministrados.length === 0">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <h4>Sin productos asociados</h4>
+                        <p>Este proveedor aún no cuenta con productos asignados en el inventario. Puedes asociar productos a este proveedor editando los productos existentes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

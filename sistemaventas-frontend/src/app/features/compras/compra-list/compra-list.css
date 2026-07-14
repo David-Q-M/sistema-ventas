@@ -1,0 +1,144 @@
+.compras-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-area h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+.title-area p {
+    margin: 0.25rem 0 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.list-section {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.filters-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-bar {
+    position: relative;
+    width: 350px;
+    max-width: 100%;
+}
+
+.search-bar input {
+    padding-right: 2.25rem;
+}
+
+.search-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.filter-dropdown select {
+    width: 240px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.bold {
+    font-weight: 700;
+}
+
+/* Modal styling expansion */
+.modal-lg {
+    width: 800px;
+    max-width: 95%;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    background-color: #f9fafb;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.grid-item strong {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.grid-item span {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.items-list-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.items-list-section h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.observation-box {
+    margin-top: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    background-color: #fffbeb;
+    border-left: 4px solid #f59e0b;
+}
+
+.observation-box strong {
+    font-size: 0.85rem;
+    color: #b45309;
+}
+
+.observation-box p {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #78350f;
+}
+
+.status-actions-footer {
+    display: flex;
+    gap: 0.5rem;
+    margin-right: auto;
+}

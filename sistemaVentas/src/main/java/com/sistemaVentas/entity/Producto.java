@@ -27,6 +27,10 @@ public class Producto {
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
+    @ManyToOne
+    @JoinColumn(name = "proveedor_id")
+    private Proveedor proveedor;
+
     @Column(unique = true, name = "codigo_barras")
     private String codigoBarras;
 

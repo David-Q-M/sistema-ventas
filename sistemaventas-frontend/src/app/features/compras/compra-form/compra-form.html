@@ -1,0 +1,191 @@
+<div class="compra-form-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="title-area">
+            <h2>📋 Registrar Nueva Orden de pedido</h2>
+            <p>Genera pedidos y actualiza el stock automáticamente al registrar la compra</p>
+        </div>
+        <button class="btn btn-secondary" routerLink="/compras">⬅️ Regresar</button>
+    </div>
+
+    <!-- Main Layout Grid -->
+    <div class="form-layout">
+        <!-- Left Side: Identification and Contact Card -->
+        <div class="card id-contact-card">
+            <h3>Identificación y contacto</h3>
+            
+            <div class="form-group">
+                <label>Proveedor *</label>
+                <select [(ngModel)]="selectedProveedor" (change)="onProveedorChange()" class="form-control">
+                    <option [value]="null" disabled selected>Seleccione un Proveedor</option>
+                    <option *ngFor="let p of proveedores" [ngValue]="p">{{ p.nombre }}</option>
+                </select>
+            </div>
+
+            <!-- Contact info card -->
+            <div class="info-block contact-block" *ngIf="selectedProveedor">
+                <h4>Contacto Directo</h4>
+                <p><strong>Persona:</strong> {{ selectedProveedor.contacto || 'Sin contacto' }}</p>
+                <p><strong>Teléfono 1:</strong> {{ selectedProveedor.telefono || 'Sin teléfono' }}</p>
+                <p><strong>Teléfono 2:</strong> No registrado</p>
+            </div>
+
+            <div class="form-group">
+                <label>Método de pedido</label>
+                <select [(ngModel)]="metodoPedidoSeleccionado" class="form-control">
+                    <option *ngFor="let m of metodosPedido" [value]="m">{{ m }}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Método de Pago</label>
+                <select [(ngModel)]="metodoPagoSeleccionado" class="form-control">
+                    <option *ngFor="let mp of metodosPago" [value]="mp">{{ mp }}</option>
+                </select>
+            </div>
+
+            <!-- General info block -->
+            <div class="info-block general-block" *ngIf="selectedProveedor">
+                <h4>Información General</h4>
+                <p class="bold">{{ selectedProveedor.nombre }}</p>
+                <p>Contacto: {{ selectedProveedor.contacto || 'N/A' }}</p>
+                <p>RUC: {{ selectedProveedor.ruc || 'N/A' }}</p>
+                <p>Correo: {{ selectedProveedor.email || 'N/A' }}</p>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de Pedido</label>
+                <input type="date" [(ngModel)]="fechaPedido" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha Estimada de Entrega</label>
+                <input type="date" [(ngModel)]="fechaEntrega" class="form-control" />
+            </div>
+        </div>
+
+        <!-- Right Side: Order Items Building Card -->
+        <div class="card order-build-card">
+            <h3>Construcción de la orden de Pedido</h3>
+            
+            <div class="catalog-header" *ngIf="selectedProveedor">
+                <span class="subtext">Catálogo de {{ selectedProveedor.nombre }}</span>
+            </div>
+
+            <!-- Filter box to search products -->
+            <div class="catalog-filters form-row">
+                <div class="form-group col-8">
+                    <input type="text" [(ngModel)]="productSearchTerm" (input)="filterProductos()" placeholder="Buscar producto por nombre o código..." class="form-control" />
+                </div>
+                <div class="form-group col-4">
+                    <select [(ngModel)]="selectedCategoriaId" (change)="filterProductos()" class="form-control">
+                        <option value="">Categorías (Todas)</option>
+                        <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Selected items list table -->
+            <div class="items-table-section">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>PRODUCTO</th>
+                            <th width="100">CANTIDAD</th>
+                            <th width="120">COSTO PACTADO</th>
+                            <th width="120">SUBTOTAL</th>
+                            <th>OBSERVACION ITEM</th>
+                            <th width="60">ACCION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of detalles; let i = index">
+                            <td>{{ item.producto.nombre }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>S/. {{ item.precioCosto | number:'1.2-2' }}</td>
+                            <td>S/. {{ item.subtotal | number:'1.2-2' }}</td>
+                            <td>{{ item.observacion || '-' }}</td>
+                            <td>
+                                <button class="btn-icon text-danger" (click)="removeItem(i)">🗑️</button>
+                            </td>
+                        </tr>
+
+                        <!-- Interactive Row to Add New Item -->
+                        <tr class="add-row">
+                            <td>
+                                <select id="prodAddSelect" (change)="onProductSelectForAdd($event)" class="form-control form-control-sm">
+                                    <option value="" disabled selected>Seleccione un Producto</option>
+                                    <option *ngFor="let p of filteredProductos" [value]="p.id">{{ p.nombre }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" [(ngModel)]="cantidadForAdd" class="form-control form-control-sm" placeholder="Cant" />
+                            </td>
+                            <td>
+                                <input type="number" [(ngModel)]="precioCostoForAdd" class="form-control form-control-sm" placeholder="Costo S/." />
+                            </td>
+                            <td>
+                                <span class="subtotal-calc" *ngIf="cantidadForAdd && precioCostoForAdd">S/. {{ (cantidadForAdd * precioCostoForAdd) | number:'1.2-2' }}</span>
+                                <span class="subtotal-calc" *ngIf="!cantidadForAdd || !precioCostoForAdd">S/. 0.00</span>
+                            </td>
+                            <td>
+                                <input type="text" [(ngModel)]="observacionForAdd" class="form-control form-control-sm" placeholder="Lote, empaque, etc." />
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" (click)="addItem()" title="Añadir Item">+</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Observation text area -->
+            <div class="form-group">
+                <label>Observaciones de la compra</label>
+                <textarea [(ngModel)]="observacionGeneral" class="form-control" rows="3" placeholder="Comentarios generales de la orden..."></textarea>
+            </div>
+
+            <!-- Big total label -->
+            <div class="total-row">
+                <span class="total-label">Monto Total Pedido:</span>
+                <span class="total-value text-primary">S/. {{ montoTotal | number:'1.2-2' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="footer-actions">
+        <button class="btn btn-secondary" routerLink="/compras">Cancelar</button>
+        <button class="btn btn-success" (click)="generarPedido()" [disabled]="detalles.length === 0">💾 Generar Pedido</button>
+    </div>
+</div>
+
+<!-- Modal: Compra Registrada con Éxito -->
+<div class="modal-overlay" *ngIf="showSuccessModal && createdCompraInfo">
+    <div class="modal-card success-modal">
+        <div class="modal-body text-center">
+            <div class="success-icon">✔️</div>
+            <h2>Compra Registrada con Éxito</h2>
+            <p>La recepción de mercadería y el stock se han actualizado en el sistema.</p>
+            
+            <div class="summary-card">
+                <div class="summary-item">
+                    <span class="summary-label">Código de Compra:</span>
+                    <span class="summary-val bold">{{ createdCompraInfo.codigo }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Monto Total Guardado:</span>
+                    <span class="summary-val bold text-primary">S/. {{ createdCompraInfo.montoTotal | number:'1.2-2' }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Total Unidades Ingresadas:</span>
+                    <span class="summary-val bold">{{ createdCompraInfo.totalUnidades }}</span>
+                </div>
+                <span class="badge badge-success mt-2">STOCK ACTUALIZADO</span>
+            </div>
+        </div>
+        <div class="modal-footer justify-center">
+            <button class="btn btn-primary" (click)="irAInventario()">Ir al Inventario (Ver Stock)</button>
+        </div>
+    </div>
+</div>

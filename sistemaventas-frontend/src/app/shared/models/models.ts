@@ -26,6 +26,7 @@ export interface Producto {
     precioVenta: number;
     urlImagen: string;
     categoria?: Categoria;
+    proveedor?: Proveedor;
     fechaCreacion?: string;
 }
 
@@ -73,4 +74,42 @@ export interface VentaDTO {
     clienteNombre?: string;
     clienteDocumento?: string;
     clienteDireccion?: string;
+}
+
+export interface Proveedor {
+    id?: number;
+    nombre: string;
+    ruc?: string;
+    contacto?: string;
+    telefono?: string;
+    direccion?: string;
+    categoria?: string;
+    email?: string;
+    activo: boolean;
+    ultimaOrden?: string;
+    montoTotal?: number;
+    diasPago?: number;
+}
+
+export interface DetalleCompra {
+    id?: number;
+    producto: Producto;
+    cantidad: number;
+    precioCosto: number;
+    subtotal: number;
+    observacion?: string;
+}
+
+export interface Compra {
+    id?: number;
+    codigo?: string;
+    proveedor: Proveedor;
+    fechaPedido: string;
+    fechaEntrega?: string;
+    metodoPedido?: string;
+    estadoPago?: string;
+    montoTotal: number;
+    estado: 'PENDIENTE' | 'RECIBIDO' | 'CANCELADO';
+    observacion?: string;
+    detalles: DetalleCompra[];
 }

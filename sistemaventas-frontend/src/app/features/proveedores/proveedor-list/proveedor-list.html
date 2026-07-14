@@ -1,0 +1,216 @@
+<div class="proveedores-container">
+    <!-- Header -->
+    <div class="header-section">
+        <div class="title-area">
+            <h2>👥 Gestión de Proveedores</h2>
+            <p>Administra tus proveedores, contactos y órdenes</p>
+        </div>
+        <button class="btn btn-primary" (click)="openAddModal()">➕ Nuevo Proveedor</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-layout">
+        <!-- Providers Table Section -->
+        <div class="table-section card">
+            <div class="search-bar">
+                <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Buscar Proveedor..." class="form-control" />
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>PROVEEDOR</th>
+                            <th>CONTACTO</th>
+                            <th>ESTADO</th>
+                            <th>ULTIMA ORDEN</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of filteredProveedores">
+                            <td>
+                                <a [routerLink]="['/proveedores/detalle', p.id]" class="provider-link">
+                                    <strong>{{ p.nombre }}</strong>
+                                </a>
+                                <div class="subtext">RUC: {{ p.ruc || 'N/A' }}</div>
+                            </td>
+                            <td>
+                                {{ p.contacto || 'Sin contacto' }}
+                                <div class="subtext">{{ p.telefono || '' }}</div>
+                            </td>
+                            <td>
+                                <span class="badge" [ngClass]="p.activo ? 'badge-success' : 'badge-danger'">
+                                    {{ p.activo ? 'ACTIVO' : 'INACTIVO' }}
+                                </span>
+                            </td>
+                            <td>{{ p.ultimaOrden || 'Sin órdenes' }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-icon text-primary" (click)="openEditModal(p)" title="Editar">✏️</button>
+                                    <button class="btn-icon text-danger" (click)="deleteProveedor(p.id!)" title="Eliminar">🗑️</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredProveedores.length === 0">
+                            <td colspan="5" class="text-center">No se encontraron proveedores.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sidebar Stats Section -->
+        <div class="stats-sidebar">
+            <div class="card stat-card">
+                <div class="stat-icon bg-primary-light">👥</div>
+                <div class="stat-info">
+                    <span class="stat-label">TOTAL PROVEEDORES</span>
+                    <span class="stat-value">{{ totalProviders }}</span>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-icon bg-success-light">✅</div>
+                <div class="stat-info">
+                    <span class="stat-label">ACTIVOS</span>
+                    <span class="stat-value text-success">{{ activeCount }}</span>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-icon bg-danger-light">❌</div>
+                <div class="stat-info">
+                    <span class="stat-label">INACTIVOS</span>
+                    <span class="stat-value text-danger">{{ inactiveCount }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Añadir Nuevo Proveedor -->
+<div class="modal-overlay" *ngIf="showAddModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Añadir Nuevo Proveedor</h3>
+            <button class="btn-close" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label>Nombre del Proveedor *</label>
+                    <input type="text" [(ngModel)]="formModel.nombre" class="form-control" placeholder="Ej. Almacenes Juana S.R.L." />
+                </div>
+                <div class="form-group col-6">
+                    <label>RUC</label>
+                    <input type="text" [(ngModel)]="formModel.ruc" class="form-control" placeholder="Ej. 20101234567" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label>Persona de contacto</label>
+                    <input type="text" [(ngModel)]="formModel.contacto" class="form-control" placeholder="Nombre de contacto" />
+                </div>
+                <div class="form-group col-6">
+                    <label>Número de Teléfono</label>
+                    <input type="text" [(ngModel)]="formModel.telefono" class="form-control" placeholder="Ej. 98563214" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dirección Completa</label>
+                <input type="text" [(ngModel)]="formModel.direccion" class="form-control" placeholder="Av. Principal 123..." />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label>Categoría de Productos</label>
+                    <select [(ngModel)]="formModel.categoria" class="form-control">
+                        <option *ngFor="let cat of categoriesList" [value]="cat">{{ cat }}</option>
+                    </select>
+                </div>
+                <div class="form-group col-6">
+                    <label>Correo Electrónico</label>
+                    <input type="email" [(ngModel)]="formModel.email" class="form-control" placeholder="ejemplo@proveedor.com" />
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" (click)="saveProveedor()">Crear Proveedor</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Modificar Proveedor -->
+<div class="modal-overlay" *ngIf="showEditModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Modificar Proveedor: {{ formModel.nombre }}</h3>
+            <button class="btn-close" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group col-8">
+                    <label>Proveedor (RUC/Nombre)</label>
+                    <input type="text" [value]="(formModel.ruc ? formModel.ruc + ' - ' : '') + formModel.nombre" class="form-control" readonly />
+                </div>
+                <div class="form-group col-4">
+                    <label>Estado</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" [value]="true" [(ngModel)]="formModel.activo" /> ACTIVO
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" [value]="false" [(ngModel)]="formModel.activo" /> INACTIVO
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-6">
+                    <label>Nombre Comercial *</label>
+                    <input type="text" [(ngModel)]="formModel.nombre" class="form-control" />
+                </div>
+                <div class="form-group col-6">
+                    <label>Persona de Contacto</label>
+                    <input type="text" [(ngModel)]="formModel.contacto" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-4">
+                    <label>Teléfono 1</label>
+                    <input type="text" [(ngModel)]="formModel.telefono" class="form-control" />
+                </div>
+                <div class="form-group col-4">
+                    <label>Teléfono 2</label>
+                    <input type="text" class="form-control" placeholder="Opcional" />
+                </div>
+                <div class="form-group col-4">
+                    <label>Correo Electrónico</label>
+                    <input type="email" [(ngModel)]="formModel.email" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dirección</label>
+                <textarea [(ngModel)]="formModel.direccion" class="form-control" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" checked /> Notificar por correo electrónico
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" (click)="saveProveedor()">Guardar Cambios</button>
+        </div>
+    </div>
+</div>

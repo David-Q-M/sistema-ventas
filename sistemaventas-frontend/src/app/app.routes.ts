@@ -8,6 +8,10 @@ import { UsuarioListComponent } from './features/usuarios/usuario-list/usuario-l
 import { UsuarioFormComponent } from './features/usuarios/usuario-form/usuario-form';
 import { VentaComponent } from './features/ventas/venta/venta';
 import { ReportesComponent } from './features/reportes/reportes';
+import { ProveedorListComponent } from './features/proveedores/proveedor-list/proveedor-list';
+import { ProveedorDetailComponent } from './features/proveedores/proveedor-detail/proveedor-detail';
+import { CompraListComponent } from './features/compras/compra-list/compra-list';
+import { CompraFormComponent } from './features/compras/compra-form/compra-form';
 import { authGuard } from './core/guards/auth.guard';
 
 import { roleGuard } from './core/guards/role.guard';
@@ -57,6 +61,32 @@ export const routes: Routes = [
                 component: UsuarioFormComponent,
                 canActivate: [roleGuard],
                 data: { roles: ['ADMIN'] }
+            },
+
+            {
+                path: 'proveedores',
+                component: ProveedorListComponent,
+                canActivate: [roleGuard],
+                data: { roles: ['ADMIN'] }
+            },
+            {
+                path: 'proveedores/detalle/:id',
+                component: ProveedorDetailComponent,
+                canActivate: [roleGuard],
+                data: { roles: ['ADMIN'] }
+            },
+
+            {
+                path: 'compras',
+                component: CompraListComponent,
+                canActivate: [roleGuard],
+                data: { roles: ['ADMIN', 'ALMACENERO'] }
+            },
+            {
+                path: 'compras/nuevo',
+                component: CompraFormComponent,
+                canActivate: [roleGuard],
+                data: { roles: ['ADMIN', 'ALMACENERO'] }
             },
 
             {
