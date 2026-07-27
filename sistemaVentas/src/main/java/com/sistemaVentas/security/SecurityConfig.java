@@ -20,24 +20,8 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
-                                                .permitAll() // Permitir
-                                                             // Preflight
-                                                             // CORS
+                                                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                                                 .requestMatchers("/api/auth/**").permitAll()
-                                                .requestMatchers(org.springframework.http.HttpMethod.GET,
-                                                                "/api/productos/**")
-                                                .hasAnyAuthority("ADMIN", "ROLE_ADMIN", "ALMACENERO", "ROLE_ALMACENERO",
-                                                                "CAJERO",
-                                                                "ROLE_CAJERO")
-                                                .requestMatchers("/api/productos/**")
-                                                .hasAnyAuthority("ADMIN", "ROLE_ADMIN", "ALMACENERO", "ROLE_ALMACENERO")
-                                                .requestMatchers("/api/proveedores/**")
-                                                .hasAnyAuthority("ADMIN", "ROLE_ADMIN", "ALMACENERO", "ROLE_ALMACENERO")
-                                                .requestMatchers("/api/compras/**")
-                                                .hasAnyAuthority("ADMIN", "ROLE_ADMIN", "ALMACENERO", "ROLE_ALMACENERO")
-                                                .requestMatchers("/api/ventas/**")
-                                                .hasAnyAuthority("ADMIN", "ROLE_ADMIN", "CAJERO", "ROLE_CAJERO")
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 

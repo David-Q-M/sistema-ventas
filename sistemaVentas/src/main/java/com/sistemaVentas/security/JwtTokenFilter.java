@@ -30,16 +30,19 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String username = jwtUtil.getUsernameFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
 
-                System.out.println("Processing Request: " + request.getRequestURI());
-                System.out.println("Token Role Extracted: '" + role + "'");
+                List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+                if (role != null && !role.isBlank()) {
+                    String cleanRole = role.trim().toUpperCase();
+                    authorities.add(new SimpleGrantedAuthority(cleanRole));
+                    if (!cleanRole.startsWith("ROLE_")) {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + cleanRole));
+                    } else {
+                        authorities.add(new SimpleGrantedAuthority(cleanRole.substring(5)));
+                    }
+                }
 
-                List<SimpleGrantedAuthority> authorities = Collections
-                        .singletonList(new SimpleGrantedAuthority(role));
-
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null,
-                        authorities);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                System.out.println("Auth set for user: " + username + " with authorities: " + authorities);
             } else {
                 System.out.println("Invalid Token");
             }

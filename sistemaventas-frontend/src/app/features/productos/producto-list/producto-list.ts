@@ -183,7 +183,14 @@ export class ProductoListComponent implements OnInit {
         },
         error: (err) => {
           this.loadingService.hide();
-          const mensaje = err?.error?.message || err?.message || 'Error al eliminar producto';
+          let mensaje = 'Error al eliminar producto';
+          if (err?.error?.message) {
+            mensaje = err.error.message;
+          } else if (err?.status === 403) {
+            mensaje = 'No tienes permisos para eliminar este producto';
+          } else if (err?.status === 404) {
+            mensaje = 'El producto ya no existe en el sistema';
+          }
           this.toastService.show(mensaje, 'error');
         }
       });
