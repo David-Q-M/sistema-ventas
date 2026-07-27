@@ -224,34 +224,23 @@ export class ReportesComponent implements OnInit, OnDestroy {
     }
 
     exportToExcel() {
-
         let dataToExport = [...this.allVentas];
         const todayStr = new Date().toISOString().substring(0, 10);
 
+        let filterLabel = 'Todo el Historial';
         if (this.filterType === 'TODAY') {
             dataToExport = this.allVentas.filter(v => v.fechaVenta && v.fechaVenta.startsWith(todayStr));
+            filterLabel = `Ventas de Hoy (${todayStr})`;
         } else if (this.filterType === 'SPECIFIC' && this.specificDate) {
             dataToExport = this.allVentas.filter(v => v.fechaVenta && v.fechaVenta.startsWith(this.specificDate));
+            filterLabel = `Fecha (${this.specificDate})`;
         }
 
         if (dataToExport.length === 0) {
-            alert('No hay datos para exportar en el rango seleccionado.');
+            alert('No hay datos de ventas registrados para exportar en el rango seleccionado.');
             return;
         }
 
-
-        const excelData = dataToExport.map(v => {
-            return {
-                'ID Venta': v.id,
-                'Fecha': v.fechaVenta ? new Date(v.fechaVenta).toLocaleString() : '',
-                'Vendedor': v.usuario.username,
-                'Tipo Comprobante': v.tipoComprobante,
-                'Total ($)': v.total,
-                'Productos': v.detalles?.map(d => `${d.producto.nombre} (${d.cantidad})`).join(', ') || ''
-            };
-        });
-
-
-        this.excelService.exportAsExcelFile(excelData, 'reporte_ventas');
+        this.excelService.exportReporteVentas(dataToExport, filterLabel);
     }
 }
