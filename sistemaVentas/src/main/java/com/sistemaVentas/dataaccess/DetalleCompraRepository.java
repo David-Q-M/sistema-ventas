@@ -6,4 +6,6 @@ import com.sistemaVentas.entity.DetalleCompra;
 
 @Repository
 public interface DetalleCompraRepository extends JpaRepository<DetalleCompra, Long> {
+    boolean existsByProductoId(Long productoId);
 }
+

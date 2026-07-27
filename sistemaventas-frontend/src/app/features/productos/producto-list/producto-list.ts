@@ -181,11 +181,13 @@ export class ProductoListComponent implements OnInit {
           this.toastService.show('Producto eliminado correctamente', 'success');
           this.loadProductos();
         },
-        error: () => {
+        error: (err) => {
           this.loadingService.hide();
-          this.toastService.show('Error al eliminar producto', 'error');
+          const mensaje = err?.error?.message || err?.message || 'Error al eliminar producto';
+          this.toastService.show(mensaje, 'error');
         }
       });
     }
   }
+
 }
