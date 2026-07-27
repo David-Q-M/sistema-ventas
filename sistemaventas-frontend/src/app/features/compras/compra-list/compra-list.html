@@ -1,163 +1,197 @@
 <div class="compras-container">
-    <!-- Header Section -->
-    <div class="header-section">
-        <div class="title-area">
-            <h2>📋 Lista de ordenes de Pedido</h2>
-            <p>Administra tus pedidos e ingresos de inventario</p>
-        </div>
-        <button class="btn btn-primary" routerLink="/compras/nuevo">➕ Nueva Orden de Pedido</button>
+  <!-- Page Header Card -->
+  <div class="page-header-card">
+    <div class="page-header-title">
+      <div class="page-header-icon">
+        <i class="bi bi-journal-text"></i>
+      </div>
+      <div>
+        <h2>RF27 - Historial de Compras</h2>
+        <p>Administra y consulta tus órdenes de pedido e inventario registrado</p>
+      </div>
     </div>
+    <button class="btn btn-primary" routerLink="/compras/nuevo">
+      <i class="bi bi-plus-lg"></i> Registrar Compra
+    </button>
+  </div>
 
-    <!-- Filter and List Section -->
-    <div class="list-section card">
-        <div class="filters-row">
-            <div class="search-bar">
-                <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Buscar Proveedor o Código..." class="form-control" />
-                <span class="search-icon">🔍</span>
-            </div>
-            <div class="filter-dropdown">
-                <select [(ngModel)]="selectedEstado" (change)="filterList()" class="form-control">
-                    <option value="">Filtrar por Estado (Todos)</option>
-                    <option value="PENDIENTE">PENDIENTE</option>
-                    <option value="RECIBIDO">RECIBIDO</option>
-                    <option value="CANCELADO">CANCELADO</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>CÓDIGO ORDEN</th>
-                        <th>PROVEEDOR</th>
-                        <th>FECHA PEDIDO</th>
-                        <th>ESTADO PAGO</th>
-                        <th>MONTO TOTAL PACTADO</th>
-                        <th>ESTADO</th>
-                        <th>ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let c of filteredCompras">
-                        <td><strong>{{ c.codigo }}</strong></td>
-                        <td>{{ c.proveedor.nombre }}</td>
-                        <td>{{ c.fechaPedido }}</td>
-                        <td>{{ c.estadoPago || 'Contado' }}</td>
-                        <td>S/. {{ c.montoTotal | number:'1.2-2' }}</td>
-                        <td>
-                            <span class="badge" [ngClass]="{
-                                'badge-warning': c.estado === 'PENDIENTE',
-                                'badge-success': c.estado === 'RECIBIDO',
-                                'badge-danger': c.estado === 'CANCELADO'
-                            }">
-                                {{ c.estado }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-icon text-primary" (click)="showDetails(c)" title="Ver Detalles">👁️</button>
-                                <button *ngIf="c.estado === 'PENDIENTE'" class="btn-icon text-success" (click)="changeEstado(c, 'RECIBIDO')" title="Marcar como Recibido">✔️</button>
-                                <button *ngIf="c.estado === 'PENDIENTE'" class="btn-icon text-danger" (click)="changeEstado(c, 'CANCELADO')" title="Cancelar Orden">❌</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr *ngIf="filteredCompras.length === 0">
-                        <td colspan="7" class="text-center">No se encontraron órdenes de pedido.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+  <!-- Filter Card (Matching exact design reference) -->
+  <div class="card filter-card">
+    <div class="card-header-title">
+      <i class="bi bi-funnel-fill text-primary"></i>
+      <h3>Filtros de Búsqueda</h3>
     </div>
+    <div class="filter-grid">
+      <div class="form-group">
+        <label class="form-label">Buscar / Proveedor</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Proveedor o Código..." class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado de Compra</label>
+        <select [(ngModel)]="selectedEstado" (change)="filterList()" class="form-control">
+          <option value="">Todas las compras</option>
+          <option value="RECIBIDO">Recibida</option>
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="CANCELADO">Cancelada</option>
+        </select>
+      </div>
+      <div class="form-group filter-btn-group">
+        <button class="btn btn-primary btn-search" (click)="filterList()">
+          <i class="bi bi-search"></i> Buscar / Filtrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Card (Matching reference image table section) -->
+  <div class="card results-card">
+    <div class="card-header-title">
+      <i class="bi bi-bar-chart-fill text-primary"></i>
+      <h3>Resultados del Historial</h3>
+    </div>
+    <p class="subtitle-text">Lista de Compras Registradas</p>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>CÓDIGO COMPRA</th>
+            <th>PROVEEDOR</th>
+            <th>FECHA EMISIÓN</th>
+            <th>ESTADO PAGO</th>
+            <th>MONTO TOTAL (S/.)</th>
+            <th>ESTADO</th>
+            <th>ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredCompras">
+            <td><strong>{{ c.codigo }}</strong></td>
+            <td>{{ c.proveedor.nombre }}</td>
+            <td>{{ c.fechaPedido }}</td>
+            <td>{{ c.estadoPago || 'Contado' }}</td>
+            <td class="fw-bold">S/. {{ c.montoTotal | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-pendiente': c.estado === 'PENDIENTE',
+                'badge-recibida': c.estado === 'RECIBIDO',
+                'badge-cancelada': c.estado === 'CANCELADO'
+              }">
+                {{ c.estado === 'RECIBIDO' ? 'RECIBIDA' : c.estado }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon" (click)="showDetails(c)" title="Ver Detalles">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button *ngIf="c.estado === 'PENDIENTE'" class="btn-icon text-success" (click)="changeEstado(c, 'RECIBIDO')" title="Marcar como Recibido">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button *ngIf="c.estado === 'PENDIENTE'" class="btn-icon text-danger" (click)="changeEstado(c, 'CANCELADO')" title="Cancelar Orden">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredCompras.length === 0">
+            <td colspan="7" class="text-center py-4 text-muted">No se encontraron órdenes de compra registradas.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- Modal: Detalles de la Orden de Pedido -->
 <div class="modal-overlay" *ngIf="selectedCompraDetalles">
-    <div class="modal-card modal-lg">
-        <div class="modal-header">
-            <h3>Detalles del Pedido: {{ selectedCompraDetalles.codigo }}</h3>
-            <button class="btn-close" (click)="closeDetails()">×</button>
-        </div>
-        <div class="modal-body">
-            <!-- Order Metadata Details -->
-            <div class="details-grid">
-                <div class="grid-item">
-                    <strong>Proveedor:</strong>
-                    <span>{{ selectedCompraDetalles.proveedor.nombre }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>RUC:</strong>
-                    <span>{{ selectedCompraDetalles.proveedor.ruc || 'N/A' }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>Fecha de Pedido:</strong>
-                    <span>{{ selectedCompraDetalles.fechaPedido }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>Fecha Est. Entrega:</strong>
-                    <span>{{ selectedCompraDetalles.fechaEntrega || 'No indicada' }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>Método de Pedido:</strong>
-                    <span>{{ selectedCompraDetalles.metodoPedido || 'N/A' }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>Método de Pago:</strong>
-                    <span>{{ selectedCompraDetalles.estadoPago || 'Contado' }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>Estado Actual:</strong>
-                    <span class="badge" [ngClass]="{
-                        'badge-warning': selectedCompraDetalles.estado === 'PENDIENTE',
-                        'badge-success': selectedCompraDetalles.estado === 'RECIBIDO',
-                        'badge-danger': selectedCompraDetalles.estado === 'CANCELADO'
-                    }">{{ selectedCompraDetalles.estado }}</span>
-                </div>
-                <div class="grid-item">
-                    <strong>Monto Total Pactado:</strong>
-                    <span class="text-primary bold">S/. {{ selectedCompraDetalles.montoTotal | number:'1.2-2' }}</span>
-                </div>
-            </div>
-
-            <!-- Items list -->
-            <div class="items-list-section">
-                <h4>Productos Solicitados</h4>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio Costo</th>
-                                <th>Subtotal</th>
-                                <th>Observación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let det of selectedCompraDetalles.detalles">
-                                <td>{{ det.producto.nombre }}</td>
-                                <td>{{ det.cantidad }}</td>
-                                <td>S/. {{ det.precioCosto | number:'1.2-2' }}</td>
-                                <td>S/. {{ det.subtotal | number:'1.2-2' }}</td>
-                                <td>{{ det.observacion || 'Ninguna' }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Observation Box -->
-            <div class="observation-box" *ngIf="selectedCompraDetalles.observacion">
-                <strong>Observaciones Generales:</strong>
-                <p>{{ selectedCompraDetalles.observacion }}</p>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div class="status-actions-footer" *ngIf="selectedCompraDetalles.estado === 'PENDIENTE'">
-                <button class="btn btn-success" (click)="changeEstado(selectedCompraDetalles, 'RECIBIDO')">Recibir Mercadería</button>
-                <button class="btn btn-danger" (click)="changeEstado(selectedCompraDetalles, 'CANCELADO')">Cancelar Pedido</button>
-            </div>
-            <button class="btn btn-secondary" (click)="closeDetails()">Cerrar</button>
-        </div>
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <h3>Detalles del Pedido: {{ selectedCompraDetalles.codigo }}</h3>
+      <button class="btn-close" (click)="closeDetails()">×</button>
     </div>
+    <div class="modal-body">
+      <!-- Order Metadata Details -->
+      <div class="details-grid">
+        <div class="grid-item">
+          <strong>Proveedor:</strong>
+          <span>{{ selectedCompraDetalles.proveedor.nombre }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>RUC:</strong>
+          <span>{{ selectedCompraDetalles.proveedor.ruc || 'N/A' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Fecha de Pedido:</strong>
+          <span>{{ selectedCompraDetalles.fechaPedido }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Fecha Est. Entrega:</strong>
+          <span>{{ selectedCompraDetalles.fechaEntrega || 'No indicada' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Método de Pedido:</strong>
+          <span>{{ selectedCompraDetalles.metodoPedido || 'N/A' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Método de Pago:</strong>
+          <span>{{ selectedCompraDetalles.estadoPago || 'Contado' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Estado Actual:</strong>
+          <span class="badge" [ngClass]="{
+            'badge-pendiente': selectedCompraDetalles.estado === 'PENDIENTE',
+            'badge-recibida': selectedCompraDetalles.estado === 'RECIBIDO',
+            'badge-cancelada': selectedCompraDetalles.estado === 'CANCELADO'
+          }">{{ selectedCompraDetalles.estado }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Monto Total Pactado:</strong>
+          <span class="text-primary fw-bold">S/. {{ selectedCompraDetalles.montoTotal | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Items list -->
+      <div class="items-list-section">
+        <h4>Productos Solicitados</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Costo</th>
+                <th>Subtotal</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let det of selectedCompraDetalles.detalles">
+                <td>{{ det.producto.nombre }}</td>
+                <td>{{ det.cantidad }}</td>
+                <td>S/. {{ det.precioCosto | number:'1.2-2' }}</td>
+                <td>S/. {{ det.subtotal | number:'1.2-2' }}</td>
+                <td>{{ det.observacion || 'Ninguna' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Observation Box -->
+      <div class="observation-box" *ngIf="selectedCompraDetalles.observacion">
+        <strong>Observaciones Generales:</strong>
+        <p>{{ selectedCompraDetalles.observacion }}</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="status-actions-footer" *ngIf="selectedCompraDetalles.estado === 'PENDIENTE'">
+        <button class="btn btn-success" (click)="changeEstado(selectedCompraDetalles, 'RECIBIDO')">Recibir Mercadería</button>
+        <button class="btn btn-danger" (click)="changeEstado(selectedCompraDetalles, 'CANCELADO')">Cancelar Pedido</button>
+      </div>
+      <button class="btn btn-secondary" (click)="closeDetails()">Cerrar</button>
+    </div>
+  </div>
 </div>

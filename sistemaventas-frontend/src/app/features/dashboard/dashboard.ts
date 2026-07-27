@@ -7,7 +7,6 @@ import { VentaService } from '../../core/services/venta.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { Venta, Producto } from '../../shared/models/models';
 
-
 Chart.register(...registerables);
 
 @Component({
@@ -19,34 +18,42 @@ Chart.register(...registerables);
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
-  // KPI Data
+  // KPI Metrics
   totalVentas: number = 0;
   totalProductos: number = 0;
   ventasHoy: number = 0;
   cantidadVentasHoy: number = 0;
 
-
+  // Data Collections
+  allSales: Venta[] = [];
+  salesTodayList: Venta[] = [];
   recentSales: Venta[] = [];
+  allProductos: Producto[] = [];
   lowStockProducts: Producto[] = [];
 
+  // Modal State Control
+  activeModal: 'ventasHoy' | 'totalProductos' | 'ingresosTotales' | 'alertasStock' | null = null;
+  modalSearchTerm: string = '';
 
+  // Chart Setup
   public lineChartData: ChartData<'line'> = {
     labels: [],
     datasets: [
       {
         data: [],
         label: 'Ventas (7 Días)',
-        backgroundColor: 'rgba(79, 70, 229, 0.2)',
-        borderColor: '#4f46e5',
-        pointBackgroundColor: '#4f46e5',
+        backgroundColor: 'rgba(25, 118, 210, 0.15)',
+        borderColor: '#1976D2',
+        pointBackgroundColor: '#0D47A1',
         pointBorderColor: '#fff',
         pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: '#4f46e5',
+        pointHoverBorderColor: '#1976D2',
         fill: true,
         tension: 0.4
       }
     ]
   };
+
   public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -57,8 +64,8 @@ export class DashboardComponent implements OnInit {
     },
     plugins: { legend: { display: false } }
   };
-  public lineChartType: ChartType = 'line';
 
+  public lineChartType: ChartType = 'line';
   userRole: string | null = '';
 
   constructor(
@@ -72,10 +79,10 @@ export class DashboardComponent implements OnInit {
   }
 
   loadDashboardData() {
-
     if (this.userRole !== 'ALMACENERO') {
       this.ventaService.getHistorial().subscribe({
         next: (ventas) => {
+          this.allSales = ventas;
           this.processSales(ventas);
         },
         error: (err) => {
@@ -84,12 +91,11 @@ export class DashboardComponent implements OnInit {
       });
     }
 
-
     this.productoService.getAll().subscribe({
       next: (productos) => {
+        this.allProductos = productos;
         this.totalProductos = productos.length;
-
-        this.lowStockProducts = productos.filter(p => p.stock < 10).slice(0, 5);
+        this.lowStockProducts = productos.filter(p => p.stock < 10);
       },
       error: (err) => console.error('Error loading products', err)
     });
@@ -102,30 +108,23 @@ export class DashboardComponent implements OnInit {
     const day = String(now.getDate()).padStart(2, '0');
     const today = `${year}-${month}-${day}`;
 
-
     this.totalVentas = ventas.reduce((acc, v) => acc + (v.total || 0), 0);
 
-
-    const salesToday = ventas.filter(v => {
+    this.salesTodayList = ventas.filter(v => {
       if (!v.fechaVenta) return false;
-
       const fechaVentaStr = v.fechaVenta.toString().substring(0, 10);
       return fechaVentaStr === today;
     });
 
-    this.cantidadVentasHoy = salesToday.length;
-    this.ventasHoy = salesToday.reduce((acc, v) => acc + (v.total || 0), 0);
+    this.cantidadVentasHoy = this.salesTodayList.length;
+    this.ventasHoy = this.salesTodayList.reduce((acc, v) => acc + (v.total || 0), 0);
 
-    // 4. Ventas Recientes (CRUD - Read)
-    // Ordenamos por fecha descendente y tomamos las últimas 5 para la tabla del dashboard
     this.recentSales = [...ventas]
       .sort((a, b) => new Date(b.fechaVenta).getTime() - new Date(a.fechaVenta).getTime())
       .slice(0, 5);
 
-    // 5. Preparación de Datos para el Gráfico (Últimos 7 días)
+    // Chart logic
     const last7DaysMap = new Map<string, number>();
-
-    // Inicializamos el mapa con los últimos 7 días en 0 para que no queden huecos en el gráfico
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
@@ -133,7 +132,6 @@ export class DashboardComponent implements OnInit {
       last7DaysMap.set(dateStr, 0);
     }
 
-    // Llenamos el mapa con los totales de las ventas que coincidan con esos días
     ventas.forEach(v => {
       if (v.fechaVenta) {
         const date = v.fechaVenta.toString().substring(0, 10);
@@ -143,21 +141,39 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // 6. Actualización del objeto de datos del gráfico (Chart.js)
     this.lineChartData = {
       labels: Array.from(last7DaysMap.keys()),
       datasets: [
         {
           data: Array.from(last7DaysMap.values()),
           label: 'Ventas Diarias ($)',
-          backgroundColor: 'rgba(79, 70, 229, 0.2)', // Color Indigo suave
-          borderColor: '#4f46e5', // Color Indigo sólido
-          pointBackgroundColor: '#4f46e5',
+          backgroundColor: 'rgba(25, 118, 210, 0.15)',
+          borderColor: '#1976D2',
+          pointBackgroundColor: '#0D47A1',
           pointBorderColor: '#fff',
           fill: true,
-          tension: 0.4 // Curvatura de la línea para un aspecto moderno
+          tension: 0.4
         }
       ]
     };
+  }
+
+  // Interactive Modal Handlers
+  openModal(type: 'ventasHoy' | 'totalProductos' | 'ingresosTotales' | 'alertasStock') {
+    this.activeModal = type;
+    this.modalSearchTerm = '';
+  }
+
+  closeModal() {
+    this.activeModal = null;
+  }
+
+  // Calculations for Modals
+  get totalStockValue(): number {
+    return this.allProductos.reduce((sum, p) => sum + ((p.precioVenta || 0) * (p.stock || 0)), 0);
+  }
+
+  get averageTicketSize(): number {
+    return this.allSales.length > 0 ? (this.totalVentas / this.allSales.length) : 0;
   }
 }

@@ -1,216 +1,360 @@
-<div class="proveedores-container">
-    <!-- Header -->
-    <div class="header-section">
-        <div class="title-area">
-            <h2>👥 Gestión de Proveedores</h2>
-            <p>Administra tus proveedores, contactos y órdenes</p>
+<div class="proveedores-container animate-fade-in">
+  <!-- Page Header Card -->
+  <div class="page-header-card">
+    <div class="page-header-title">
+      <div class="page-header-icon">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div>
+        <h2>Gestión de Proveedores</h2>
+        <p>Administra tu catálogo de proveedores, contactos y órdenes de compra</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="bi bi-plus-lg"></i> Nuevo Proveedor
+    </button>
+  </div>
+
+  <!-- Interactive Stat Cards Row (Unified Corporate Aesthetic) -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1: Total Proveedores -->
+    <div class="col-md-4">
+      <div class="kpi-card card-blue" [class.active-stat]="selectedStatusFilter === 'TODOS'" (click)="setStatusFilter('TODOS')" title="Haz clic para ver todos los proveedores">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Total Proveedores</span>
+            <h3 class="kpi-value">{{ totalProviders }}</h3>
+            <span class="kpi-badge badge-blue">
+              <i class="bi bi-people"></i> Registrados en sistema
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-blue">
+            <i class="bi bi-buildings-fill"></i>
+          </div>
         </div>
-        <button class="btn btn-primary" (click)="openAddModal()">➕ Nuevo Proveedor</button>
+        <div class="kpi-footer-hint">
+          <span>Ver todos ({{ totalProviders }})</span>
+          <i class="bi bi-arrow-right-short"></i>
+        </div>
+      </div>
     </div>
 
-    <!-- Main Content Area -->
-    <div class="main-layout">
-        <!-- Providers Table Section -->
-        <div class="table-section card">
-            <div class="search-bar">
-                <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Buscar Proveedor..." class="form-control" />
-                <span class="search-icon">🔍</span>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>PROVEEDOR</th>
-                            <th>CONTACTO</th>
-                            <th>ESTADO</th>
-                            <th>ULTIMA ORDEN</th>
-                            <th>ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let p of filteredProveedores">
-                            <td>
-                                <a [routerLink]="['/proveedores/detalle', p.id]" class="provider-link">
-                                    <strong>{{ p.nombre }}</strong>
-                                </a>
-                                <div class="subtext">RUC: {{ p.ruc || 'N/A' }}</div>
-                            </td>
-                            <td>
-                                {{ p.contacto || 'Sin contacto' }}
-                                <div class="subtext">{{ p.telefono || '' }}</div>
-                            </td>
-                            <td>
-                                <span class="badge" [ngClass]="p.activo ? 'badge-success' : 'badge-danger'">
-                                    {{ p.activo ? 'ACTIVO' : 'INACTIVO' }}
-                                </span>
-                            </td>
-                            <td>{{ p.ultimaOrden || 'Sin órdenes' }}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-icon text-primary" (click)="openEditModal(p)" title="Editar">✏️</button>
-                                    <button class="btn-icon text-danger" (click)="deleteProveedor(p.id!)" title="Eliminar">🗑️</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr *ngIf="filteredProveedores.length === 0">
-                            <td colspan="5" class="text-center">No se encontraron proveedores.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <!-- Card 2: Proveedores Activos -->
+    <div class="col-md-4">
+      <div class="kpi-card card-green" [class.active-stat]="selectedStatusFilter === 'ACTIVOS'" (click)="setStatusFilter('ACTIVOS')" title="Haz clic para filtrar solo activos">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Proveedores Activos</span>
+            <h3 class="kpi-value text-success">{{ activeCount }}</h3>
+            <span class="kpi-badge badge-green">
+              <i class="bi bi-check-circle"></i> Disponibles para compra
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-green">
+            <i class="bi bi-patch-check-fill"></i>
+          </div>
         </div>
-
-        <!-- Sidebar Stats Section -->
-        <div class="stats-sidebar">
-            <div class="card stat-card">
-                <div class="stat-icon bg-primary-light">👥</div>
-                <div class="stat-info">
-                    <span class="stat-label">TOTAL PROVEEDORES</span>
-                    <span class="stat-value">{{ totalProviders }}</span>
-                </div>
-            </div>
-
-            <div class="card stat-card">
-                <div class="stat-icon bg-success-light">✅</div>
-                <div class="stat-info">
-                    <span class="stat-label">ACTIVOS</span>
-                    <span class="stat-value text-success">{{ activeCount }}</span>
-                </div>
-            </div>
-
-            <div class="card stat-card">
-                <div class="stat-icon bg-danger-light">❌</div>
-                <div class="stat-info">
-                    <span class="stat-label">INACTIVOS</span>
-                    <span class="stat-value text-danger">{{ inactiveCount }}</span>
-                </div>
-            </div>
+        <div class="kpi-footer-hint">
+          <span>Filtrar activos ({{ activeCount }})</span>
+          <i class="bi bi-arrow-right-short"></i>
         </div>
+      </div>
     </div>
+
+    <!-- Card 3: Proveedores Inactivos -->
+    <div class="col-md-4">
+      <div class="kpi-card card-amber" [class.active-stat]="selectedStatusFilter === 'INACTIVOS'" (click)="setStatusFilter('INACTIVOS')" title="Haz clic para filtrar solo inactivos">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Proveedores Inactivos</span>
+            <h3 class="kpi-value text-danger">{{ inactiveCount }}</h3>
+            <span class="kpi-badge badge-amber">
+              <i class="bi bi-x-circle"></i> Deshabilitados
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-amber">
+            <i class="bi bi-building-dash"></i>
+          </div>
+        </div>
+        <div class="kpi-footer-hint">
+          <span>Filtrar inactivos ({{ inactiveCount }})</span>
+          <i class="bi bi-arrow-right-short"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Table Card Section -->
+  <div class="card filter-table-card">
+    <div class="filters-header-row">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Buscar por Nombre, RUC o Contacto..." class="form-control" />
+        <i class="bi bi-search search-icon"></i>
+      </div>
+
+      <div class="filter-controls">
+        <select [(ngModel)]="selectedCategoryFilter" (change)="filterList()" class="form-control category-select">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let cat of categoriesList" [value]="cat">{{ cat }}</option>
+        </select>
+
+        <div class="status-pills-group">
+          <button class="btn-pill" [class.active]="selectedStatusFilter === 'TODOS'" (click)="setStatusFilter('TODOS')">Todos</button>
+          <button class="btn-pill" [class.active]="selectedStatusFilter === 'ACTIVOS'" (click)="setStatusFilter('ACTIVOS')">Activos</button>
+          <button class="btn-pill" [class.active]="selectedStatusFilter === 'INACTIVOS'" (click)="setStatusFilter('INACTIVOS')">Inactivos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Responsive -->
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>PROVEEDOR / RUC</th>
+            <th>PERSONA DE CONTACTO</th>
+            <th>TELÉFONO / CORREO</th>
+            <th>ESTADO</th>
+            <th>ÚLTIMA ORDEN</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of filteredProveedores">
+            <td>
+              <a [routerLink]="['/proveedores/detalle', p.id]" class="provider-link" title="Ver ficha detallada">
+                <i class="bi bi-building me-1 text-primary"></i> <strong>{{ p.nombre }}</strong>
+              </a>
+              <div class="subtext-ruc">
+                <span class="badge bg-light text-dark border me-1">RUC</span> {{ p.ruc || 'No registrado' }}
+              </div>
+            </td>
+            <td>
+              <span class="fw-bold text-dark">{{ p.contacto || 'Sin contacto' }}</span>
+              <div class="subtext" *ngIf="p.categoria">
+                <small class="text-muted"><i class="bi bi-tag me-1"></i>{{ p.categoria }}</small>
+              </div>
+            </td>
+            <td>
+              <div><i class="bi bi-telephone text-primary me-1"></i>{{ p.telefono || 'Sin teléfono' }}</div>
+              <div class="subtext" *ngIf="p.email"><i class="bi bi-envelope me-1"></i>{{ p.email }}</div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="p.activo ? 'badge-recibida' : 'badge-cancelada'">
+                {{ p.activo ? 'ACTIVO' : 'INACTIVO' }}
+              </span>
+            </td>
+            <td>
+              <span class="text-muted">{{ p.ultimaOrden || 'Sin órdenes' }}</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a [routerLink]="['/proveedores/detalle', p.id]" class="btn-icon" title="Ver Ficha Detallada">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <button class="btn-icon text-primary" (click)="openEditModal(p)" title="Modificar Proveedor">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-icon text-danger" (click)="deleteProveedor(p.id!)" title="Eliminar Proveedor">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredProveedores.length === 0">
+            <td colspan="6" class="text-center py-4 text-muted">
+              <i class="bi bi-inbox fs-3 d-block mb-1"></i>
+              No se encontraron proveedores que coincidan con los filtros seleccionados.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
-<!-- Modal: Añadir Nuevo Proveedor -->
+<!-- ========================================== -->
+<!-- MODAL: AÑADIR NUEVO PROVEEDOR (CON VALIDACIONES) -->
+<!-- ========================================== -->
 <div class="modal-overlay" *ngIf="showAddModal">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>Añadir Nuevo Proveedor</h3>
-            <button class="btn-close" (click)="closeModal()">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label>Nombre del Proveedor *</label>
-                    <input type="text" [(ngModel)]="formModel.nombre" class="form-control" placeholder="Ej. Almacenes Juana S.R.L." />
-                </div>
-                <div class="form-group col-6">
-                    <label>RUC</label>
-                    <input type="text" [(ngModel)]="formModel.ruc" class="form-control" placeholder="Ej. 20101234567" />
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label>Persona de contacto</label>
-                    <input type="text" [(ngModel)]="formModel.contacto" class="form-control" placeholder="Nombre de contacto" />
-                </div>
-                <div class="form-group col-6">
-                    <label>Número de Teléfono</label>
-                    <input type="text" [(ngModel)]="formModel.telefono" class="form-control" placeholder="Ej. 98563214" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Dirección Completa</label>
-                <input type="text" [(ngModel)]="formModel.direccion" class="form-control" placeholder="Av. Principal 123..." />
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label>Categoría de Productos</label>
-                    <select [(ngModel)]="formModel.categoria" class="form-control">
-                        <option *ngFor="let cat of categoriesList" [value]="cat">{{ cat }}</option>
-                    </select>
-                </div>
-                <div class="form-group col-6">
-                    <label>Correo Electrónico</label>
-                    <input type="email" [(ngModel)]="formModel.email" class="form-control" placeholder="ejemplo@proveedor.com" />
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-            <button class="btn btn-primary" (click)="saveProveedor()">Crear Proveedor</button>
-        </div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-building-add fs-4 text-primary"></i>
+        <h3 class="mb-0">Añadir Nuevo Proveedor</h3>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
     </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <!-- Nombre del Proveedor -->
+        <div class="form-group col-6">
+          <label class="form-label">Nombre o Razón Social <span class="text-danger">*</span></label>
+          <input type="text" [(ngModel)]="formModel.nombre" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.nombre" placeholder="Ej: Almacenes Juana S.R.L." />
+          <div class="error-msg" *ngIf="validationErrors.nombre">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.nombre }}
+          </div>
+        </div>
+
+        <!-- RUC (11 dígitos numéricos) -->
+        <div class="form-group col-6">
+          <label class="form-label">Número de RUC <small class="text-muted">(11 dígitos)</small></label>
+          <input type="text" [(ngModel)]="formModel.ruc" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.ruc" maxlength="11" placeholder="Ej: 20101234567" />
+          <div class="error-msg" *ngIf="validationErrors.ruc">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.ruc }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Persona de Contacto -->
+        <div class="form-group col-6">
+          <label class="form-label">Persona de Contacto</label>
+          <input type="text" [(ngModel)]="formModel.contacto" (ngModelChange)="onFieldChange()" class="form-control"
+            placeholder="Ej: Carlos Mendoza" />
+        </div>
+
+        <!-- Teléfono (7 a 9 dígitos) -->
+        <div class="form-group col-6">
+          <label class="form-label">Teléfono de Contacto</label>
+          <input type="text" [(ngModel)]="formModel.telefono" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.telefono" maxlength="9" placeholder="Ej: 985632147" />
+          <div class="error-msg" *ngIf="validationErrors.telefono">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.telefono }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Categoría -->
+        <div class="form-group col-6">
+          <label class="form-label">Categoría de Suministros</label>
+          <select [(ngModel)]="formModel.categoria" class="form-control">
+            <option *ngFor="let cat of categoriesList" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Correo Electrónico -->
+        <div class="form-group col-6">
+          <label class="form-label">Correo Electrónico</label>
+          <input type="email" [(ngModel)]="formModel.email" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.email" placeholder="ejemplo@proveedor.com" />
+          <div class="error-msg" *ngIf="validationErrors.email">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.email }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Dirección Completa -->
+      <div class="form-group">
+        <label class="form-label">Dirección Fiscal / Comercial</label>
+        <input type="text" [(ngModel)]="formModel.direccion" class="form-control" placeholder="Av. Principal 123, Lima..." />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" (click)="saveProveedor()">
+        <i class="bi bi-check-lg"></i> Crear Proveedor
+      </button>
+    </div>
+  </div>
 </div>
 
-<!-- Modal: Modificar Proveedor -->
+<!-- ========================================== -->
+<!-- MODAL: MODIFICAR PROVEEDOR (CON VALIDACIONES) -->
+<!-- ========================================== -->
 <div class="modal-overlay" *ngIf="showEditModal">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>Modificar Proveedor: {{ formModel.nombre }}</h3>
-            <button class="btn-close" (click)="closeModal()">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="form-row">
-                <div class="form-group col-8">
-                    <label>Proveedor (RUC/Nombre)</label>
-                    <input type="text" [value]="(formModel.ruc ? formModel.ruc + ' - ' : '') + formModel.nombre" class="form-control" readonly />
-                </div>
-                <div class="form-group col-4">
-                    <label>Estado</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" [value]="true" [(ngModel)]="formModel.activo" /> ACTIVO
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" [value]="false" [(ngModel)]="formModel.activo" /> INACTIVO
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col-6">
-                    <label>Nombre Comercial *</label>
-                    <input type="text" [(ngModel)]="formModel.nombre" class="form-control" />
-                </div>
-                <div class="form-group col-6">
-                    <label>Persona de Contacto</label>
-                    <input type="text" [(ngModel)]="formModel.contacto" class="form-control" />
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group col-4">
-                    <label>Teléfono 1</label>
-                    <input type="text" [(ngModel)]="formModel.telefono" class="form-control" />
-                </div>
-                <div class="form-group col-4">
-                    <label>Teléfono 2</label>
-                    <input type="text" class="form-control" placeholder="Opcional" />
-                </div>
-                <div class="form-group col-4">
-                    <label>Correo Electrónico</label>
-                    <input type="email" [(ngModel)]="formModel.email" class="form-control" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Dirección</label>
-                <textarea [(ngModel)]="formModel.direccion" class="form-control" rows="2"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" checked /> Notificar por correo electrónico
-                </label>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-            <button class="btn btn-primary" (click)="saveProveedor()">Guardar Cambios</button>
-        </div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-pencil-square fs-4 text-primary"></i>
+        <h3 class="mb-0">Modificar Proveedor</h3>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
     </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <!-- Nombre Comercial -->
+        <div class="form-group col-8">
+          <label class="form-label">Nombre o Razón Social <span class="text-danger">*</span></label>
+          <input type="text" [(ngModel)]="formModel.nombre" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.nombre" />
+          <div class="error-msg" *ngIf="validationErrors.nombre">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.nombre }}
+          </div>
+        </div>
+
+        <!-- Estado Activo / Inactivo -->
+        <div class="form-group col-4">
+          <label class="form-label">Estado de la cuenta</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" [value]="true" [(ngModel)]="formModel.activo" /> Activo
+            </label>
+            <label class="radio-label">
+              <input type="radio" [value]="false" [(ngModel)]="formModel.activo" /> Inactivo
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- RUC -->
+        <div class="form-group col-6">
+          <label class="form-label">Número de RUC <small class="text-muted">(11 dígitos)</small></label>
+          <input type="text" [(ngModel)]="formModel.ruc" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.ruc" maxlength="11" />
+          <div class="error-msg" *ngIf="validationErrors.ruc">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.ruc }}
+          </div>
+        </div>
+
+        <!-- Persona de contacto -->
+        <div class="form-group col-6">
+          <label class="form-label">Persona de Contacto</label>
+          <input type="text" [(ngModel)]="formModel.contacto" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Teléfono -->
+        <div class="form-group col-6">
+          <label class="form-label">Teléfono de Contacto</label>
+          <input type="text" [(ngModel)]="formModel.telefono" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.telefono" maxlength="9" />
+          <div class="error-msg" *ngIf="validationErrors.telefono">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.telefono }}
+          </div>
+        </div>
+
+        <!-- Correo electrónico -->
+        <div class="form-group col-6">
+          <label class="form-label">Correo Electrónico</label>
+          <input type="email" [(ngModel)]="formModel.email" (ngModelChange)="onFieldChange()" class="form-control"
+            [class.is-invalid]="validationErrors.email" />
+          <div class="error-msg" *ngIf="validationErrors.email">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.email }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Dirección Completa -->
+      <div class="form-group">
+        <label class="form-label">Dirección Fiscal</label>
+        <textarea [(ngModel)]="formModel.direccion" class="form-control" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" (click)="saveProveedor()">
+        <i class="bi bi-save"></i> Guardar Cambios
+      </button>
+    </div>
+  </div>
 </div>

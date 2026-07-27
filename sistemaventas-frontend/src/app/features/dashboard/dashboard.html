@@ -1,173 +1,438 @@
 <div class="container-fluid py-4 animate-fade-in">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark">Panel de control</h2>
-            <p class="text-muted mb-0">Resumen y estadísticas de tu negocio</p>
+  <!-- Header Banner -->
+  <div class="page-header-card mb-4">
+    <div class="page-header-title">
+      <div class="page-header-icon">
+        <i class="bi bi-speedometer2"></i>
+      </div>
+      <div>
+        <h2>Panel de Control</h2>
+        <p>Resumen ejecutivo y estadísticas de tu negocio en tiempo real</p>
+      </div>
+    </div>
+    <div>
+      <button class="btn btn-primary d-flex align-items-center gap-2" routerLink="/ventas">
+        <i class="bi bi-cart-plus"></i> Nueva Venta
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 Interactive Stat Cards (Unified Corporate Aesthetic) -->
+  <div class="row g-4 mb-4">
+    <!-- Card 1: Ventas Hoy -->
+    <div class="col-xl-3 col-md-6">
+      <div class="kpi-card card-blue" (click)="openModal('ventasHoy')" title="Haz clic para ver las ventas de hoy">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Ventas Hoy</span>
+            <h3 class="kpi-value">S/. {{ ventasHoy | number:'1.2-2' }}</h3>
+            <span class="kpi-badge badge-blue">
+              <i class="bi bi-receipt"></i> {{ cantidadVentasHoy }} transacciones
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-blue">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
         </div>
-        <div>
-            <button class="btn btn-primary d-flex align-items-center gap-2" routerLink="/ventas">
-                <i class="bi bi-cart-plus"></i> Nueva Venta
-            </button>
+        <div class="kpi-footer-hint">
+          <span>Ver detalle de hoy</span>
+          <i class="bi bi-arrow-right-short"></i>
         </div>
+      </div>
     </div>
 
-
-    <div class="row g-4 mb-4">
-        <!-- Ventas Hoy -->
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100 card-hover bg-gradient-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-1 opacity-75">Ventas Hoy</p>
-                            <h3 class="fw-bold mb-0">{{ ventasHoy | currency:'USD' }}</h3>
-                            <small class="opacity-75">{{ cantidadVentasHoy }} transacciones</small>
-                        </div>
-                        <div class="icon-shape bg-white text-primary rounded-3 shadow-sm">
-                            <i class="bi bi-currency-dollar fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Card 2: Total Productos -->
+    <div class="col-xl-3 col-md-6">
+      <div class="kpi-card card-cyan" (click)="openModal('totalProductos')" title="Haz clic para ver el catálogo de productos">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Total Productos</span>
+            <h3 class="kpi-value">{{ totalProductos }}</h3>
+            <span class="kpi-badge badge-cyan">
+              <i class="bi bi-check-circle"></i> Catálogo Activo
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-cyan">
+            <i class="bi bi-box-seam"></i>
+          </div>
         </div>
-
-        <!-- Total Productos -->
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100 card-hover">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1">Total Productos</p>
-                            <h3 class="fw-bold text-dark mb-0">{{ totalProductos }}</h3>
-                            <small class="text-success"><i class="bi bi-check-circle"></i> Activos</small>
-                        </div>
-                        <div class="icon-shape bg-info-subtle text-info rounded-3">
-                            <i class="bi bi-box-seam fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="kpi-footer-hint">
+          <span>Ver productos</span>
+          <i class="bi bi-arrow-right-short"></i>
         </div>
-
-        <!-- Ingresos Totales -->
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100 card-hover">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1">Ingresos Totales</p>
-                            <h3 class="fw-bold text-success mb-0">{{ totalVentas | currency:'USD' }}</h3>
-                            <small class="text-muted">Histórico</small>
-                        </div>
-                        <div class="icon-shape bg-success-subtle text-success rounded-3">
-                            <i class="bi bi-graph-up-arrow fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Low Stock Alert -->
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm h-100 card-hover"
-                [ngClass]="{'border-start border-warning border-4': lowStockProducts.length > 0}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1">Alertas Stock</p>
-                            <h3 class="fw-bold text-warning mb-0">{{ lowStockProducts.length }}</h3>
-                            <small class="text-muted">Productos bajos</small>
-                        </div>
-                        <div class="icon-shape bg-warning-subtle text-warning rounded-3">
-                            <i class="bi bi-exclamation-triangle fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Charts & Recent Activity -->
-    <div class="row g-4 mb-4">
-        <!-- Weekly Trend Chart -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Tendencia Semanal</h5>
-                    <small class="text-muted">Últimos 7 días</small>
-                </div>
-                <div class="card-body">
-                    <div class="chart-wrapper">
-                        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions"
-                            [type]="lineChartType"></canvas>
-                    </div>
-                </div>
-            </div>
+    <!-- Card 3: Ingresos Totales -->
+    <div class="col-xl-3 col-md-6">
+      <div class="kpi-card card-green" (click)="openModal('ingresosTotales')" title="Haz clic para ver el histórico de ingresos">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Ingresos Totales</span>
+            <h3 class="kpi-value text-success">S/. {{ totalVentas | number:'1.2-2' }}</h3>
+            <span class="kpi-badge badge-green">
+              <i class="bi bi-graph-up"></i> Histórico general
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-green">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
         </div>
-
-        <!-- Shortcuts / Low Stock List -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0 py-3">
-                    <h5 class="mb-0 fw-bold">Stock Bajo</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <div *ngFor="let p of lowStockProducts"
-                            class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <span
-                                    class="avatar-sm bg-light text-dark rounded me-3 d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-box"></i>
-                                </span>
-                                <div>
-                                    <h6 class="mb-0">{{ p.nombre }}</h6>
-                                    <small class="text-danger fw-bold">{{ p.stock }} en stock</small>
-                                </div>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary" routerLink="/productos">Ver</button>
-                        </div>
-                        <div *ngIf="lowStockProducts.length === 0" class="text-center py-4 text-muted">
-                            <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
-                            Todo en orden
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="kpi-footer-hint">
+          <span>Ver informe histórico</span>
+          <i class="bi bi-arrow-right-short"></i>
         </div>
+      </div>
     </div>
 
-    <!-- Recent Transactions -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-transparent border-0 py-3">
-            <h5 class="mb-0 fw-bold">Transacciones Recientes</h5>
+    <!-- Card 4: Alertas Stock -->
+    <div class="col-xl-3 col-md-6">
+      <div class="kpi-card card-amber" (click)="openModal('alertasStock')" title="Haz clic para ver productos con stock bajo">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Alertas Stock</span>
+            <h3 class="kpi-value text-warning">{{ lowStockProducts.length }}</h3>
+            <span class="kpi-badge badge-amber">
+              <i class="bi bi-exclamation-triangle"></i> Productos bajos
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-amber">
+            <i class="bi bi-exclamation-lg"></i>
+          </div>
         </div>
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="bg-light text-muted">
-                    <tr>
-                        <th class="ps-4">ID</th>
-                        <th>Fecha</th>
-                        <th>Usuario</th>
-                        <th>Comprobante</th>
-                        <th class="text-end pe-4">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let venta of recentSales">
-                        <td class="ps-4 fw-bold">#{{ venta.id }}</td>
-                        <td>{{ venta.fechaVenta | date:'short' }}</td>
-                        <td>
-                            <span class="badge bg-light text-dark border rounded-pill px-3">
-                                <i class="bi bi-person me-1"></i> {{ venta.usuario.username }}
-                            </span>
-                        </td>
-                        <td>{{ venta.tipoComprobante }}</td>
-                        <td class="text-end pe-4 fw-bold text-dark">{{ venta.total | currency:'USD' }}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="kpi-footer-hint">
+          <span>Reponer productos</span>
+          <i class="bi bi-arrow-right-short"></i>
         </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Charts & Low Stock Quick Overview -->
+  <div class="row g-4 mb-4">
+    <!-- Weekly Trend Chart -->
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-line text-primary me-2"></i>Tendencia Semanal</h5>
+          <small class="text-muted">Últimos 7 días</small>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shortcuts / Low Stock Quick List -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-shield-exclamation text-warning me-2"></i>Reponer Stock</h5>
+          <span class="badge badge-warning">{{ lowStockProducts.length }} alertas</span>
+        </div>
+        <div class="list-group list-group-flush custom-scrollbar" style="max-height: 280px; overflow-y: auto;">
+          <div *ngFor="let p of lowStockProducts" class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
+            <div class="d-flex align-items-center">
+              <div class="avatar-sm bg-light text-dark rounded me-3 d-flex align-items-center justify-content-center">
+                <i class="bi bi-box"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold text-dark fs-6">{{ p.nombre }}</h6>
+                <small class="text-danger fw-bold"><i class="bi bi-exclamation-circle me-1"></i>{{ p.stock }} en stock</small>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" routerLink="/productos">Ver</button>
+          </div>
+          <div *ngIf="lowStockProducts.length === 0" class="text-center py-4 text-muted">
+            <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
+            Stock suficiente en todo el inventario
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions Table -->
+  <div class="card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history text-primary me-2"></i>Transacciones Recientes</h5>
+      <a routerLink="/ventas" class="btn btn-secondary btn-sm">Ver todas</a>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID VENTA</th>
+            <th>FECHA / HORA</th>
+            <th>USUARIO</th>
+            <th>COMPROBANTE</th>
+            <th class="text-end">TOTAL (S/.)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let venta of recentSales">
+            <td class="fw-bold text-primary">#{{ venta.id }}</td>
+            <td>{{ venta.fechaVenta | date:'medium' }}</td>
+            <td>
+              <span class="badge badge-recibida">
+                <i class="bi bi-person me-1"></i> {{ venta.usuario ? venta.usuario.username : 'Sistema' }}
+              </span>
+            </td>
+            <td><span class="badge bg-light text-dark border">{{ venta.tipoComprobante || 'Boleta' }}</span></td>
+            <td class="text-end fw-bold text-dark">S/. {{ venta.total | number:'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="recentSales.length === 0">
+            <td colspan="5" class="text-center py-4 text-muted">No se registran ventas recientes.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODALS DETAIL BREAKDOWN (ON CARD CLICK)    -->
+<!-- ========================================== -->
+
+<!-- MODAL 1: Ventas Hoy -->
+<div class="modal-overlay" *ngIf="activeModal === 'ventasHoy'">
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-currency-dollar fs-4 text-primary"></i>
+        <h3 class="mb-0">Detalle de Ventas de Hoy</h3>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Summary stats bar inside modal -->
+      <div class="details-grid mb-4">
+        <div class="grid-item">
+          <strong>Monto Total Hoy:</strong>
+          <span class="text-primary fw-bold fs-5">S/. {{ ventasHoy | number:'1.2-2' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Transacciones Hoy:</strong>
+          <span class="fw-bold fs-5">{{ cantidadVentasHoy }} ventas</span>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID VENTA</th>
+              <th>HORA</th>
+              <th>USUARIO / CAJERO</th>
+              <th>COMPROBANTE</th>
+              <th class="text-end">MONTO TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of salesTodayList">
+              <td class="fw-bold text-primary">#{{ v.id }}</td>
+              <td>{{ v.fechaVenta | date:'shortTime' }}</td>
+              <td>{{ v.usuario ? v.usuario.username : 'Cajero' }}</td>
+              <td><span class="badge bg-light text-dark border">{{ v.tipoComprobante || 'Boleta' }}</span></td>
+              <td class="text-end fw-bold text-success">S/. {{ v.total | number:'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="salesTodayList.length === 0">
+              <td colspan="5" class="text-center py-4 text-muted">Aún no se han registrado ventas el día de hoy.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" routerLink="/ventas" (click)="closeModal()"><i class="bi bi-plus-lg"></i> Registrar Nueva Venta</button>
+      <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: Total Productos -->
+<div class="modal-overlay" *ngIf="activeModal === 'totalProductos'">
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-box-seam fs-4 text-info"></i>
+        <h3 class="mb-0">Catálogo de Productos</h3>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="details-grid mb-4">
+        <div class="grid-item">
+          <strong>Total de Ítems Registrados:</strong>
+          <span class="fw-bold fs-5">{{ totalProductos }} productos</span>
+        </div>
+        <div class="grid-item">
+          <strong>Valor Total Inventario:</strong>
+          <span class="text-primary fw-bold fs-5">S/. {{ totalStockValue | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 350px;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>CÓDIGO</th>
+              <th>PRODUCTO</th>
+              <th>CATEGORÍA</th>
+              <th>PRECIO VENTA</th>
+              <th>STOCK</th>
+              <th>ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of allProductos">
+              <td><code>{{ p.codigoBarras || ('PRD-' + p.id) }}</code></td>
+              <td class="fw-bold">{{ p.nombre }}</td>
+              <td>{{ p.categoria?.nombre || 'General' }}</td>
+              <td class="fw-bold text-primary">S/. {{ p.precioVenta | number:'1.2-2' }}</td>
+              <td>
+                <span class="fw-bold" [ngClass]="{'text-danger': p.stock < 10, 'text-success': p.stock >= 10}">
+                  {{ p.stock }} un.
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="p.stock > 0 ? 'badge-recibida' : 'badge-cancelada'">
+                  {{ p.stock > 0 ? 'DISPONIBLE' : 'AGOTADO' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="allProductos.length === 0">
+              <td colspan="6" class="text-center py-4 text-muted">No se encontraron productos registrados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" routerLink="/productos" (click)="closeModal()"><i class="bi bi-pencil-square"></i> Gestionar Productos</button>
+      <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: Ingresos Totales -->
+<div class="modal-overlay" *ngIf="activeModal === 'ingresosTotales'">
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-graph-up-arrow fs-4 text-success"></i>
+        <h3 class="mb-0">Informe de Ingresos Históricos</h3>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="details-grid mb-4">
+        <div class="grid-item">
+          <strong>Ingresos Totales Acumulados:</strong>
+          <span class="text-success fw-bold fs-4">S/. {{ totalVentas | number:'1.2-2' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Ticket Promedio por Venta:</strong>
+          <span class="fw-bold fs-5">S/. {{ averageTicketSize | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 350px;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID VENTA</th>
+              <th>FECHA Y HORA</th>
+              <th>USUARIO</th>
+              <th>TIPO COMPROBANTE</th>
+              <th class="text-end">MONTO TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of allSales">
+              <td class="fw-bold text-primary">#{{ v.id }}</td>
+              <td>{{ v.fechaVenta | date:'medium' }}</td>
+              <td>{{ v.usuario ? v.usuario.username : 'Cajero' }}</td>
+              <td><span class="badge bg-light text-dark border">{{ v.tipoComprobante || 'Boleta' }}</span></td>
+              <td class="text-end fw-bold text-success">S/. {{ v.total | number:'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="allSales.length === 0">
+              <td colspan="5" class="text-center py-4 text-muted">No existen registros de ventas históricas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 4: Alertas Stock -->
+<div class="modal-overlay" *ngIf="activeModal === 'alertasStock'">
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle fs-4 text-warning"></i>
+        <h3 class="mb-0">Productos con Stock Bajo</h3>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="details-grid mb-4">
+        <div class="grid-item">
+          <strong>Total de Productos Críticos:</strong>
+          <span class="text-danger fw-bold fs-5">{{ lowStockProducts.length }} ítems por reponer</span>
+        </div>
+        <div class="grid-item">
+          <strong>Umbral Alerta:</strong>
+          <span>Menos de 10 unidades en stock</span>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>CÓDIGO</th>
+              <th>PRODUCTO</th>
+              <th>CATEGORÍA</th>
+              <th>PRECIO VENTA</th>
+              <th>STOCK ACTUAL</th>
+              <th>ACCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of lowStockProducts">
+              <td><code>{{ p.codigoBarras || ('PRD-' + p.id) }}</code></td>
+              <td class="fw-bold">{{ p.nombre }}</td>
+              <td>{{ p.categoria?.nombre || 'General' }}</td>
+              <td>S/. {{ p.precioVenta | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge badge-cancelada fw-bold">
+                  {{ p.stock }} en stock
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-primary btn-sm" routerLink="/compras" (click)="closeModal()">
+                  <i class="bi bi-plus-circle"></i> Ordenar Compra
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="lowStockProducts.length === 0">
+              <td colspan="6" class="text-center py-4 text-muted">
+                <i class="bi bi-check-circle fs-3 text-success d-block mb-1"></i>
+                No hay productos con alerta de stock bajo.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" routerLink="/compras" (click)="closeModal()"><i class="bi bi-cart-plus"></i> Ir a Registrar Compra</button>
+      <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
 </div>

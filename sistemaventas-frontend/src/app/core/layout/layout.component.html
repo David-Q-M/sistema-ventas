@@ -1,62 +1,102 @@
 <div class="layout-wrapper" [class.sidebar-closed]="!sidebarOpen">
-    <app-loading></app-loading>
-    <app-toast></app-toast>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h3>Sistema Ventas</h3>
+  <app-loading></app-loading>
+  <app-toast></app-toast>
+
+  <!-- Sidebar Component -->
+  <aside class="sidebar">
+    <div class="sidebar-brand-top">
+      <div class="brand-logo-icon">
+        <i class="bi bi-cart-fill"></i>
+      </div>
+      <div class="brand-text">
+        <h3 class="brand-title">Sistema de Ventas</h3>
+        <span class="brand-subtitle">Gestión eficiente y confiable</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-grid-1x2-fill icon"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/productos" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-box-seam-fill icon"></i>
+        <span>Productos</span>
+      </a>
+
+      <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-people-fill icon"></i>
+        <span>Proveedores</span>
+      </a>
+
+      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-plus-circle-fill icon"></i>
+        <span>Registrar Compra</span>
+      </a>
+
+      <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-cart-check-fill icon"></i>
+        <span>Ventas</span>
+      </a>
+
+      <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item">
+        <i class="bi bi-person-gear icon"></i>
+        <span>Usuarios</span>
+      </a>
+
+      <!-- Submenu / Section: Reportes y Consultas -->
+      <div *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" class="nav-group">
+        <div class="nav-group-header">
+          <i class="bi bi-pie-chart-fill icon"></i>
+          <span>Reportes y Consultas</span>
+          <i class="bi bi-chevron-down arrow"></i>
         </div>
-
-        <nav class="sidebar-nav">
-            <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-                <i class="icon">🏠</i> Dashboard
-            </a>
-
-            <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item">
-                <i class="icon">👥</i> Usuarios
-            </a>
-
-            <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/productos" routerLinkActive="active"
-                class="nav-item">
-                <i class="icon">📦</i> Productos
-            </a>
-
-            <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active"
-                class="nav-item">
-                <i class="icon">🛒</i> Ventas
-            </a>
-
-            <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item">
-                <i class="icon">🤝</i> Proveedores
-            </a>
-
-            <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active" class="nav-item">
-                <i class="icon">📋</i> Registrar Compra
-            </a>
-
-            <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-item">
-                <i class="icon">📊</i> Reportes
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <button (click)="logout()" class="nav-item logout-btn">
-                <i class="icon">🚪</i> Cerrar Sesión
-            </button>
+        <div class="nav-sub-items">
+          <a routerLink="/compras" routerLinkActive="active" class="nav-sub-item">
+            <i class="bi bi-journal-text icon"></i>
+            <span>Historial de Compras</span>
+          </a>
+          <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-sub-item">
+            <i class="bi bi-graph-up-arrow icon"></i>
+            <span>Estadísticas de Ventas</span>
+          </a>
         </div>
-    </aside>
+      </div>
+    </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <header class="topbar">
-            <button class="toggle-btn" (click)="toggleSidebar()">☰</button>
-            <div class="user-info">
-                <span class="badge badge-success">{{ role }}</span>
-            </div>
-        </header>
+    <div class="sidebar-footer">
+      <button (click)="logout()" class="logout-btn">
+        <i class="bi bi-box-arrow-left icon"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
 
-        <div class="content-body">
-            <router-outlet></router-outlet>
+  <!-- Main Workspace Area -->
+  <main class="main-content">
+    <!-- Topbar Navigation -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="toggle-btn" (click)="toggleSidebar()" title="Alternar menú">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+
+      <div class="topbar-right">
+        <div class="user-profile-badge">
+          <div class="user-avatar-circle">
+            <i class="bi bi-person"></i>
+          </div>
+          <span class="user-role-label">{{ role || 'USUARIO' }}</span>
+          <i class="bi bi-chevron-down dropdown-arrow"></i>
         </div>
-    </main>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="content-body">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
 </div>

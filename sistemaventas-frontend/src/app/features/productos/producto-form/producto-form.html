@@ -1,246 +1,132 @@
-<div class="container-fluid container-xl mt-4 animate-fade-in mb-5">
-    <!-- Header Actions -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-1">
-                <i class="bi bi-box-seam me-2 text-primary"></i>{{ isEdit ? 'Editar Producto' : 'Nuevo Producto' }}
-            </h2>
-            <p class="text-muted mb-0">Complete la información detallada del inventario.</p>
+<div class="productos-container animate-fade-in mb-5">
+  <!-- Page Header Card -->
+  <div class="page-header-card mb-4">
+    <div class="page-header-title">
+      <div class="page-header-icon">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div>
+        <h2>{{ isEdit ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
+        <p>Complete la información detallada e imagen para catalogar el producto en inventario</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <a routerLink="/productos" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Cancelar
+      </a>
+      <button type="button" class="btn btn-primary" (click)="onSubmit()">
+        <i class="bi bi-check-lg"></i> Guardar Producto
+      </button>
+    </div>
+  </div>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="row g-4">
+      <!-- Left Column: Image & Barcode Identification -->
+      <div class="col-lg-4">
+        <!-- Image Preview Card -->
+        <div class="card mb-4">
+          <div class="card-header-title mb-3">
+            <i class="bi bi-image text-primary fs-5"></i>
+            <h3 class="fs-6">Imagen del Producto</h3>
+          </div>
+          <div class="text-center p-3 bg-light rounded-3">
+            <div class="image-upload-wrapper mb-3 mx-auto position-relative" style="width: 180px; height: 180px;">
+              <img [src]="producto.urlImagen || 'assets/no-image.png'"
+                class="img-fluid rounded-3 shadow-sm w-100 h-100 object-fit-contain bg-white p-2"
+                alt="Vista previa" (error)="producto.urlImagen = ''">
+
+              <button type="button" class="btn btn-primary btn-sm position-absolute bottom-0 end-0 m-2 rounded-circle p-2"
+                (click)="fileInput.click()" title="Subir imagen local">
+                <i class="bi bi-camera-fill"></i>
+              </button>
+            </div>
+
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+
+            <div class="form-group mb-0 text-start">
+              <label class="form-label small">URL de Imagen Externa</label>
+              <input type="url" class="form-control form-control-sm" [(ngModel)]="producto.urlImagen" name="urlImagen"
+                placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+          </div>
         </div>
-        <div class="d-flex gap-2">
-            <a routerLink="/productos" class="btn btn-outline-secondary px-4 fw-medium">
-                <i class="bi bi-x-lg me-2"></i>Cancelar
-            </a>
-            <button type="button" class="btn btn-primary px-4 fw-bold shadow-sm" (click)="onSubmit()">
-                <i class="bi bi-check-lg me-2"></i>Guardar
+
+        <!-- Barcode Identification Card -->
+        <div class="card">
+          <div class="card-header-title mb-3">
+            <i class="bi bi-upc-scan text-primary fs-5"></i>
+            <h3 class="fs-6">Identificación y Código</h3>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Código de Barras</label>
+            <div class="input-group mb-2">
+              <span class="input-group-text bg-white"><i class="bi bi-barcode text-primary"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="producto.codigoBarras" name="codigoBarras"
+                placeholder="Escanear o ingresar..." style="font-family: monospace;">
+              <button type="button" class="btn btn-dark" (click)="toggleScanner()" title="Escanear con cámara">
+                <i class="bi bi-qr-code-scan"></i>
+              </button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm w-100" (click)="fileInput.click()">
+              <i class="bi bi-file-image me-1"></i> Escanear desde Imagen
             </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Right Column: Information & Pricing -->
+      <div class="col-lg-8">
+        <div class="card h-100">
+          <div class="card-header-title mb-4">
+            <i class="bi bi-card-text text-primary fs-5"></i>
+            <h3 class="fs-6">Información Comercial y Precios</h3>
+          </div>
+
+          <div class="row g-3">
+            <!-- Product Name -->
+            <div class="col-12">
+              <label class="form-label">Nombre del Producto <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-lg fw-bold" [(ngModel)]="producto.nombre" name="nombre" required
+                placeholder="Ej: Laptop Gamer ASUS TUF FX506...">
+            </div>
+
+            <!-- Category -->
+            <div class="col-md-6">
+              <label class="form-label">Categoría <span class="text-danger">*</span></label>
+              <select class="form-control" [(ngModel)]="producto.categoria" name="categoria" required [compareWith]="compareCategorias">
+                <option [ngValue]="undefined" disabled>Seleccione una categoría...</option>
+                <option *ngFor="let cat of categorias" [ngValue]="cat">{{ cat.nombre }}</option>
+              </select>
+            </div>
+
+            <!-- Stock -->
+            <div class="col-md-6">
+              <label class="form-label">Stock Disponible <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-boxes text-primary"></i></span>
+                <input type="number" class="form-control fw-bold" [(ngModel)]="producto.stock" name="stock" required min="0">
+              </div>
+            </div>
+
+            <!-- Price -->
+            <div class="col-md-6">
+              <label class="form-label">Precio de Venta <span class="text-danger">*</span></label>
+              <div class="input-group input-group-lg">
+                <span class="input-group-text bg-light text-primary fw-bold">S/.</span>
+                <input type="number" class="form-control fw-bold text-primary" [(ngModel)]="producto.precioVenta" name="precioVenta" required min="0.01" step="0.01">
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="col-12 mt-3">
+              <label class="form-label">Descripción o Notas Adicionales</label>
+              <textarea class="form-control" [(ngModel)]="producto.descripcion" name="descripcion" rows="3"
+                placeholder="Detalles técnicos, especificaciones, observaciones..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <form (ngSubmit)="onSubmit()">
-        <div class="row g-4">
-            <!-- Left Column: Identity & Image -->
-            <div class="col-lg-4">
-                <!-- Image Card -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h6 class="fw-bold mb-0 text-secondary text-uppercase small ls-1"><i
-                                class="bi bi-image me-2"></i>Imagen del Producto</h6>
-                    </div>
-                    <div class="card-body text-center p-4 bg-light">
-                        <div class="image-upload-wrapper mb-3 position-relative mx-auto"
-                            style="width: 200px; height: 200px;">
-                            <img [src]="producto.urlImagen || 'assets/no-image.png'"
-                                class="img-fluid rounded-4 shadow-sm w-100 h-100 object-fit-cover bg-white"
-                                alt="Vista previa" (error)="producto.urlImagen = ''">
-
-                            <button type="button"
-                                class="btn btn-light btn-sm position-absolute bottom-0 end-0 m-2 shadow-sm rounded-circle p-2"
-                                (click)="fileInput.click()" title="Subir imagen">
-                                <i class="bi bi-camera-fill text-primary"></i>
-                            </button>
-                        </div>
-
-                        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*"
-                            style="display: none;">
-
-                        <div class="form-floating mb-2">
-                            <input type="url" class="form-control form-control-sm bg-white border-0 shadow-none"
-                                id="imageUrl" [(ngModel)]="producto.urlImagen" name="urlImagen"
-                                placeholder="https://...">
-                            <label for="imageUrl" class="text-muted">O pegar URL de imagen</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Barcode Card -->
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h6 class="fw-bold mb-0 text-secondary text-uppercase small ls-1"><i
-                                class="bi bi-upc-scan me-2"></i>Identificación</h6>
-                    </div>
-                    <div class="card-body p-4">
-                        <label class="form-label text-muted small fw-bold">CÓDIGO DE BARRAS</label>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text bg-white border-end-0 text-primary"><i
-                                    class="bi bi-barcode"></i></span>
-                            <input type="text" class="form-control border-start-0 ps-0"
-                                [(ngModel)]="producto.codigoBarras" name="codigoBarras"
-                                placeholder="Escanear o escribir..."
-                                style="font-family: monospace; letter-spacing: 1px;">
-                            <button type="button" class="btn btn-dark" (click)="toggleScanner()">
-                                <i class="bi bi-qr-code-scan"></i>
-                            </button>
-                        </div>
-                        <div class="d-grid">
-                            <button type="button" class="btn btn-outline-primary btn-sm border-2 fw-medium"
-                                (click)="fileInput.click()">
-                                <i class="bi bi-file-image me-2"></i>Escanear desde Foto
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Details -->
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h6 class="fw-bold mb-0 text-secondary text-uppercase small ls-1"><i
-                                class="bi bi-card-text me-2"></i>Información</h6>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label text-muted small fw-bold">NOMBRE DEL PRODUCTO <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-lg fw-bold"
-                                    [(ngModel)]="producto.nombre" name="nombre" required
-                                    placeholder="Ej: Laptop Gamer ASUS...">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">CATEGORÍA <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select" [(ngModel)]="producto.categoria" name="categoria" required
-                                    [compareWith]="compareCategorias">
-                                    <option [ngValue]="undefined" disabled>Seleccione una categoría...</option>
-                                    <option *ngFor="let cat of categorias" [ngValue]="cat">{{ cat.nombre }}</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label text-muted small fw-bold">DESCRIPCIÓN</label>
-                                <textarea class="form-control" [(ngModel)]="producto.descripcion" name="descripcion"
-                                    rows="4" placeholder="Detalles técnicos, características, notas..."></textarea>
-                            </div>
-
-                            <div class="col-12">
-                                <hr class="my-4 text-muted opacity-25">
-                                <h6 class="fw-bold text-secondary text-uppercase small ls-1 mb-3"><i
-                                        class="bi bi-currency-dollar me-2"></i>Inventario y Precios</h6>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">PRECIO DE VENTA <span
-                                        class="text-danger">*</span></label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-light border-0 text-muted">S/.</span>
-                                    <input type="number" class="form-control border-0 bg-light fw-bold text-dark"
-                                        [(ngModel)]="producto.precioVenta" name="precioVenta" required min="0.01"
-                                        step="0.01">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">STOCK DISPONIBLE <span
-                                        class="text-danger">*</span></label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-light border-0 text-muted"><i
-                                            class="bi bi-boxes"></i></span>
-                                    <input type="number" class="form-control border-0 bg-light fw-bold text-dark"
-                                        [(ngModel)]="producto.stock" name="stock" required min="0">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-
-    <!-- Scanner Modal Overlay -->
-    <div *ngIf="showScanner" class="scanner-overlay animate-fade-in">
-        <div class="scanner-container bg-white p-0 rounded-4 shadow-lg overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
-                <h6 class="mb-0 fw-bold"><i class="bi bi-qr-code-scan me-2"></i>Escanear Código</h6>
-                <button type="button" class="btn-close btn-close-white" (click)="toggleScanner()"></button>
-            </div>
-
-            <div class="p-3 bg-black position-relative scanner-wrapper">
-                <!-- Camera Selector -->
-                <div *ngIf="hasDevices && availableDevices.length > 1"
-                    class="position-absolute top-0 start-0 w-100 p-2 z-index-10">
-                    <select class="form-select form-select-sm bg-dark text-white border-secondary shadow-sm"
-                        [(ngModel)]="currentDevice" name="cameraSelect">
-                        <option *ngFor="let device of availableDevices" [ngValue]="device">📷 {{ device.label }}
-                        </option>
-                    </select>
-                </div>
-
-                <zxing-scanner [formats]="allowedFormats" [tryHarder]="true" [device]="currentDevice"
-                    (camerasFound)="onCamerasFound($event)" (camerasNotFound)="onCamerasNotFound()"
-                    (scanError)="onScanError($event)" (scanSuccess)="handleScanSuccess($event)"
-                    (permissionResponse)="onPermissionResponse($event)"
-                    class="rounded-3 overflow-hidden"></zxing-scanner>
-
-                <!-- Error Message Display -->
-                <div *ngIf="scanError || hasPermission === false"
-                    class="position-absolute top-50 start-50 translate-middle text-center w-100 p-3 z-index-20">
-                    <div class="alert alert-danger shadow-sm border-0 d-inline-block">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        {{ scanError || 'No hay acceso a la cámara' }}
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-outline-danger bg-white" (click)="reloadScanner()">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Recargar Cámara
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Manual Reload Button (Always visible if scanner is open) -->
-                <button *ngIf="!scanError && hasPermission !== false"
-                    class="btn btn-sm btn-dark position-absolute bottom-0 start-0 m-3 z-index-20 opacity-75"
-                    (click)="reloadScanner()" title="Reiniciar escaner">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
-
-                <!-- Visual Guide -->
-                <div class="scanner-guide">
-                    <div class="scanner-laser"></div>
-                    <div class="scanner-corners"></div>
-                </div>
-            </div>
-
-            <div class="p-3 bg-light border-top">
-                <p class="text-center text-muted mb-2 small">
-                    Alinea el código dentro del cuadro rojo.<br>
-                    <span class="fw-bold text-danger">Importante:</span> Aleja o acerca el producto lentamente.
-                </p>
-
-                <!-- Help Button -->
-                <div class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3"
-                        (click)="toggleScannerHelp()">
-                        <i class="bi bi-question-circle me-1"></i> ¿Problemas para escanear?
-                    </button>
-
-                    <div *ngIf="showScannerHelp"
-                        class="alert alert-light border mt-3 text-start animate-fade-in mb-0 shadow-sm">
-                        <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-phone"></i> Usar celular como cámara</h6>
-
-                        <div class="row g-2 small">
-                            <div class="col-6">
-                                <div class="fw-bold text-dark">1. Celular 📱</div>
-                                <ul class="mb-0 ps-3 text-muted">
-                                    <li>Instala <b>Iriun Webcam</b></li>
-                                    <li>Abre la App</li>
-                                </ul>
-                            </div>
-                            <div class="col-6">
-                                <div class="fw-bold text-dark">2. PC 💻</div>
-                                <ul class="mb-0 ps-3 text-muted">
-                                    <li>Instala <b>Iriun Webcam</b></li>
-                                    <li>Abre el programa</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="mt-2 text-center">
-                            <span class="badge bg-success">Conecta ambos al mismo WiFi 📶</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  </form>
 </div>

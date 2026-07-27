@@ -1,187 +1,153 @@
-<div class="container-fluid vh-100 overflow-hidden bg-light animate-fade-in">
-    <div class="row h-100">
-        <!-- LEFT: Product Catalog -->
-        <div class="col-lg-8 col-md-7 h-100 d-flex flex-column p-0 border-end">
-            <!-- Header: Search & Categories -->
-            <div class="bg-white p-3 border-bottom shadow-sm z-index-10">
-                <!-- Search Bar -->
-                <div class="d-flex gap-2 mb-3">
-                    <div class="input-group input-group-lg shadow-sm">
-                        <span class="input-group-text bg-white border-end-0 text-primary"><i
-                                class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-start-0 ps-0"
-                            placeholder="Buscar producto por nombre o código..." [(ngModel)]="searchTerm"
-                            (keyup)="onSearch()">
-                    </div>
-                </div>
+<div class="pos-container animate-fade-in">
+  <div class="pos-layout">
 
-                <!-- Category Chips -->
-                <div class="category-scroll d-flex gap-2 overflow-auto pb-2 custom-scrollbar">
-                    <button class="btn btn-outline-secondary rounded-pill text-nowrap px-4 fw-bold"
-                        [class.active-chip]="selectedCategory === null" (click)="selectCategory(null)">
-                        <i class="bi bi-grid-fill me-1"></i> Ver Todo
-                    </button>
-                    <button *ngFor="let cat of categories"
-                        class="btn btn-outline-secondary rounded-pill text-nowrap px-4"
-                        [class.active-chip]="selectedCategory === cat" (click)="selectCategory(cat)">
-                        {{ cat.nombre }}
-                    </button>
-                </div>
-            </div>
-
-            <!-- Product Grid -->
-            <div class="flex-grow-1 overflow-auto p-3 bg-light custom-scrollbar">
-                <div class="row g-3">
-                    <div *ngFor="let p of filteredProductos" class="col-xxl-3 col-xl-4 col-md-6">
-                        <div class="card h-100 border-0 shadow-sm product-card cursor-pointer"
-                            (click)="agregarAlCarrito(p)" [class.opacity-50]="p.stock === 0">
-
-                            <div class="card-img-top bg-white d-flex align-items-center justify-content-center p-3"
-                                style="height: 140px;">
-                                <img [src]="p.urlImagen || 'assets/no-image.png'" class="img-fluid"
-                                    style="max-height: 100%; object-fit: contain;">
-                            </div>
-
-                            <div class="card-body p-3 d-flex flex-column">
-                                <h6 class="fw-bold text-dark mb-1 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}
-                                </h6>
-                                <small class="text-muted d-block mb-2">{{ p.categoria?.nombre || 'General' }}</small>
-
-                                <div class="mt-auto d-flex justify-content-between align-items-center">
-                                    <span class="badge rounded-pill"
-                                        [ngClass]="p.stock > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
-                                        {{ p.stock }} un.
-                                    </span>
-                                    <span class="fw-bold fs-5 text-primary">{{ p.precioVenta | currency:'USD' }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div *ngIf="filteredProductos.length === 0" class="col-12 text-center py-5 mt-5">
-                        <i class="bi bi-search fs-1 text-muted opacity-25"></i>
-                        <h4 class="text-muted mt-3">No se encontraron productos</h4>
-                    </div>
-                </div>
-            </div>
+    <!-- LEFT SIDE: High-Density Product Catalog -->
+    <div class="catalog-section">
+      <!-- Search & Category Header -->
+      <div class="catalog-header">
+        <!-- Search Input -->
+        <div class="search-box">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" class="form-control pos-search-input"
+            placeholder="Buscar por nombre, categoría o código..." [(ngModel)]="searchTerm" (keyup)="onSearch()">
+          <button *ngIf="searchTerm" class="btn-clear-search" (click)="searchTerm=''; onSearch()">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
 
-        <!-- RIGHT: Receipt / Cart -->
-        <div class="col-lg-4 col-md-5 h-100 d-flex flex-column bg-white shadow-lg p-0 position-relative">
+        <!-- Category Scroll Pills -->
+        <div class="category-pills-row custom-scrollbar">
+          <button class="cat-pill" [class.active]="selectedCategory === null" (click)="selectCategory(null)">
+            <i class="bi bi-grid-fill me-1"></i> Ver Todo
+          </button>
+          <button *ngFor="let cat of categories" class="cat-pill"
+            [class.active]="selectedCategory?.id === cat.id" (click)="selectCategory(cat)">
+            {{ cat.nombre }}
+          </button>
+        </div>
+      </div>
 
-            <!-- Receipt Header -->
-            <div class="p-3 bg-primary text-white">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-cart4 me-2"></i>Nueva Venta</h5>
-                    <span class="badge bg-white text-primary fw-bold">{{ currentDate | date:'shortTime' }}</span>
-                </div>
-                <div class="small opacity-75 d-flex justify-content-between">
-                    <span><i class="bi bi-person-fill me-1"></i>{{ sellerRole }}</span>
-                    <span>{{ currentDate | date:'fullDate' }}</span>
-                </div>
+      <!-- High-Density Product Grid -->
+      <div class="catalog-grid-wrapper custom-scrollbar">
+        <div class="product-density-grid">
+          <div *ngFor="let p of filteredProductos" class="pos-product-card"
+            (click)="agregarAlCarrito(p)" [class.out-of-stock]="p.stock === 0"
+            title="{{ p.nombre }} - Stock: {{ p.stock }}">
+
+            <div class="pos-img-container">
+              <img [src]="p.urlImagen || 'assets/no-image.png'" (error)="p.urlImagen = ''" alt="{{ p.nombre }}">
+              <span class="stock-badge" [ngClass]="p.stock > 0 ? 'stock-ok' : 'stock-zero'">
+                {{ p.stock }} un.
+              </span>
             </div>
 
-            <!-- Client Info Config -->
-            <div class="p-3 border-bottom bg-light small-section">
-                <!-- Receipt Type -->
-                <div class="btn-group w-100 mb-3 shadow-sm" role="group">
-                    <input type="radio" class="btn-check" name="tipo" id="boleta" value="BOLETA"
-                        [(ngModel)]="tipoComprobante">
-                    <label class="btn btn-outline-primary fw-bold" for="boleta">BOLETA</label>
-                    <input type="radio" class="btn-check" name="tipo" id="factura" value="FACTURA"
-                        [(ngModel)]="tipoComprobante">
-                    <label class="btn btn-outline-primary fw-bold" for="factura">FACTURA</label>
-                </div>
-
-                <!-- Dynamic Inputs -->
-                <div class="animate-fade-in" *ngIf="tipoComprobante === 'FACTURA'">
-                    <div class="input-group input-group-sm mb-2">
-                        <span class="input-group-text bg-white"><i class="bi bi-building"></i></span>
-                        <input type="text" class="form-control" placeholder="RUC Cliente"
-                            [(ngModel)]="cliente.documento">
-                    </div>
-                    <div class="input-group input-group-sm mb-2">
-                        <span class="input-group-text bg-white"><i class="bi bi-fonts"></i></span>
-                        <input type="text" class="form-control" placeholder="Razón Social" [(ngModel)]="cliente.nombre">
-                    </div>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
-                        <input type="text" class="form-control" placeholder="Dirección Fiscal"
-                            [(ngModel)]="cliente.direccion">
-                    </div>
-                </div>
-
-                <div class="animate-fade-in" *ngIf="tipoComprobante === 'BOLETA'">
-                    <div class="input-group input-group-sm mb-2">
-                        <span class="input-group-text bg-white"><i class="bi bi-person-vcard"></i></span>
-                        <input type="text" class="form-control" placeholder="DNI (Opcional)"
-                            [(ngModel)]="cliente.documento">
-                    </div>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control" placeholder="Nombre (Opcional)"
-                            [(ngModel)]="cliente.nombre">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cart Items List -->
-            <div class="flex-grow-1 overflow-auto p-3 custom-scrollbar bg-white">
-                <div *ngFor="let item of carrito; let i = index"
-                    class="d-flex align-items-center justify-content-between p-2 mb-2 border rounded-3 bg-light-hover cart-item animate-fade-in">
-                    <!-- Quantity Controls -->
-                    <div class="d-flex flex-column align-items-center me-3 bg-white border rounded shadow-sm p-1">
-                        <button class="btn btn-xs btn-link text-success p-0" (click)="updateQuantity(i, 1)"><i
-                                class="bi bi-chevron-up"></i></button>
-                        <span class="fw-bold small my-1">{{ item.cantidad }}</span>
-                        <button class="btn btn-xs btn-link text-danger p-0" (click)="updateQuantity(i, -1)"><i
-                                class="bi bi-chevron-down"></i></button>
-                    </div>
-
-                    <!-- Info -->
-                    <div class="flex-grow-1 lh-1">
-                        <div class="fw-bold text-dark text-truncate mb-1" style="max-width: 150px;">{{
-                            item.producto.nombre }}</div>
-                        <div class="small text-muted">{{ item.producto.precioVenta | currency:'USD' }} x unit</div>
-                    </div>
-
-                    <!-- Subtotal & Delete -->
-                    <div class="text-end">
-                        <div class="fw-bold text-primary mb-1">{{ item.subtotal | currency:'USD' }}</div>
-                        <button class="btn btn-link text-danger p-0 small" (click)="eliminarDelCarrito(i)"
-                            title="Eliminar"><i class="bi bi-trash"></i></button>
-                    </div>
-                </div>
-
-                <div *ngIf="carrito.length === 0" class="text-center py-5 text-muted opacity-50">
-                    <i class="bi bi-basket fs-1"></i>
-                    <p class="small mt-2">Agrega productos para comenzar</p>
-                </div>
-            </div>
-
-            <!-- Footer Totals -->
-            <div class="p-4 bg-dark text-white shadow-lg border-top">
-                <div class="d-flex justify-content-between mb-1 small text-secondary">
-                    <span>Subtotal</span>
-                    <span>{{ total * 0.82 | currency:'USD' }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-3 small text-secondary">
-                    <span>IGV (18%)</span>
-                    <span>{{ total * 0.18 | currency:'USD' }}</span>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="fs-4 fw-light text-uppercase">Total</span>
-                    <span class="display-6 fw-bold text-success">{{ total | currency:'USD' }}</span>
-                </div>
-
-                <button
-                    class="btn btn-success w-100 py-3 fw-bold fs-5 shadow hover-scale d-flex align-items-center justify-content-center"
-                    (click)="procesarVenta()" [disabled]="carrito.length === 0">
-                    <i class="bi bi-cash-coin me-2"></i> Pagar
+            <div class="pos-card-content">
+              <h6 class="pos-prod-title" title="{{ p.nombre }}">{{ p.nombre }}</h6>
+              <span class="pos-prod-cat">{{ p.categoria?.nombre || 'General' }}</span>
+              <div class="pos-card-footer">
+                <span class="pos-price">S/. {{ p.precioVenta | number:'1.2-2' }}</span>
+                <button class="btn-add-mini" [disabled]="p.stock === 0">
+                  <i class="bi bi-plus"></i>
                 </button>
+              </div>
             </div>
+          </div>
+
+          <!-- Empty Search State -->
+          <div *ngIf="filteredProductos.length === 0" class="no-products-state">
+            <i class="bi bi-search text-muted fs-3"></i>
+            <p class="mb-0 text-muted small">No se encontraron productos en el inventario.</p>
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- RIGHT SIDE: Ultra-Compact POS Cart Ticket (Maximum Items Visibility) -->
+    <div class="cart-section">
+      <!-- Receipt Topbar Header -->
+      <div class="cart-header-top">
+        <div class="d-flex align-items-center gap-2">
+          <div class="cart-header-icon"><i class="bi bi-cart-check-fill"></i></div>
+          <div>
+            <h5 class="cart-title">Nueva Venta</h5>
+            <span class="cart-subtitle"><i class="bi bi-person me-1"></i>{{ sellerRole }}</span>
+          </div>
+        </div>
+        <div class="time-badge">
+          <i class="bi bi-clock me-1"></i>{{ currentDate | date:'shortTime' }}
+        </div>
+      </div>
+
+      <!-- Compact Receipt & Client Config -->
+      <div class="cart-client-panel">
+        <div class="receipt-type-selector mb-1">
+          <button class="type-btn" [class.active]="tipoComprobante === 'BOLETA'" (click)="tipoComprobante = 'BOLETA'">BOLETA</button>
+          <button class="type-btn" [class.active]="tipoComprobante === 'FACTURA'" (click)="tipoComprobante = 'FACTURA'">FACTURA</button>
+        </div>
+
+        <!-- Inputs for Boleta -->
+        <div *ngIf="tipoComprobante === 'BOLETA'" class="inline-input-row animate-fade-in">
+          <input type="text" class="form-control pos-mini-input" placeholder="DNI (Opcional)" [(ngModel)]="cliente.documento" maxlength="8">
+          <input type="text" class="form-control pos-mini-input" placeholder="Nombre Cliente (Opcional)" [(ngModel)]="cliente.nombre">
+        </div>
+
+        <!-- Inputs for Factura -->
+        <div *ngIf="tipoComprobante === 'FACTURA'" class="animate-fade-in d-flex flex-column gap-1">
+          <div class="inline-input-row">
+            <input type="text" class="form-control pos-mini-input" placeholder="RUC Cliente *" [(ngModel)]="cliente.documento" maxlength="11">
+            <input type="text" class="form-control pos-mini-input" placeholder="Razón Social *" [(ngModel)]="cliente.nombre">
+          </div>
+          <input type="text" class="form-control pos-mini-input" placeholder="Dirección Fiscal (Opcional)" [(ngModel)]="cliente.direccion">
+        </div>
+      </div>
+
+      <!-- Ultra-Compact Expanded Cart Items List (Maximum Items Visible) -->
+      <div class="cart-items-wrapper custom-scrollbar">
+        <div *ngFor="let item of carrito; let i = index" class="cart-item-row animate-fade-in">
+          <!-- Item Title -->
+          <div class="cart-item-info">
+            <h6 class="cart-item-title" title="{{ item.producto.nombre }}">{{ item.producto.nombre }}</h6>
+          </div>
+
+          <!-- Qty Controller Pill -->
+          <div class="cart-qty-pill">
+            <button class="btn-qty" (click)="updateQuantity(i, -1)">-</button>
+            <span class="qty-num">{{ item.cantidad }}</span>
+            <button class="btn-qty" (click)="updateQuantity(i, 1)">+</button>
+          </div>
+
+          <!-- Subtotal -->
+          <span class="cart-item-subtotal">S/. {{ item.subtotal | number:'1.2-2' }}</span>
+
+          <!-- Delete Trash Button -->
+          <button class="btn-del-item" (click)="eliminarDelCarrito(i)" title="Eliminar este ítem">
+            <i class="bi bi-trash3-fill"></i>
+          </button>
+        </div>
+
+        <!-- Empty Cart Placeholder -->
+        <div *ngIf="carrito.length === 0" class="empty-cart-state">
+          <i class="bi bi-cart-x fs-2 text-muted opacity-40"></i>
+          <p class="mb-0 text-muted">Haz clic en los productos para agregarlos al ticket</p>
+        </div>
+      </div>
+
+      <!-- Corporate Compact Footer Totals -->
+      <div class="cart-footer">
+        <div class="summary-inline">
+          <span>Subtotal: S/. {{ total * 0.82 | number:'1.2-2' }}</span>
+          <span>IGV (18%): S/. {{ total * 0.18 | number:'1.2-2' }}</span>
+        </div>
+        <div class="total-highlight-row">
+          <span class="total-label">TOTAL:</span>
+          <span class="total-amount">S/. {{ total | number:'1.2-2' }}</span>
+        </div>
+
+        <button class="btn btn-pay-now" (click)="procesarVenta()" [disabled]="carrito.length === 0">
+          <i class="bi bi-credit-card-2-front-fill me-1"></i> PROCESAR VENTA
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>

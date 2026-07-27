@@ -29,12 +29,50 @@ CREATE TABLE IF NOT EXISTS `categorias` (
 
 -- La exportación de datos fue deseleccionada.
 
+-- Volcando estructura para tabla sistema_ventas_db.compras
+CREATE TABLE IF NOT EXISTS `compras` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(50) NOT NULL,
+  `estado` varchar(20) NOT NULL,
+  `estado_pago` varchar(50) DEFAULT NULL,
+  `fecha_entrega` date DEFAULT NULL,
+  `fecha_pedido` date NOT NULL,
+  `metodo_pedido` varchar(50) DEFAULT NULL,
+  `monto_total` decimal(38,2) NOT NULL,
+  `observacion` text DEFAULT NULL,
+  `proveedor_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_p0y0t4viw3l9uek522cddegvk` (`codigo`),
+  KEY `FKabfd3b61ss0f7ebhao6evn5ec` (`proveedor_id`),
+  CONSTRAINT `FKabfd3b61ss0f7ebhao6evn5ec` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- La exportación de datos fue deseleccionada.
+
+-- Volcando estructura para tabla sistema_ventas_db.detalle_compras
+CREATE TABLE IF NOT EXISTS `detalle_compras` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `cantidad` int(11) NOT NULL,
+  `observacion_item` varchar(255) DEFAULT NULL,
+  `precio_costo` decimal(38,2) NOT NULL,
+  `subtotal` decimal(38,2) NOT NULL,
+  `compra_id` bigint(20) NOT NULL,
+  `producto_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKs7ksdchwhuo5bv58t28iti0f0` (`compra_id`),
+  KEY `FKobinn960qd4nxk1b3b0n6aps1` (`producto_id`),
+  CONSTRAINT `FKobinn960qd4nxk1b3b0n6aps1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
+  CONSTRAINT `FKs7ksdchwhuo5bv58t28iti0f0` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- La exportación de datos fue deseleccionada.
+
 -- Volcando estructura para tabla sistema_ventas_db.detalle_ventas
 CREATE TABLE IF NOT EXISTS `detalle_ventas` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `cantidad` int(11) NOT NULL,
-  `precio_unitario` decimal(10,2) DEFAULT NULL,
-  `subtotal` decimal(10,2) DEFAULT NULL,
+  `precio_unitario` decimal(38,2) DEFAULT NULL,
+  `subtotal` decimal(38,2) DEFAULT NULL,
   `venta_id` int(11) DEFAULT NULL,
   `producto_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -42,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `detalle_ventas` (
   KEY `fk_detalle_ventas_productos` (`producto_id`),
   CONSTRAINT `fk_detalle_ventas_productos` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
   CONSTRAINT `fk_detalle_ventas_ventas` FOREIGN KEY (`venta_id`) REFERENCES `ventas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -61,9 +99,9 @@ CREATE TABLE IF NOT EXISTS `productos` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_productos_codigo_barras` (`codigo_barras`),
   KEY `fk_productos_categorias` (`categoria_id`),
-  KEY `fk_productos_proveedores` (`proveedor_id`),
-  CONSTRAINT `fk_productos_categorias` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`),
-  CONSTRAINT `fk_productos_proveedores` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`)
+  KEY `FK4s80lxlx2fkci25fcx4r0nbex` (`proveedor_id`),
+  CONSTRAINT `FK4s80lxlx2fkci25fcx4r0nbex` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`),
+  CONSTRAINT `fk_productos_categorias` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
@@ -79,10 +117,11 @@ CREATE TABLE IF NOT EXISTS `proveedores` (
   `email` varchar(100) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `ultima_orden` date DEFAULT NULL,
-  `monto_total` decimal(10,2) DEFAULT 0.00,
+  `monto_total` decimal(38,2) DEFAULT NULL,
   `dias_pago` int(11) DEFAULT 0,
+  `ruc` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -107,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   UNIQUE KEY `uk_usuarios_username` (`username`),
   KEY `fk_usuarios_roles` (`rol_id`),
   CONSTRAINT `fk_usuarios_roles` FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -121,7 +160,7 @@ CREATE TABLE IF NOT EXISTS `ventas` (
   PRIMARY KEY (`id`),
   KEY `fk_ventas_usuarios` (`usuario_id`),
   CONSTRAINT `fk_ventas_usuarios` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
 
