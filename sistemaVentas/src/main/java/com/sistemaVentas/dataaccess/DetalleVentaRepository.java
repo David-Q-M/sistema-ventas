@@ -5,7 +5,11 @@ import org.springframework.stereotype.Repository;
 
 import com.sistemaVentas.entity.DetalleVenta;
 
+import java.util.List;
+
 @Repository
 public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long> {
-    boolean existsByProductoId(Long productoId);
-}
+    List<DetalleVenta> findByProductoId(Long productoId);
+    void deleteByProductoId(Long productoId);
+}
+

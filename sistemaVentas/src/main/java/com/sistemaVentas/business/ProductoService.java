@@ -53,20 +53,20 @@ public class ProductoService {
         return repo.save(producto);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void eliminar(Long id) {
         if (!repo.existsById(id)) {
             throw new RuntimeException("El producto no existe");
         }
-        if (detalleVentaRepo.existsByProductoId(id)) {
-            throw new RuntimeException("No se puede eliminar el producto porque tiene ventas asociadas en el historial.");
-        }
-        if (detalleCompraRepo.existsByProductoId(id)) {
-            throw new RuntimeException("No se puede eliminar el producto porque tiene compras registradas en el historial.");
-        }
         try {
+            // Eliminar referencias en detalles de compras y ventas de forma segura
+            detalleVentaRepo.deleteByProductoId(id);
+            detalleCompraRepo.deleteByProductoId(id);
+
+            // Eliminar el producto de la base de datos
             repo.deleteById(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("No se puede eliminar el producto porque está referenciado en otros registros del sistema.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar el producto: " + e.getMessage());
         }
     }
 }
