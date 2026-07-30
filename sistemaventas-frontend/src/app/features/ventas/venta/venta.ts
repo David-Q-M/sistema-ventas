@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { VentaService } from '../../../core/services/venta.service';
 import { ProductoService } from '../../../core/services/producto.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Producto, DetalleDTO, VentaDTO, Categoria } from '../../../shared/models/models';
+import { Producto, DetalleDTO, VentaDTO, Categoria, Venta } from '../../../shared/models/models';
 import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../core/services/loading.service';
 import { InvoiceService } from '../../../core/services/invoice.service';
@@ -28,7 +27,22 @@ export class VentaComponent implements OnInit {
 
     // Cart State
     carrito: { producto: Producto, cantidad: number, subtotal: number }[] = [];
+    subtotalGeneral = 0;
+    descuentoCalculado = 0;
     total = 0;
+
+    // Checkout / Payment Modal State (RF31 & POS Workflow)
+    showCobroModal = false;
+
+    // Payment Strategy Data (RF31)
+    metodoPago: 'EFECTIVO' | 'TARJETA' | 'DIGITAL' = 'EFECTIVO';
+    montoEntregado: number | null = null;
+    montoCambio: number = 0;
+    numeroReferencia: string = '';
+
+    // Discounts & Promotions (RF32)
+    tipoDescuento: 'NINGUNO' | 'PORCENTAJE' | 'MONTO' = 'NINGUNO';
+    valorDescuento: number | null = null;
 
     // Transaction Data
     tipoComprobante = 'BOLETA';
@@ -38,9 +52,17 @@ export class VentaComponent implements OnInit {
         direccion: ''
     };
 
-    // Metadata
-    currentDate = new Date();
+    // Sales History & Cancellation (RF30)
+    historialVentas: Venta[] = [];
+    showHistorialModal = false;
+    showAnularModal = false;
+    ventaParaAnular: Venta | null = null;
+    motivoAnulacion = '';
+
+    // User Role & Clock
     sellerRole: string = '';
+    isAdmin = false;
+    currentDate = new Date();
 
     constructor(
         private ventaService: VentaService,
@@ -55,8 +77,8 @@ export class VentaComponent implements OnInit {
     ngOnInit() {
         this.loadData();
         this.sellerRole = this.authService.getRole() || 'Vendedor';
+        this.isAdmin = this.authService.getRole() === 'ADMIN';
 
-        // Live clock
         setInterval(() => {
             this.currentDate = new Date();
         }, 60000);
@@ -65,13 +87,11 @@ export class VentaComponent implements OnInit {
     loadData() {
         this.loadingService.show();
 
-        // Load Categories
         this.categoriaService.getAll().subscribe({
             next: (cats) => this.categories = cats,
             error: () => this.toastService.show('Error al cargar categorías', 'error')
         });
 
-        // Load Products
         this.productoService.getAll().subscribe({
             next: (data) => {
                 this.productos = data;
@@ -80,21 +100,18 @@ export class VentaComponent implements OnInit {
             },
             error: () => {
                 this.loadingService.hide();
-                this.toastService.show('Error al cargar productos', 'error');
+                this.toastService.show('Error al cargar catálogo de productos', 'error');
             }
         });
     }
 
-    // Filtering Logic
     filterProducts() {
         let temp = this.productos;
 
-        // by Category
         if (this.selectedCategory) {
             temp = temp.filter(p => p.categoria?.id === this.selectedCategory?.id);
         }
 
-        // by Search Term
         if (this.searchTerm.trim()) {
             const term = this.searchTerm.toLowerCase();
             temp = temp.filter(p =>
@@ -123,20 +140,20 @@ export class VentaComponent implements OnInit {
         if (item) {
             if (item.cantidad < producto.stock) {
                 item.cantidad++;
-                item.subtotal = item.cantidad * precio;
+                item.subtotal = Number((item.cantidad * precio).toFixed(2));
                 this.toastService.show('Cantidad +1', 'success');
             } else {
-                this.toastService.show('Stock insuficiente', 'error');
+                this.toastService.show('Stock insuficiente para este producto', 'error');
             }
         } else {
             if (producto.stock > 0) {
                 this.carrito.push({ producto, cantidad: 1, subtotal: precio });
-                this.toastService.show('Producto agregado', 'success');
+                this.toastService.show('Producto agregado al carrito', 'success');
             } else {
-                this.toastService.show('Sin stock', 'error');
+                this.toastService.show('Producto sin stock disponible', 'error');
             }
         }
-        this.calcularTotal();
+        this.calcularTotales();
     }
 
     updateQuantity(index: number, change: number) {
@@ -145,30 +162,104 @@ export class VentaComponent implements OnInit {
 
         if (newQty > 0 && newQty <= item.producto.stock) {
             item.cantidad = newQty;
-            item.subtotal = item.cantidad * Number(item.producto.precioVenta);
-            this.calcularTotal();
+            item.subtotal = Number((item.cantidad * Number(item.producto.precioVenta)).toFixed(2));
+            this.calcularTotales();
         } else if (newQty > item.producto.stock) {
-            this.toastService.show('No hay más stock disponible', 'error');
+            this.toastService.show('No hay suficiente stock en inventario', 'error');
         }
     }
 
     eliminarDelCarrito(index: number) {
         this.carrito.splice(index, 1);
-        this.calcularTotal();
+        this.calcularTotales();
     }
 
-    calcularTotal() {
-        this.total = this.carrito.reduce((acc, item) => acc + item.subtotal, 0);
+    // RF32: Motor de cálculo de precios y descuentos en tiempo real
+    calcularTotales() {
+        this.subtotalGeneral = Number(this.carrito.reduce((acc, item) => acc + item.subtotal, 0).toFixed(2));
+        let desc = 0;
+
+        if (this.tipoDescuento === 'PORCENTAJE' && this.valorDescuento && this.valorDescuento > 0) {
+            const pct = Math.min(this.valorDescuento, 50); // Máx 50%
+            desc = Number(((this.subtotalGeneral * pct) / 100).toFixed(2));
+        } else if (this.tipoDescuento === 'MONTO' && this.valorDescuento && this.valorDescuento > 0) {
+            desc = Number(Math.min(this.valorDescuento, this.subtotalGeneral - 0.01).toFixed(2));
+        }
+
+        this.descuentoCalculado = desc;
+        this.total = Number((this.subtotalGeneral - this.descuentoCalculado).toFixed(2));
+
+        this.calcularCambioEfectivo();
     }
 
-    // Processing
-    procesarVenta() {
-        if (this.carrito.length === 0) return;
+    // RF31: CÓBRO MODAL WORKFLOW
+    openCobroModal() {
+        if (this.carrito.length === 0) {
+            this.toastService.show('Debe añadir al menos un producto al carrito para registrar la venta', 'error');
+            return;
+        }
 
-        // Validation based on Receipt Type
+        // Preparar valores por defecto para el modal de pago
+        this.metodoPago = 'EFECTIVO';
+        this.montoEntregado = this.total;
+        this.numeroReferencia = '';
+        this.calcularCambioEfectivo();
+
+        this.showCobroModal = true;
+    }
+
+    closeCobroModal() {
+        this.showCobroModal = false;
+    }
+
+    // RF31: Cálculo de Vuelto para Estrategia Efectivo
+    calcularCambioEfectivo() {
+        if (this.metodoPago === 'EFECTIVO' && this.montoEntregado && this.montoEntregado >= this.total) {
+            this.montoCambio = Number((this.montoEntregado - this.total).toFixed(2));
+        } else {
+            this.montoCambio = 0;
+        }
+    }
+
+    setMontoEntregadoRapido(monto: number) {
+        this.montoEntregado = monto;
+        this.calcularCambioEfectivo();
+    }
+
+    onMetodoPagoChange() {
+        if (this.metodoPago !== 'EFECTIVO') {
+            this.montoEntregado = null;
+            this.montoCambio = 0;
+        } else {
+            this.montoEntregado = this.total;
+            this.calcularCambioEfectivo();
+        }
+    }
+
+    // Processing Venta Final (Confirmar en Modal)
+    confirmarCobro() {
+        if (this.carrito.length === 0) {
+            this.toastService.show('El carrito de compras está vacío', 'error');
+            return;
+        }
+
         if (this.tipoComprobante === 'FACTURA') {
             if (!this.cliente.documento || !this.cliente.nombre) {
                 this.toastService.show('Para FACTURA, RUC y Razón Social son obligatorios', 'error');
+                return;
+            }
+        }
+
+        // RF31 Validaciones según Strategy seleccionada en el Modal
+        if (this.metodoPago === 'EFECTIVO') {
+            if (!this.montoEntregado || this.montoEntregado < this.total) {
+                this.toastService.show(`Monto entregado insuficiente. Total venta: S/ ${this.total}`, 'error');
+                return;
+            }
+        } else if (this.metodoPago === 'TARJETA' || this.metodoPago === 'DIGITAL') {
+            if (!this.numeroReferencia || !this.numeroReferencia.trim()) {
+                const label = this.metodoPago === 'TARJETA' ? 'número de voucher/tarjeta' : 'número de operación digital (Yape/Plin)';
+                this.toastService.show(`El ${label} es obligatorio`, 'error');
                 return;
             }
         }
@@ -184,39 +275,45 @@ export class VentaComponent implements OnInit {
             cantidad: item.cantidad
         }));
 
-        const venta: VentaDTO = {
+        const ventaDto: VentaDTO = {
             usuarioId: userId,
             tipoComprobante: this.tipoComprobante,
             productos: detalles,
+            metodoPago: this.metodoPago,
+            montoEntregado: this.montoEntregado || undefined,
+            numeroReferencia: this.numeroReferencia || undefined,
+            tipoDescuento: this.tipoDescuento !== 'NINGUNO' ? this.tipoDescuento : undefined,
+            valorDescuento: (this.tipoDescuento !== 'NINGUNO' && this.valorDescuento) ? this.valorDescuento : undefined,
             clienteNombre: this.cliente.nombre,
             clienteDocumento: this.cliente.documento,
             clienteDireccion: this.cliente.direccion
         };
 
         this.loadingService.show();
-        this.ventaService.registrarVenta(venta).subscribe({
-            next: (res: any) => {
+        this.ventaService.registrarVenta(ventaDto).subscribe({
+            next: (res: Venta) => {
                 this.loadingService.hide();
-                this.toastService.show('¡Venta Exitosa!', 'success');
-                this.generateInvoicePDF(res.id, venta);
+                this.toastService.show(`¡Venta ${res.codigoVenta || ''} procesada y emitida con éxito!`, 'success');
+                this.generateInvoicePDF(res.id!, ventaDto, res.codigoVenta);
+                this.closeCobroModal();
                 this.resetForm();
-                this.loadData(); // Update stock
+                this.loadData(); // Actualizar catálogo e inventario
             },
             error: (err) => {
                 this.loadingService.hide();
-                console.error(err);
-                this.toastService.show('Error al procesar la venta', 'error');
+                const msg = err.error?.message || err.error || 'Error al procesar la venta';
+                this.toastService.show(msg, 'error');
             }
         });
     }
 
-    generateInvoicePDF(ventaId: number, ventaDto: VentaDTO) {
-        // Construct enriched object for PDF
+    generateInvoicePDF(ventaId: number, ventaDto: VentaDTO, codigoVenta?: string) {
         const ventaParaPDF: any = {
             ...ventaDto,
             id: ventaId,
+            codigoVenta: codigoVenta,
             fecha: new Date(),
-            cliente: this.cliente, // Pass captured client info
+            cliente: this.cliente,
             productos: this.carrito.map(c => ({
                 productoNombre: c.producto.nombre,
                 cantidad: c.cantidad,
@@ -226,7 +323,7 @@ export class VentaComponent implements OnInit {
         };
 
         const vendedorInfo = {
-            nombreCompleto: this.sellerRole, // using role as placeholder name if name unavailable
+            nombreCompleto: this.sellerRole,
             rol: { nombre: this.sellerRole }
         } as any;
 
@@ -235,8 +332,77 @@ export class VentaComponent implements OnInit {
 
     resetForm() {
         this.carrito = [];
+        this.subtotalGeneral = 0;
+        this.descuentoCalculado = 0;
         this.total = 0;
         this.cliente = { documento: '', nombre: '', direccion: '' };
         this.tipoComprobante = 'BOLETA';
+        this.metodoPago = 'EFECTIVO';
+        this.montoEntregado = null;
+        this.montoCambio = 0;
+        this.numeroReferencia = '';
+        this.tipoDescuento = 'NINGUNO';
+        this.valorDescuento = null;
+    }
+
+    // RF30: Abrir Historial de Ventas y Anulaciones
+    openHistorialModal() {
+        this.loadingService.show();
+        this.ventaService.getHistorial().subscribe({
+            next: (data) => {
+                this.historialVentas = data.reverse();
+                this.showHistorialModal = true;
+                this.loadingService.hide();
+            },
+            error: () => {
+                this.loadingService.hide();
+                this.toastService.show('Error al cargar historial de ventas', 'error');
+            }
+        });
+    }
+
+    closeHistorialModal() {
+        this.showHistorialModal = false;
+    }
+
+    // RF30: Iniciar modal de anulación transaccional (Sólo ADMIN)
+    iniciarAnulacion(venta: Venta) {
+        if (venta.estado === 'ANULADA') {
+            this.toastService.show('Esta venta ya se encuentra anulada', 'info');
+            return;
+        }
+        this.ventaParaAnular = venta;
+        this.motivoAnulacion = '';
+        this.showAnularModal = true;
+    }
+
+    closeAnularModal() {
+        this.showAnularModal = false;
+        this.ventaParaAnular = null;
+        this.motivoAnulacion = '';
+    }
+
+    confirmarAnulacion() {
+        if (!this.ventaParaAnular || !this.ventaParaAnular.id) return;
+        if (!this.motivoAnulacion || !this.motivoAnulacion.trim()) {
+            this.toastService.show('El motivo de anulación es obligatorio para la auditoría', 'error');
+            return;
+        }
+
+        this.loadingService.show();
+        this.ventaService.anularVenta(this.ventaParaAnular.id, { motivo: this.motivoAnulacion.trim() }).subscribe({
+            next: () => {
+                this.loadingService.hide();
+                this.toastService.show('✅ Venta anulada. El stock fue restaurado al inventario.', 'success');
+                this.closeAnularModal();
+                this.openHistorialModal();
+                this.loadData();
+            },
+            error: (err) => {
+                this.loadingService.hide();
+                const msg = err.error?.message || err.error || 'Error al anular la venta. Requiere rol ADMIN.';
+                this.toastService.show(msg, 'error');
+            }
+        });
     }
 }

@@ -1,0 +1,271 @@
+<div class="inventario-container">
+    <!-- Header Title Section -->
+    <div class="header-section">
+        <div class="title-area">
+            <h2>📦 Gestión de Inventario</h2>
+            <p>Control inteligente de vencimientos y trazabilidad auditada de movimientos</p>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-navigation">
+        <button class="tab-btn" [class.active]="activeTab === 'vencimientos'" (click)="setTab('vencimientos')">
+            🚨 Control de Vencimientos
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'movimientos'" (click)="setTab('movimientos')">
+            📜 Historial de Movimientos
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'ajuste'" (click)="setTab('ajuste')">
+            ⚙️ Ajuste Manual de Stock
+        </button>
+    </div>
+
+    <!-- ==================== TAB 1: CONTROL DE VENCIMIENTOS (RF28) ==================== -->
+    <div class="tab-content" *ngIf="activeTab === 'vencimientos'">
+        <!-- Summary Cards -->
+        <div class="summary-cards-grid">
+            <div class="card stat-card card-critico" (click)="filterEstadoAlerta = 'CRITICO'; filterVencimientos()">
+                <div class="stat-icon">🔴</div>
+                <div class="stat-info">
+                    <h3>{{ countCriticos }}</h3>
+                    <p>Críticos (&lt; 7 días / Vencidos)</p>
+                </div>
+            </div>
+            <div class="card stat-card card-precaucion"
+                (click)="filterEstadoAlerta = 'PRECAUCION'; filterVencimientos()">
+                <div class="stat-icon">🟡</div>
+                <div class="stat-info">
+                    <h3>{{ countPrecaucion }}</h3>
+                    <p>Precaución (7 - 30 días)</p>
+                </div>
+            </div>
+            <div class="card stat-card card-normal" (click)="filterEstadoAlerta = 'NORMAL'; filterVencimientos()">
+                <div class="stat-icon">🟢</div>
+                <div class="stat-info">
+                    <h3>{{ countNormales }}</h3>
+                    <p>Estado Normal (&gt; 30 días)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card search-card">
+            <div class="filter-row">
+                <div class="form-group search-input">
+                    <input type="text" [(ngModel)]="searchVencimientoTerm" (input)="filterVencimientos()"
+                        placeholder="Buscar por producto o código de barras..." class="form-control" />
+                </div>
+                <div class="form-group">
+                    <select [(ngModel)]="filterEstadoAlerta" (change)="filterVencimientos()" class="form-control">
+                        <option value="TODOS">Todos los Niveles de Alerta</option>
+                        <option value="CRITICO">🔴 Solo Críticos (&lt; 7 días)</option>
+                        <option value="PRECAUCION">🟡 Solo Precaución (7-30 días)</option>
+                        <option value="NORMAL">🟢 Solo Normales (&gt; 30 días)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vencimientos Table -->
+        <div class="card table-card">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>PRODUCTO</th>
+                        <th>CÓDIGO</th>
+                        <th>CATEGORÍA</th>
+                        <th>STOCK ACTUAL</th>
+                        <th>FECHA DE VENCIMIENTO</th>
+                        <th>DÍAS RESTANTES</th>
+                        <th>ESTADO DE ALERTA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of filteredVencimientos" [class.row-critico]="item.estadoAlerta === 'CRITICO'">
+                        <td class="font-bold">{{ item.productoNombre }}</td>
+                        <td><code>{{ item.codigoBarras || 'N/A' }}</code></td>
+                        <td>{{ item.categoriaNombre }}</td>
+                        <td>
+                            <span class="stock-badge" [class.stock-low]="item.stock <= item.stockMinimo">
+                                {{ item.stock }} unidades
+                            </span>
+                        </td>
+                        <td>{{ item.fechaVencimiento | date:'dd/MM/yyyy' }}</td>
+                        <td>
+                            <span class="dias-counter" [ngClass]="{
+                                'dias-critico': item.diasRestantes < 7,
+                                'dias-precaucion': item.diasRestantes >= 7 && item.diasRestantes <= 30,
+                                'dias-normal': item.diasRestantes > 30
+                            }">
+                                {{ item.diasRestantes < 0 ? '¡VENCIDO HACE ' + (-item.diasRestantes) + ' DÍAS!' :
+                                    item.diasRestantes + ' días' }} </span>
+                        </td>
+                        <td>
+                            <span class="badge-semaforo" [ngClass]="{
+                                'badge-critico': item.estadoAlerta === 'CRITICO',
+                                'badge-precaucion': item.estadoAlerta === 'PRECAUCION',
+                                'badge-normal': item.estadoAlerta === 'NORMAL'
+                            }">
+                                <i class="bi bi-circle-fill"></i> {{ item.estadoAlerta }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredVencimientos.length === 0">
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            No se encontraron productos perecibles con alertas de vencimiento.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 2: HISTORIAL DE MOVIMIENTOS AUDIT LOG (RF29) ==================== -->
+    <div class="tab-content" *ngIf="activeTab === 'movimientos'">
+        <!-- Filter Form -->
+        <div class="card filter-card">
+            <h3>🔍 Filtros de Auditoría y Movimientos</h3>
+            <div class="filter-form-grid">
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select [(ngModel)]="filterProductoId" (change)="loadMovimientos(0)" class="form-control">
+                        <option [ngValue]="null">Todos los Productos</option>
+                        <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Movimiento</label>
+                    <select [(ngModel)]="filterTipoMovimiento" (change)="loadMovimientos(0)" class="form-control">
+                        <option value="">Todos los Tipos</option>
+                        <option value="ENTRADA">📥 ENTRADA (Compras/Ingresos)</option>
+                        <option value="SALIDA">📤 SALIDA (Ventas/Mermas)</option>
+                        <option value="AJUSTE">⚙️ AJUSTE (Conteo/Corrección)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha Desde</label>
+                    <input type="date" [(ngModel)]="filterFechaInicio" (change)="loadMovimientos(0)"
+                        class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Fecha Hasta</label>
+                    <input type="date" [(ngModel)]="filterFechaFin" (change)="loadMovimientos(0)"
+                        class="form-control" />
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-outline-secondary" (click)="resetFiltrosMovimientos()">Limpiar Filtros</button>
+            </div>
+        </div>
+
+        <!-- Audit Log Table -->
+        <div class="card table-card">
+            <div class="table-header-info">
+                <span>Total de registros de auditoría: <strong>{{ totalElements }}</strong></span>
+                <span>Página {{ currentPage + 1 }} de {{ totalPages || 1 }}</span>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>FECHA / HORA</th>
+                        <th>PRODUCTO</th>
+                        <th>TIPO</th>
+                        <th>CANTIDAD</th>
+                        <th>STOCK (ANTES &rarr; DESPUÉS)</th>
+                        <th>USUARIO AUDITOR</th>
+                        <th>MOTIVO / JUSTIFICACIÓN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let mov of movimientos">
+                        <td class="small">{{ mov.fecha | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                        <td class="font-bold">{{ mov.producto.nombre }}</td>
+                        <td>
+                            <span class="badge-mov" [ngClass]="{
+                                'badge-entrada': mov.tipoMovimiento === 'ENTRADA',
+                                'badge-salida': mov.tipoMovimiento === 'SALIDA',
+                                'badge-ajuste': mov.tipoMovimiento === 'AJUSTE'
+                            }">
+                                {{ mov.tipoMovimiento }}
+                            </span>
+                        </td>
+                        <td class="font-bold text-center">
+                            <span [class.text-success]="mov.tipoMovimiento === 'ENTRADA'"
+                                [class.text-danger]="mov.tipoMovimiento === 'SALIDA'">
+                                {{ mov.tipoMovimiento === 'ENTRADA' ? '+' : (mov.tipoMovimiento === 'SALIDA' ? '-' : '')
+                                }}{{ mov.cantidad }}
+                            </span>
+                        </td>
+                        <td><code>{{ mov.stockAnterior }} &rarr; {{ mov.stockFinal }}</code></td>
+                        <td><span class="user-badge"><i class="bi bi-person-fill"></i> {{ mov.usuario }}</span></td>
+                        <td class="small text-muted">{{ mov.motivo }}</td>
+                    </tr>
+                    <tr *ngIf="movimientos.length === 0">
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            No existen movimientos registrados en la auditoría con los filtros seleccionados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination Bar -->
+            <div class="pagination-bar" *ngIf="totalPages > 1">
+                <button class="btn btn-sm btn-outline-primary" [disabled]="currentPage === 0"
+                    (click)="changePage(currentPage - 1)">
+                    &laquo; Anterior
+                </button>
+                <span class="page-indicator">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+                <button class="btn btn-sm btn-outline-primary" [disabled]="currentPage + 1 >= totalPages"
+                    (click)="changePage(currentPage + 1)">
+                    Siguiente &raquo;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 3: AJUSTE MANUAL DE INVENTARIO ==================== -->
+    <div class="tab-content" *ngIf="activeTab === 'ajuste'">
+        <div class="card ajuste-card">
+            <h3>⚙️ Realizar Ajuste Manual de Stock</h3>
+            <p class="subtext">Cada ajuste modificará el stock del producto y registrará una entrada inmutable de
+                auditoría.</p>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Seleccionar Producto *</label>
+                    <select [(ngModel)]="selectedProductoAjuste" (change)="onProductoAjusteSelect($event)"
+                        class="form-control">
+                        <option [ngValue]="null" disabled selected>Seleccione un Producto</option>
+                        <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }} (Stock actual: {{ p.stock }})
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group" *ngIf="selectedProductoAjuste">
+                    <label>Stock Actual en Sistema</label>
+                    <input type="text" [value]="selectedProductoAjuste.stock + ' unidades'" readonly
+                        class="form-control bg-light" />
+                </div>
+
+                <div class="form-group" *ngIf="selectedProductoAjuste">
+                    <label>Nuevo Stock Físico *</label>
+                    <input type="number" min="0" [(ngModel)]="nuevoStockAjuste" placeholder="Ej. 25"
+                        class="form-control" />
+                </div>
+
+                <div class="form-group col-full" *ngIf="selectedProductoAjuste">
+                    <label>Motivo u Observación de la Auditoría *</label>
+                    <textarea [(ngModel)]="motivoAjuste" rows="3"
+                        placeholder="Ej. Conteo físico de inventario de fin de mes, rotura accidental de 2 unidades, merma..."
+                        class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="ajuste-actions" *ngIf="selectedProductoAjuste">
+                <button class="btn btn-primary btn-lg" (click)="guardarAjuste()">
+                    💾 Confirmar y Registrar Ajuste Auditado
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

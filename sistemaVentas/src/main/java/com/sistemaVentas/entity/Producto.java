@@ -49,4 +49,13 @@ public class Producto {
     // válida")
     @Column(name = "url_imagen", columnDefinition = "TEXT")
     private String urlImagen;
+
+    @Column(name = "fecha_vencimiento")
+    private java.time.LocalDate fechaVencimiento;
+
+    @Column(name = "perecible")
+    private Boolean perecible = true;
+
+    @Column(name = "stock_minimo")
+    private int stockMinimo = 10;
 }

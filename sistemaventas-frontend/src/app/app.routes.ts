@@ -12,6 +12,7 @@ import { ProveedorListComponent } from './features/proveedores/proveedor-list/pr
 import { ProveedorDetailComponent } from './features/proveedores/proveedor-detail/proveedor-detail';
 import { CompraListComponent } from './features/compras/compra-list/compra-list';
 import { CompraFormComponent } from './features/compras/compra-form/compra-form';
+import { InventarioComponent } from './features/inventario/inventario';
 import { authGuard } from './core/guards/auth.guard';
 
 import { roleGuard } from './core/guards/role.guard';
@@ -24,6 +25,13 @@ export const routes: Routes = [
         canActivate: [authGuard],
         children: [
             { path: 'dashboard', component: DashboardComponent },
+
+            {
+                path: 'inventario',
+                component: InventarioComponent,
+                canActivate: [roleGuard],
+                data: { roles: ['ADMIN', 'ALMACENERO'] }
+            },
 
             {
                 path: 'productos',

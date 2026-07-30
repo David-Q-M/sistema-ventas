@@ -34,6 +34,10 @@ public class ProductoService {
         return repo.findAll();
     }
 
+    public List<Producto> listarPorProveedor(Long proveedorId) {
+        return repo.findByProveedorId(proveedorId);
+    }
+
     public Producto obtenerPorId(Long id) {
         return repo.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
     }

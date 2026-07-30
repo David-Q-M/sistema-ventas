@@ -17,6 +17,10 @@ export class ProductoService {
         return this.http.get<Producto[]>(`${this.apiUrl}/listar`);
     }
 
+    getByProveedor(proveedorId: number): Observable<Producto[]> {
+        return this.http.get<Producto[]>(`${this.apiUrl}/proveedor/${proveedorId}`);
+    }
+
     getById(id: number): Observable<Producto> {
         return this.http.get<Producto>(`${this.apiUrl}/${id}`);
     }

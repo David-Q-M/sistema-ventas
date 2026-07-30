@@ -20,9 +20,16 @@
         <span>Dashboard</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/productos" routerLinkActive="active" class="nav-item">
+      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/productos" routerLinkActive="active"
+        class="nav-item">
         <i class="bi bi-box-seam-fill icon"></i>
         <span>Productos</span>
+      </a>
+
+      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/inventario" routerLinkActive="active"
+        class="nav-item">
+        <i class="bi bi-boxes icon"></i>
+        <span>Inventario</span>
       </a>
 
       <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item">
@@ -30,7 +37,8 @@
         <span>Proveedores</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active" class="nav-item">
+      <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active"
+        class="nav-item">
         <i class="bi bi-plus-circle-fill icon"></i>
         <span>Registrar Compra</span>
       </a>

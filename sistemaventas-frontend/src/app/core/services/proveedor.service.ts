@@ -16,6 +16,10 @@ export class ProveedorService {
         return this.http.get<Proveedor[]>(`${this.apiUrl}/listar`);
     }
 
+    getActivos(): Observable<Proveedor[]> {
+        return this.http.get<Proveedor[]>(`${this.apiUrl}/listar-activos`);
+    }
+
     getById(id: number): Observable<Proveedor> {
         return this.http.get<Proveedor>(`${this.apiUrl}/${id}`);
     }
@@ -28,7 +32,18 @@ export class ProveedorService {
         return this.http.put<Proveedor>(`${this.apiUrl}/${id}`, proveedor);
     }
 
-    delete(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    /**
+     * RF24: Eliminación Lógica (Soft Delete)
+     * Desactiva el proveedor en la base de datos sin borrar el registro.
+     */
+    delete(id: number): Observable<Proveedor> {
+        return this.http.delete<Proveedor>(`${this.apiUrl}/${id}`);
+    }
+
+    /**
+     * Cambiar estado activo/inactivo dinámicamente
+     */
+    toggleEstado(id: number, activo: boolean): Observable<Proveedor> {
+        return this.http.patch<Proveedor>(`${this.apiUrl}/${id}/estado?activo=${activo}`, {});
     }
 }

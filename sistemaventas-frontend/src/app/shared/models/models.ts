@@ -39,11 +39,21 @@ export interface DetalleVenta {
 
 export interface Venta {
     id?: number;
-    // cliente: string; // Removed as it is not in backend entity
+    codigoVenta?: string;
     usuario: Usuario;
-    fechaVenta: string; // ISO Date - MATCHES BACKEND 'fechaVenta'
+    fechaVenta: string;
     total: number;
+    subtotal?: number;
+    descuento?: number;
     tipoComprobante: string;
+    metodoPago?: 'EFECTIVO' | 'TARJETA' | 'DIGITAL';
+    montoEntregado?: number;
+    montoCambio?: number;
+    numeroReferencia?: string;
+    estado?: 'COMPLETADA' | 'ANULADA';
+    fechaAnulacion?: string;
+    motivoAnulacion?: string;
+    usuarioAnulacion?: string;
     detalles: DetalleVenta[];
 }
 
@@ -71,6 +81,11 @@ export interface VentaDTO {
     usuarioId: number;
     tipoComprobante: string;
     productos: DetalleDTO[];
+    metodoPago?: 'EFECTIVO' | 'TARJETA' | 'DIGITAL';
+    montoEntregado?: number;
+    numeroReferencia?: string;
+    tipoDescuento?: 'PORCENTAJE' | 'MONTO';
+    valorDescuento?: number;
     clienteNombre?: string;
     clienteDocumento?: string;
     clienteDireccion?: string;

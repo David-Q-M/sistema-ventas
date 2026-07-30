@@ -78,9 +78,10 @@
                     <input type="text" [(ngModel)]="productSearchTerm" (input)="filterProductos()" placeholder="Buscar producto por nombre o código..." class="form-control" />
                 </div>
                 <div class="form-group col-4">
-                    <select [(ngModel)]="selectedCategoriaId" (change)="filterProductos()" class="form-control">
-                        <option value="">Categorías (Todas)</option>
-                        <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</option>
+                    <select [(ngModel)]="selectedCategoriaId" (change)="filterProductos()" class="form-control" [disabled]="loadingProductos">
+                        <option value="" *ngIf="!selectedProveedor">Categorías (Todas)</option>
+                        <option value="" *ngIf="selectedProveedor && filteredCategorias.length > 1">Categorías del Proveedor (Todas)</option>
+                        <option *ngFor="let cat of filteredCategorias" [value]="cat.id">{{ cat.nombre }}</option>
                     </select>
                 </div>
             </div>

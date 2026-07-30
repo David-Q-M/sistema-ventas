@@ -1,153 +1,344 @@
-<div class="pos-container animate-fade-in">
-  <div class="pos-layout">
+<div class="pos-container">
+  <!-- Top Bar / Header -->
+  <header class="pos-header">
+    <div class="header-left">
+      <h2>🛒 Terminal Punto de Venta (POS)</h2>
+      <span class="header-badge">
+        <i class="bi bi-clock-fill me-1"></i> {{ currentDate | date:'medium' }}
+      </span>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-info text-white me-2" (click)="openHistorialModal()">
+        📜 Historial y Anulaciones (RF30)
+      </button>
+      <div class="user-chip">
+        <i class="bi bi-person-badge-fill me-1"></i> {{ sellerRole }}
+      </div>
+    </div>
+  </header>
 
-    <!-- LEFT SIDE: High-Density Product Catalog -->
-    <div class="catalog-section">
-      <!-- Search & Category Header -->
-      <div class="catalog-header">
-        <!-- Search Input -->
+  <!-- POS Main Content Layout -->
+  <div class="pos-body">
+    <!-- LEFT PANEL: Catalog & Search -->
+    <div class="pos-catalog">
+      <!-- Search & Filters -->
+      <div class="catalog-controls">
         <div class="search-box">
           <i class="bi bi-search search-icon"></i>
-          <input type="text" class="form-control pos-search-input"
-            placeholder="Buscar por nombre, categoría o código..." [(ngModel)]="searchTerm" (keyup)="onSearch()">
-          <button *ngIf="searchTerm" class="btn-clear-search" (click)="searchTerm=''; onSearch()">
-            <i class="bi bi-x"></i>
+          <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()"
+            placeholder="Buscar por producto, marca o código de barras..." class="form-control search-input" />
+          <button *ngIf="searchTerm" (click)="searchTerm = ''; onSearch()" class="clear-btn">
+            <i class="bi bi-x-circle-fill"></i>
           </button>
         </div>
 
-        <!-- Category Scroll Pills -->
-        <div class="category-pills-row custom-scrollbar">
-          <button class="cat-pill" [class.active]="selectedCategory === null" (click)="selectCategory(null)">
-            <i class="bi bi-grid-fill me-1"></i> Ver Todo
+        <!-- Category Pills Bar -->
+        <div class="category-pills">
+          <button class="pill-btn" [class.active]="selectedCategory === null" (click)="selectCategory(null)">
+            Todos
           </button>
-          <button *ngFor="let cat of categories" class="cat-pill"
-            [class.active]="selectedCategory?.id === cat.id" (click)="selectCategory(cat)">
+          <button *ngFor="let cat of categories" class="pill-btn" [class.active]="selectedCategory?.id === cat.id"
+            (click)="selectCategory(cat)">
             {{ cat.nombre }}
           </button>
         </div>
       </div>
 
-      <!-- High-Density Product Grid -->
-      <div class="catalog-grid-wrapper custom-scrollbar">
-        <div class="product-density-grid">
-          <div *ngFor="let p of filteredProductos" class="pos-product-card"
-            (click)="agregarAlCarrito(p)" [class.out-of-stock]="p.stock === 0"
-            title="{{ p.nombre }} - Stock: {{ p.stock }}">
-
-            <div class="pos-img-container">
-              <img [src]="p.urlImagen || 'assets/no-image.png'" (error)="p.urlImagen = ''" alt="{{ p.nombre }}">
-              <span class="stock-badge" [ngClass]="p.stock > 0 ? 'stock-ok' : 'stock-zero'">
-                {{ p.stock }} un.
+      <!-- Product Cards Grid -->
+      <div class="product-grid-container">
+        <div class="product-grid" *ngIf="filteredProductos.length > 0">
+          <div *ngFor="let prod of filteredProductos" class="product-card" [class.out-of-stock]="prod.stock <= 0"
+            (click)="agregarAlCarrito(prod)">
+            <div class="product-img-wrapper">
+              <img [src]="prod.urlImagen || 'assets/placeholder-food.png'" [alt]="prod.nombre"
+                (error)="$any($event.target).src = 'https://placehold.co/150x150?text=Producto'" />
+              <span class="stock-badge" [class.badge-danger]="prod.stock <= 0">
+                {{ prod.stock > 0 ? prod.stock + ' en stock' : 'Agotado' }}
               </span>
             </div>
-
-            <div class="pos-card-content">
-              <h6 class="pos-prod-title" title="{{ p.nombre }}">{{ p.nombre }}</h6>
-              <span class="pos-prod-cat">{{ p.categoria?.nombre || 'General' }}</span>
-              <div class="pos-card-footer">
-                <span class="pos-price">S/. {{ p.precioVenta | number:'1.2-2' }}</span>
-                <button class="btn-add-mini" [disabled]="p.stock === 0">
-                  <i class="bi bi-plus"></i>
-                </button>
+            <div class="product-info">
+              <span class="product-cat">{{ prod.categoria?.nombre || 'General' }}</span>
+              <h4 class="product-title">{{ prod.nombre }}</h4>
+              <div class="product-price">
+                <span class="currency">S/</span>
+                <span class="amount">{{ prod.precioVenta | number:'1.2-2' }}</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Empty Search State -->
-          <div *ngIf="filteredProductos.length === 0" class="no-products-state">
-            <i class="bi bi-search text-muted fs-3"></i>
-            <p class="mb-0 text-muted small">No se encontraron productos en el inventario.</p>
-          </div>
+        <div class="no-products" *ngIf="filteredProductos.length === 0">
+          <i class="bi bi-box-seam display-4 text-muted"></i>
+          <p class="mt-2 text-muted">No se encontraron productos coincidentes.</p>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT SIDE: Ultra-Compact POS Cart Ticket (Maximum Items Visibility) -->
-    <div class="cart-section">
-      <!-- Receipt Topbar Header -->
-      <div class="cart-header-top">
-        <div class="d-flex align-items-center gap-2">
-          <div class="cart-header-icon"><i class="bi bi-cart-check-fill"></i></div>
-          <div>
-            <h5 class="cart-title">Nueva Venta</h5>
-            <span class="cart-subtitle"><i class="bi bi-person me-1"></i>{{ sellerRole }}</span>
-          </div>
+    <!-- RIGHT PANEL: Shopping Cart & Checkout Button -->
+    <div class="pos-cart">
+      <div class="cart-header">
+        <h3><i class="bi bi-cart3 me-2"></i> Carrito de Venta</h3>
+        <span class="badge bg-primary rounded-pill">{{ carrito.length }} ítems</span>
+      </div>
+
+      <!-- Items List -->
+      <div class="cart-items-container">
+        <div *ngIf="carrito.length === 0" class="empty-cart-view">
+          <i class="bi bi-basket text-muted"></i>
+          <p>Selecciona productos del catálogo para iniciar la venta</p>
         </div>
-        <div class="time-badge">
-          <i class="bi bi-clock me-1"></i>{{ currentDate | date:'shortTime' }}
+
+        <div *ngFor="let item of carrito; let i = index" class="cart-item">
+          <div class="item-details">
+            <span class="item-name">{{ item.producto.nombre }}</span>
+            <span class="item-unit-price">S/ {{ item.producto.precioVenta | number:'1.2-2' }} c/u</span>
+          </div>
+          <div class="item-qty-controls">
+            <button class="qty-btn" (click)="updateQuantity(i, -1)"><i class="bi bi-dash"></i></button>
+            <span class="qty-number">{{ item.cantidad }}</span>
+            <button class="qty-btn" (click)="updateQuantity(i, 1)"><i class="bi bi-plus"></i></button>
+          </div>
+          <div class="item-subtotal">
+            <span>S/ {{ item.subtotal | number:'1.2-2' }}</span>
+            <button class="delete-btn" (click)="eliminarDelCarrito(i)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Compact Receipt & Client Config -->
-      <div class="cart-client-panel">
-        <div class="receipt-type-selector mb-1">
-          <button class="type-btn" [class.active]="tipoComprobante === 'BOLETA'" (click)="tipoComprobante = 'BOLETA'">BOLETA</button>
-          <button class="type-btn" [class.active]="tipoComprobante === 'FACTURA'" (click)="tipoComprobante = 'FACTURA'">FACTURA</button>
-        </div>
-
-        <!-- Inputs for Boleta -->
-        <div *ngIf="tipoComprobante === 'BOLETA'" class="inline-input-row animate-fade-in">
-          <input type="text" class="form-control pos-mini-input" placeholder="DNI (Opcional)" [(ngModel)]="cliente.documento" maxlength="8">
-          <input type="text" class="form-control pos-mini-input" placeholder="Nombre Cliente (Opcional)" [(ngModel)]="cliente.nombre">
-        </div>
-
-        <!-- Inputs for Factura -->
-        <div *ngIf="tipoComprobante === 'FACTURA'" class="animate-fade-in d-flex flex-column gap-1">
-          <div class="inline-input-row">
-            <input type="text" class="form-control pos-mini-input" placeholder="RUC Cliente *" [(ngModel)]="cliente.documento" maxlength="11">
-            <input type="text" class="form-control pos-mini-input" placeholder="Razón Social *" [(ngModel)]="cliente.nombre">
+      <!-- RF32: DISCOUNT ENGINE & SUMMARY -->
+      <div class="cart-summary">
+        <!-- Motor de Descuentos -->
+        <div class="discount-section">
+          <label class="form-label small text-muted font-bold mb-1">Descuento Promocional (RF32)</label>
+          <div class="row g-2 align-items-center">
+            <div class="col-5">
+              <select [(ngModel)]="tipoDescuento" (change)="calcularTotales()" class="form-select form-select-sm">
+                <option value="NINGUNO">Sin Descuento</option>
+                <option value="PORCENTAJE">% Descuento</option>
+                <option value="MONTO">S/ Descuento</option>
+              </select>
+            </div>
+            <div class="col-7" *ngIf="tipoDescuento !== 'NINGUNO'">
+              <input type="number" min="0" [(ngModel)]="valorDescuento" (input)="calcularTotales()"
+                [placeholder]="tipoDescuento === 'PORCENTAJE' ? 'Ej. 10%' : 'Ej. 5.00'"
+                class="form-control form-control-sm" />
+            </div>
           </div>
-          <input type="text" class="form-control pos-mini-input" placeholder="Dirección Fiscal (Opcional)" [(ngModel)]="cliente.direccion">
         </div>
-      </div>
 
-      <!-- Ultra-Compact Expanded Cart Items List (Maximum Items Visible) -->
-      <div class="cart-items-wrapper custom-scrollbar">
-        <div *ngFor="let item of carrito; let i = index" class="cart-item-row animate-fade-in">
-          <!-- Item Title -->
-          <div class="cart-item-info">
-            <h6 class="cart-item-title" title="{{ item.producto.nombre }}">{{ item.producto.nombre }}</h6>
+        <!-- Subtotals Breakdown -->
+        <div class="summary-lines mt-3">
+          <div class="summary-line text-muted">
+            <span>Subtotal:</span>
+            <span>S/ {{ subtotalGeneral | number:'1.2-2' }}</span>
           </div>
-
-          <!-- Qty Controller Pill -->
-          <div class="cart-qty-pill">
-            <button class="btn-qty" (click)="updateQuantity(i, -1)">-</button>
-            <span class="qty-num">{{ item.cantidad }}</span>
-            <button class="btn-qty" (click)="updateQuantity(i, 1)">+</button>
+          <div class="summary-line text-danger" *ngIf="descuentoCalculado > 0">
+            <span>Descuento Aplicado:</span>
+            <span>- S/ {{ descuentoCalculado | number:'1.2-2' }}</span>
           </div>
-
-          <!-- Subtotal -->
-          <span class="cart-item-subtotal">S/. {{ item.subtotal | number:'1.2-2' }}</span>
-
-          <!-- Delete Trash Button -->
-          <button class="btn-del-item" (click)="eliminarDelCarrito(i)" title="Eliminar este ítem">
-            <i class="bi bi-trash3-fill"></i>
-          </button>
+          <div class="summary-line total-line">
+            <span>TOTAL A PAGAR:</span>
+            <span class="total-amount">S/ {{ total | number:'1.2-2' }}</span>
+          </div>
         </div>
 
-        <!-- Empty Cart Placeholder -->
-        <div *ngIf="carrito.length === 0" class="empty-cart-state">
-          <i class="bi bi-cart-x fs-2 text-muted opacity-40"></i>
-          <p class="mb-0 text-muted">Haz clic en los productos para agregarlos al ticket</p>
-        </div>
-      </div>
-
-      <!-- Corporate Compact Footer Totals -->
-      <div class="cart-footer">
-        <div class="summary-inline">
-          <span>Subtotal: S/. {{ total * 0.82 | number:'1.2-2' }}</span>
-          <span>IGV (18%): S/. {{ total * 0.18 | number:'1.2-2' }}</span>
-        </div>
-        <div class="total-highlight-row">
-          <span class="total-label">TOTAL:</span>
-          <span class="total-amount">S/. {{ total | number:'1.2-2' }}</span>
-        </div>
-
-        <button class="btn btn-pay-now" (click)="procesarVenta()" [disabled]="carrito.length === 0">
-          <i class="bi bi-credit-card-2-front-fill me-1"></i> PROCESAR VENTA
+        <!-- Botón Principal: Abrir Modal de Pago / Registrar Venta -->
+        <button class="btn btn-success btn-checkout w-100 mt-3" [disabled]="carrito.length === 0"
+          (click)="openCobroModal()">
+          <i class="bi bi-credit-card-2-front-fill me-2"></i> REGISTRAR VENTA Y COBRAR (S/ {{ total | number:'1.2-2' }})
         </button>
       </div>
     </div>
+  </div>
+</div>
 
+<!-- ==================== MODAL DE PROCESAMIENTO DE PAGO Y COBRO (RF31 STRATEGY) ==================== -->
+<div class="modal-backdrop" *ngIf="showCobroModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h4 class="modal-title"><i class="bi bi-cash-stack me-2"></i> Procesar Venta y Cobro (RF31)</h4>
+        <button class="btn-close btn-close-white" (click)="closeCobroModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Total Banner -->
+        <div class="cobro-total-banner">
+          <span class="banner-label">TOTAL A COBRAR</span>
+          <h2 class="banner-amount">S/ {{ total | number:'1.2-2' }}</h2>
+        </div>
+
+        <!-- Tipo de Comprobante & Cliente -->
+        <div class="card p-3 mb-3 bg-light border-0">
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label font-bold small">Tipo de Comprobante</label>
+              <select [(ngModel)]="tipoComprobante" class="form-select">
+                <option value="BOLETA">Boleta de Venta</option>
+                <option value="FACTURA">Factura Electrónica</option>
+                <option value="TICKET">Ticket de Venta</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label font-bold small">Documento Cliente</label>
+              <input type="text" [(ngModel)]="cliente.documento"
+                [placeholder]="tipoComprobante === 'FACTURA' ? 'RUC *' : 'DNI / RUC (Opcional)'" class="form-control" />
+            </div>
+          </div>
+          <div class="mt-2" *ngIf="tipoComprobante === 'FACTURA' || cliente.documento">
+            <input type="text" [(ngModel)]="cliente.nombre"
+              [placeholder]="tipoComprobante === 'FACTURA' ? 'Razón Social *' : 'Nombre Cliente (Opcional)'"
+              class="form-control" />
+          </div>
+        </div>
+
+        <!-- Seleccionar Método de Pago (Strategy Pattern RF31) -->
+        <div class="payment-strategy-selector mb-3">
+          <label class="form-label font-bold">Seleccione el Método de Pago (Patrón Strategy):</label>
+          <div class="btn-group w-100" role="group">
+            <button type="button" class="btn btn-outline-primary py-2" [class.active]="metodoPago === 'EFECTIVO'"
+              (click)="metodoPago = 'EFECTIVO'; onMetodoPagoChange()">
+              💵 Efectivo
+            </button>
+            <button type="button" class="btn btn-outline-primary py-2" [class.active]="metodoPago === 'TARJETA'"
+              (click)="metodoPago = 'TARJETA'; onMetodoPagoChange()">
+              💳 Tarjeta
+            </button>
+            <button type="button" class="btn btn-outline-primary py-2" [class.active]="metodoPago === 'DIGITAL'"
+              (click)="metodoPago = 'DIGITAL'; onMetodoPagoChange()">
+              📱 Yape / Plin / QR
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulario Dinámico según Estrategia de Pago -->
+        <!-- ESTRATEGIA: EFECTIVO -->
+        <div *ngIf="metodoPago === 'EFECTIVO'" class="card p-3 border-primary bg-white">
+          <label class="form-label font-bold text-primary">Monto Recibido del Cliente *</label>
+          
+          <!-- Botones de billetes rápidos -->
+          <div class="quick-cash-buttons mb-2">
+            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(total)">Exacto (S/ {{ total | number:'1.2-2' }})</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(10)">+S/ 10</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(20)">+S/ 20</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(50)">+S/ 50</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(100)">+S/ 100</button>
+          </div>
+
+          <div class="row g-2 align-items-center">
+            <div class="col-6">
+              <input type="number" step="0.5" [(ngModel)]="montoEntregado" (input)="calcularCambioEfectivo()"
+                class="form-control form-control-lg font-bold" placeholder="0.00" />
+            </div>
+            <div class="col-6">
+              <div class="vuelto-box">
+                <span class="vuelto-label">VUELTO / CAMBIO:</span>
+                <span class="vuelto-amount">S/ {{ montoCambio | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ESTRATEGIA: TARJETA / DIGITAL -->
+        <div *ngIf="metodoPago === 'TARJETA' || metodoPago === 'DIGITAL'" class="card p-3 border-info bg-white">
+          <label class="form-label font-bold text-info">
+            {{ metodoPago === 'TARJETA' ? 'Número de Voucher o Referencia de Tarjeta *' : 'Número de Operación Digital (Yape / Plin / QR) *' }}
+          </label>
+          <input type="text" [(ngModel)]="numeroReferencia"
+            [placeholder]="metodoPago === 'TARJETA' ? 'Ej. 458921' : 'Ej. YAPE-985412'"
+            class="form-control form-control-lg" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeCobroModal()">Cancelar</button>
+        <button class="btn btn-success btn-lg font-bold" (click)="confirmarCobro()">
+          <i class="bi bi-check-circle-fill me-2"></i> CONFIRMAR Y EMITIR COMPROBANTE
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL DE HISTORIAL DE VENTAS Y ANULACIÓN (RF30) ==================== -->
+<div class="modal-backdrop" *ngIf="showHistorialModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h4 class="modal-title">📜 Historial de Ventas y Reversiones (RF30)</h4>
+        <button class="btn-close btn-close-white" (click)="closeHistorialModal()"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th>CÓDIGO</th>
+              <th>FECHA / HORA</th>
+              <th>COMPROBANTE</th>
+              <th>MÉTODO PAGO</th>
+              <th>TOTAL</th>
+              <th>ESTADO</th>
+              <th>ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of historialVentas" [class.table-danger]="v.estado === 'ANULADA'">
+              <td class="font-bold"><code>{{ v.codigoVenta || 'VTA-' + v.id }}</code></td>
+              <td class="small">{{ v.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge bg-secondary">{{ v.tipoComprobante }}</span></td>
+              <td>{{ v.metodoPago || 'EFECTIVO' }}</td>
+              <td class="font-bold">S/ {{ v.total | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class.bg-success]="v.estado !== 'ANULADA'" [class.bg-danger]="v.estado === 'ANULADA'">
+                  {{ v.estado || 'COMPLETADA' }}
+                </span>
+              </td>
+              <td>
+                <button *ngIf="v.estado !== 'ANULADA'" class="btn btn-sm btn-outline-danger" (click)="iniciarAnulacion(v)"
+                  title="Revertir y Anular Venta (Requiere ADMIN)">
+                  ⚠️ Anular
+                </button>
+                <span *ngIf="v.estado === 'ANULADA'" class="small text-muted" [title]="v.motivoAnulacion">
+                  Anulado por {{ v.usuarioAnulacion || 'ADMIN' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="historialVentas.length === 0">
+              <td colspan="7" class="text-center py-3 text-muted">No existen ventas registradas aún.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeHistorialModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN DE ANULACIÓN (RF30 REVERSIÓN TRANSACCIONAL) -->
+<div class="modal-backdrop" *ngIf="showAnularModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h4 class="modal-title">⚠️ Confirmar Anulación de Venta {{ ventaParaAnular?.codigoVenta || 'VTA-' + ventaParaAnular?.id }}</h4>
+        <button class="btn-close btn-close-white" (click)="closeAnularModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="ventaParaAnular">
+        <p class="text-danger font-bold">Esta acción restaurará el stock al inventario automáticamente (Audit Log) y marcará la venta como ANULADA.</p>
+        <p><strong>Monto a Revertir:</strong> S/ {{ ventaParaAnular.total | number:'1.2-2' }}</p>
+
+        <div class="form-group mt-3">
+          <label class="form-label font-bold">Motivo u Observación Obligatoria de Anulación *</label>
+          <textarea [(ngModel)]="motivoAnulacion" rows="3" class="form-control"
+            placeholder="Ej. Devolución de dinero al cliente por insatisfacción, error en marcación de producto..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeAnularModal()">Cancelar</button>
+        <button class="btn btn-danger" (click)="confirmarAnulacion()">Ejecutar Reversión Transaccional</button>
+      </div>
+    </div>
   </div>
 </div>

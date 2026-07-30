@@ -157,29 +157,105 @@ export class ProveedorListComponent implements OnInit {
     this.validationErrors = {};
   }
 
+  // --- KEYBOARD & INPUT PREVENTIONS ---
+
+  /**
+   * Bloquea en el teclado el ingreso de números (0-9) para campos de Nombre y Contacto.
+   */
+  onlyLettersKey(event: KeyboardEvent): boolean {
+    const key = event.key;
+    if (/[0-9]/.test(key)) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Bloquea en el teclado el ingreso de letras o símbolos para campos de RUC y Teléfono.
+   */
+  onlyNumbersKey(event: KeyboardEvent): boolean {
+    const key = event.key;
+    if (['Backspace', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(key)) {
+      return true;
+    }
+    if (!/^[0-9]$/.test(key)) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  // Sanitizadores en tiempo real
+  onNombreInput() {
+    if (this.formModel.nombre) {
+      this.formModel.nombre = this.formModel.nombre.replace(/[0-9]/g, '');
+    }
+    this.onFieldChange();
+  }
+
+  onContactoInput() {
+    if (this.formModel.contacto) {
+      this.formModel.contacto = this.formModel.contacto.replace(/[0-9]/g, '');
+    }
+    this.onFieldChange();
+  }
+
+  onRucInput() {
+    if (this.formModel.ruc) {
+      this.formModel.ruc = this.formModel.ruc.replace(/\D/g, '');
+    }
+    this.onFieldChange();
+  }
+
+  onTelefonoInput() {
+    if (this.formModel.telefono) {
+      this.formModel.telefono = this.formModel.telefono.replace(/\D/g, '');
+    }
+    this.onFieldChange();
+  }
+
+  // --- VALIDACIÓN RIGUROSA ---
   validateForm(): boolean {
     this.validationErrors = {};
     let isValid = true;
 
-    // 1. Nombre validation
+    // 1. NOMBRE: Obligatorio, solo letras y símbolos de nombre, NADA DE NÚMEROS.
     if (!this.formModel.nombre || !this.formModel.nombre.trim()) {
       this.validationErrors.nombre = 'El nombre o razón social es obligatorio.';
       isValid = false;
     } else if (this.formModel.nombre.trim().length < 3) {
       this.validationErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
       isValid = false;
+    } else if (/[0-9]/.test(this.formModel.nombre)) {
+      this.validationErrors.nombre = 'El nombre solo debe contener letras. ¡No se permiten números!';
+      isValid = false;
     }
 
-    // 2. RUC validation (11 digits if provided)
-    if (this.formModel.ruc && this.formModel.ruc.trim()) {
+    // 2. RUC: Obligatorio, exactamente 11 dígitos numéricos, NADA DE LETRAS.
+    if (!this.formModel.ruc || !this.formModel.ruc.trim()) {
+      this.validationErrors.ruc = 'El número de RUC es obligatorio.';
+      isValid = false;
+    } else {
       const rucClean = this.formModel.ruc.trim();
-      if (!/^\d{11}$/.test(rucClean)) {
+      if (/\D/.test(rucClean)) {
+        this.validationErrors.ruc = 'El RUC solo debe contener números. ¡No se permiten letras!';
+        isValid = false;
+      } else if (rucClean.length !== 11) {
         this.validationErrors.ruc = 'El RUC debe contener exactamente 11 dígitos numéricos.';
         isValid = false;
       }
     }
 
-    // 3. Email validation
+    // 3. CONTACTO: Opcional, pero solo letras si se ingresa.
+    if (this.formModel.contacto && this.formModel.contacto.trim()) {
+      if (/[0-9]/.test(this.formModel.contacto)) {
+        this.validationErrors.contacto = 'El contacto solo debe contener letras. ¡No se permiten números!';
+        isValid = false;
+      }
+    }
+
+    // 4. EMAIL: Opcional, formato de correo válido.
     if (this.formModel.email && this.formModel.email.trim()) {
       const emailClean = this.formModel.email.trim();
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -189,10 +265,13 @@ export class ProveedorListComponent implements OnInit {
       }
     }
 
-    // 4. Telefono validation (7 to 9 digits if provided)
+    // 5. TELÉFONO: Opcional, entre 7 y 9 dígitos numéricos si se ingresa.
     if (this.formModel.telefono && this.formModel.telefono.trim()) {
       const phoneClean = this.formModel.telefono.trim();
-      if (!/^\d{7,9}$/.test(phoneClean)) {
+      if (/\D/.test(phoneClean)) {
+        this.validationErrors.telefono = 'El teléfono solo debe contener números. ¡No se permiten letras!';
+        isValid = false;
+      } else if (phoneClean.length < 7 || phoneClean.length > 9) {
         this.validationErrors.telefono = 'El teléfono debe contener entre 7 y 9 dígitos numéricos.';
         isValid = false;
       }
@@ -209,8 +288,10 @@ export class ProveedorListComponent implements OnInit {
 
   saveProveedor() {
     this.isSubmitted = true;
+
+    // BLOQUEO ABSOLUTO SI LA VALIDACIÓN NO SE CUMPLE
     if (!this.validateForm()) {
-      this.toastService.show('Por favor corrija los errores en el formulario', 'error');
+      this.toastService.show('⚠️ Registro bloqueado: Por favor corrija los campos no válidos marcados en rojo.', 'error');
       return;
     }
 
@@ -222,9 +303,15 @@ export class ProveedorListComponent implements OnInit {
           this.closeModal();
           this.loadProveedores();
         },
-        error: () => {
+        error: (err) => {
           this.loadingService.hide();
-          this.toastService.show('Error al actualizar proveedor', 'error');
+          const msg = err.error?.message || err.error?.ruc || err.error?.nombre || 'Error al actualizar proveedor';
+          if (msg.toLowerCase().includes('ruc')) {
+            this.validationErrors.ruc = msg;
+          } else if (msg.toLowerCase().includes('nombre')) {
+            this.validationErrors.nombre = msg;
+          }
+          this.toastService.show('⚠️ ' + msg, 'error');
         }
       });
     } else {
@@ -234,25 +321,59 @@ export class ProveedorListComponent implements OnInit {
           this.closeModal();
           this.loadProveedores();
         },
-        error: () => {
+        error: (err) => {
           this.loadingService.hide();
-          this.toastService.show('Error al guardar proveedor', 'error');
+          const msg = err.error?.message || err.error?.ruc || err.error?.nombre || 'Error al guardar proveedor';
+          if (msg.toLowerCase().includes('ruc')) {
+            this.validationErrors.ruc = msg;
+          } else if (msg.toLowerCase().includes('nombre')) {
+            this.validationErrors.nombre = msg;
+          }
+          this.toastService.show('⚠️ ' + msg, 'error');
         }
       });
     }
   }
 
-  deleteProveedor(id: number) {
-    if (confirm('¿Estás seguro de eliminar este proveedor?')) {
+  /**
+   * RF24: Eliminación Lógica (Soft Delete)
+   */
+  desactivarProveedor(proveedor: Proveedor) {
+    if (!proveedor.id) return;
+    const confirmMessage = `¿Estás seguro de desactivar al proveedor "${proveedor.nombre}"?\n\nEsta acción realizará una eliminación lógica (Soft Delete). El historial de compras se conservará sin alteración.`;
+
+    if (confirm(confirmMessage)) {
       this.loadingService.show();
-      this.proveedorService.delete(id).subscribe({
+      this.proveedorService.delete(proveedor.id).subscribe({
         next: () => {
-          this.toastService.show('Proveedor eliminado correctamente', 'success');
+          this.toastService.show('Proveedor desactivado correctamente (Eliminación lógica)', 'success');
           this.loadProveedores();
         },
-        error: () => {
+        error: (err) => {
           this.loadingService.hide();
-          this.toastService.show('Error al eliminar proveedor. Verifique que no tenga dependencias.', 'error');
+          const msg = err.error?.message || 'Error al desactivar proveedor';
+          this.toastService.show(msg, 'error');
+        }
+      });
+    }
+  }
+
+  toggleEstado(proveedor: Proveedor) {
+    if (!proveedor.id) return;
+    const nuevoEstado = !proveedor.activo;
+    const accionText = nuevoEstado ? 'reactivar' : 'desactivar (soft delete)';
+
+    if (confirm(`¿Deseas ${accionText} al proveedor "${proveedor.nombre}"?`)) {
+      this.loadingService.show();
+      this.proveedorService.toggleEstado(proveedor.id, nuevoEstado).subscribe({
+        next: () => {
+          this.toastService.show(`Proveedor ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`, 'success');
+          this.loadProveedores();
+        },
+        error: (err) => {
+          this.loadingService.hide();
+          const msg = err.error?.message || 'Error al cambiar estado del proveedor';
+          this.toastService.show(msg, 'error');
         }
       });
     }

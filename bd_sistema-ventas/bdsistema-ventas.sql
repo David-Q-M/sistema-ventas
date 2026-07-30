@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `proveedores` (
   `dias_pago` int(11) DEFAULT 0,
   `ruc` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
 

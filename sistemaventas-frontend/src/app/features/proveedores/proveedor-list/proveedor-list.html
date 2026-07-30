@@ -140,7 +140,8 @@
               <div class="subtext" *ngIf="p.email"><i class="bi bi-envelope me-1"></i>{{ p.email }}</div>
             </td>
             <td>
-              <span class="badge" [ngClass]="p.activo ? 'badge-recibida' : 'badge-cancelada'">
+              <span class="badge cursor-pointer" [ngClass]="p.activo ? 'badge-recibida' : 'badge-cancelada'"
+                    (click)="toggleEstado(p)" [title]="p.activo ? 'Haz clic para desactivar (Soft Delete)' : 'Haz clic para reactivar'">
                 {{ p.activo ? 'ACTIVO' : 'INACTIVO' }}
               </span>
             </td>
@@ -152,11 +153,14 @@
                 <a [routerLink]="['/proveedores/detalle', p.id]" class="btn-icon" title="Ver Ficha Detallada">
                   <i class="bi bi-eye"></i>
                 </a>
-                <button class="btn-icon text-primary" (click)="openEditModal(p)" title="Modificar Proveedor">
+                <button class="btn-icon text-primary" (click)="openEditModal(p)" title="Modificar Proveedor (RF23)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn-icon text-danger" (click)="deleteProveedor(p.id!)" title="Eliminar Proveedor">
-                  <i class="bi bi-trash"></i>
+                <button *ngIf="p.activo" class="btn-icon text-warning" (click)="desactivarProveedor(p)" title="Desactivar Proveedor (RF24 - Soft Delete)">
+                  <i class="bi bi-person-x-fill"></i>
+                </button>
+                <button *ngIf="!p.activo" class="btn-icon text-success" (click)="toggleEstado(p)" title="Reactivar Proveedor">
+                  <i class="bi bi-person-check-fill"></i>
                 </button>
               </div>
             </td>
@@ -191,7 +195,7 @@
         <!-- Nombre del Proveedor -->
         <div class="form-group col-6">
           <label class="form-label">Nombre o Razón Social <span class="text-danger">*</span></label>
-          <input type="text" [(ngModel)]="formModel.nombre" (ngModelChange)="onFieldChange()" class="form-control"
+          <input type="text" [(ngModel)]="formModel.nombre" (keydown)="onlyLettersKey($event)" (input)="onNombreInput()" class="form-control"
             [class.is-invalid]="validationErrors.nombre" placeholder="Ej: Almacenes Juana S.R.L." />
           <div class="error-msg" *ngIf="validationErrors.nombre">
             <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.nombre }}
@@ -200,8 +204,8 @@
 
         <!-- RUC (11 dígitos numéricos) -->
         <div class="form-group col-6">
-          <label class="form-label">Número de RUC <small class="text-muted">(11 dígitos)</small></label>
-          <input type="text" [(ngModel)]="formModel.ruc" (ngModelChange)="onFieldChange()" class="form-control"
+          <label class="form-label">Número de RUC <span class="text-danger">*</span> <small class="text-muted">(11 dígitos)</small></label>
+          <input type="text" [(ngModel)]="formModel.ruc" (keydown)="onlyNumbersKey($event)" (input)="onRucInput()" class="form-control"
             [class.is-invalid]="validationErrors.ruc" maxlength="11" placeholder="Ej: 20101234567" />
           <div class="error-msg" *ngIf="validationErrors.ruc">
             <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.ruc }}
@@ -213,14 +217,17 @@
         <!-- Persona de Contacto -->
         <div class="form-group col-6">
           <label class="form-label">Persona de Contacto</label>
-          <input type="text" [(ngModel)]="formModel.contacto" (ngModelChange)="onFieldChange()" class="form-control"
-            placeholder="Ej: Carlos Mendoza" />
+          <input type="text" [(ngModel)]="formModel.contacto" (keydown)="onlyLettersKey($event)" (input)="onContactoInput()" class="form-control"
+            [class.is-invalid]="validationErrors.contacto" placeholder="Ej: Carlos Mendoza" />
+          <div class="error-msg" *ngIf="validationErrors.contacto">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.contacto }}
+          </div>
         </div>
 
         <!-- Teléfono (7 a 9 dígitos) -->
         <div class="form-group col-6">
           <label class="form-label">Teléfono de Contacto</label>
-          <input type="text" [(ngModel)]="formModel.telefono" (ngModelChange)="onFieldChange()" class="form-control"
+          <input type="text" [(ngModel)]="formModel.telefono" (keydown)="onlyNumbersKey($event)" (input)="onTelefonoInput()" class="form-control"
             [class.is-invalid]="validationErrors.telefono" maxlength="9" placeholder="Ej: 985632147" />
           <div class="error-msg" *ngIf="validationErrors.telefono">
             <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.telefono }}
@@ -282,7 +289,7 @@
         <!-- Nombre Comercial -->
         <div class="form-group col-8">
           <label class="form-label">Nombre o Razón Social <span class="text-danger">*</span></label>
-          <input type="text" [(ngModel)]="formModel.nombre" (ngModelChange)="onFieldChange()" class="form-control"
+          <input type="text" [(ngModel)]="formModel.nombre" (keydown)="onlyLettersKey($event)" (input)="onNombreInput()" class="form-control"
             [class.is-invalid]="validationErrors.nombre" />
           <div class="error-msg" *ngIf="validationErrors.nombre">
             <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.nombre }}
@@ -306,8 +313,8 @@
       <div class="form-row">
         <!-- RUC -->
         <div class="form-group col-6">
-          <label class="form-label">Número de RUC <small class="text-muted">(11 dígitos)</small></label>
-          <input type="text" [(ngModel)]="formModel.ruc" (ngModelChange)="onFieldChange()" class="form-control"
+          <label class="form-label">Número de RUC <span class="text-danger">*</span> <small class="text-muted">(11 dígitos)</small></label>
+          <input type="text" [(ngModel)]="formModel.ruc" (keydown)="onlyNumbersKey($event)" (input)="onRucInput()" class="form-control"
             [class.is-invalid]="validationErrors.ruc" maxlength="11" />
           <div class="error-msg" *ngIf="validationErrors.ruc">
             <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.ruc }}
@@ -317,7 +324,11 @@
         <!-- Persona de contacto -->
         <div class="form-group col-6">
           <label class="form-label">Persona de Contacto</label>
-          <input type="text" [(ngModel)]="formModel.contacto" class="form-control" />
+          <input type="text" [(ngModel)]="formModel.contacto" (keydown)="onlyLettersKey($event)" (input)="onContactoInput()" class="form-control"
+            [class.is-invalid]="validationErrors.contacto" />
+          <div class="error-msg" *ngIf="validationErrors.contacto">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.contacto }}
+          </div>
         </div>
       </div>
 
@@ -325,7 +336,7 @@
         <!-- Teléfono -->
         <div class="form-group col-6">
           <label class="form-label">Teléfono de Contacto</label>
-          <input type="text" [(ngModel)]="formModel.telefono" (ngModelChange)="onFieldChange()" class="form-control"
+          <input type="text" [(ngModel)]="formModel.telefono" (keydown)="onlyNumbersKey($event)" (input)="onTelefonoInput()" class="form-control"
             [class.is-invalid]="validationErrors.telefono" maxlength="9" />
           <div class="error-msg" *ngIf="validationErrors.telefono">
             <i class="bi bi-exclamation-circle-fill"></i> {{ validationErrors.telefono }}

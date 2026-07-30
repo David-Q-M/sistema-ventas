@@ -8,4 +8,7 @@ import java.util.Optional;
 @Repository
 public interface ProveedorRepository extends JpaRepository<Proveedor, Long> {
     Optional<Proveedor> findByRuc(String ruc);
+    boolean existsByRuc(String ruc);
+    boolean existsByRucAndIdNot(String ruc, Long id);
+    java.util.List<Proveedor> findByActivoTrue();
 }

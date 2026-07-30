@@ -32,6 +32,37 @@ public class Venta {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    @Column(name = "codigo_venta")
+    private String codigoVenta;
+
+    @Column(name = "metodo_pago")
+    private String metodoPago = "EFECTIVO";
+
+    @Column(name = "monto_entregado")
+    private BigDecimal montoEntregado;
+
+    @Column(name = "monto_cambio")
+    private BigDecimal montoCambio;
+
+    @Column(name = "numero_referencia")
+    private String numeroReferencia;
+
+    private BigDecimal subtotal;
+
+    private BigDecimal descuento;
+
+    @Column(name = "estado", nullable = false)
+    private String estado = "COMPLETADA"; // COMPLETADA, ANULADA
+
+    @Column(name = "fecha_anulacion")
+    private LocalDateTime fechaAnulacion;
+
+    @Column(name = "motivo_anulacion", columnDefinition = "TEXT")
+    private String motivoAnulacion;
+
+    @Column(name = "usuario_anulacion")
+    private String usuarioAnulacion;
+
     // Relación para el CRUD completo: permite ver los productos de la venta
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<DetalleVenta> detalles;

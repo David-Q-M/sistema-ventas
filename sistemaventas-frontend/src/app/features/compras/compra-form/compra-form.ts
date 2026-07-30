@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CompraService } from '../../../core/services/compra.service';
+import { CompraService, CompraRequestPayload } from '../../../core/services/compra.service';
 import { ProveedorService } from '../../../core/services/proveedor.service';
 import { ProductoService } from '../../../core/services/producto.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
-import { Proveedor, Producto, Categoria, DetalleCompra, Compra } from '../../../shared/models/models';
+import { Proveedor, Producto, Categoria, DetalleCompra } from '../../../shared/models/models';
 import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../core/services/loading.service';
 
@@ -23,8 +23,13 @@ export class CompraFormComponent implements OnInit {
     
     productos: Producto[] = [];
     filteredProductos: Producto[] = [];
-    categorias: Categoria[] = [];
     
+    categorias: Categoria[] = [];
+    filteredCategorias: Categoria[] = [];
+    
+    // Loading State
+    loadingProductos = false;
+
     // Filters & Searches
     selectedCategoriaId: string = '';
     productSearchTerm: string = '';
@@ -72,7 +77,7 @@ export class CompraFormComponent implements OnInit {
     loadInitialData() {
         this.loadingService.show();
         
-        // Load active suppliers
+        // Cargar ÚNICAMENTE proveedores activos (RF24 + RF25)
         this.proveedorService.getAll().subscribe({
             next: (data) => {
                 this.proveedores = data.filter(p => p.activo);
@@ -80,7 +85,7 @@ export class CompraFormComponent implements OnInit {
             },
             error: () => {
                 this.loadingService.hide();
-                this.toastService.show('Error al cargar proveedores', 'error');
+                this.toastService.show('Error al cargar catálogo de proveedores', 'error');
             }
         });
     }
@@ -103,6 +108,7 @@ export class CompraFormComponent implements OnInit {
         this.categoriaService.getAll().subscribe({
             next: (data) => {
                 this.categorias = data;
+                this.updateFilteredCategorias();
                 this.loadingService.hide();
             },
             error: () => {
@@ -112,9 +118,103 @@ export class CompraFormComponent implements OnInit {
         });
     }
 
+    /**
+     * FILTRADO EXCLUSIVO DE CATEGORÍA POR PROVEEDOR:
+     * Cuando se selecciona un proveedor que tiene una categoría asignada (ej: "Bebidas"),
+     * la lista desplegable se filtra para mostrar ÚNICAMENTE dicha categoría y excluir todas las demás.
+     */
+    updateFilteredCategorias() {
+        if (!this.selectedProveedor) {
+            this.filteredCategorias = [...this.categorias];
+            this.selectedCategoriaId = '';
+            this.filterProductos();
+            return;
+        }
+
+        const provCatName = (this.selectedProveedor.categoria || '').trim().toLowerCase();
+
+        // 1. Coincidencia prioritaria por el campo 'categoria' del proveedor seleccionado
+        if (provCatName) {
+            const matchingBySupplierCat = this.categorias.filter(c => {
+                const catName = c.nombre.trim().toLowerCase();
+                return catName === provCatName || catName.includes(provCatName) || provCatName.includes(catName);
+            });
+
+            if (matchingBySupplierCat.length > 0) {
+                this.filteredCategorias = matchingBySupplierCat;
+                // Seleccionar automáticamente la categoría única del proveedor
+                this.selectedCategoriaId = String(matchingBySupplierCat[0].id);
+                this.filterProductos();
+                return;
+            }
+        }
+
+        // 2. Si no hay string de categoría directo, filtrar por las categorías de los productos vinculados al proveedor
+        const productCategoryIds = new Set<number>(
+            this.productos
+                .filter(p => !!p.categoria && p.categoria.id !== undefined)
+                .map(p => p.categoria!.id!)
+        );
+
+        const matchingByProducts = this.categorias.filter(c => productCategoryIds.has(c.id));
+
+        if (matchingByProducts.length > 0) {
+            this.filteredCategorias = matchingByProducts;
+            if (matchingByProducts.length === 1) {
+                this.selectedCategoriaId = String(matchingByProducts[0].id);
+            } else {
+                this.selectedCategoriaId = '';
+            }
+        } else {
+            // Respaldar con la lista global si el proveedor no tiene categoría registrada
+            this.filteredCategorias = [...this.categorias];
+            this.selectedCategoriaId = '';
+        }
+
+        this.filterProductos();
+    }
+
     onProveedorChange() {
-        // Find fully loaded supplier detail if needed, or simply assign
-        this.selectedProveedor = this.proveedores.find(p => p.id === this.selectedProveedor?.id) || null;
+        const provId = this.selectedProveedor?.id ? Number(this.selectedProveedor.id) : null;
+        this.selectedProveedor = this.proveedores.find(p => p.id === provId) || null;
+
+        // Reiniciar carrito si se cambia el proveedor
+        if (this.detalles.length > 0) {
+            this.detalles = [];
+            this.calculateTotal();
+            this.toastService.show('⚠️ Se cambió de proveedor: El carrito se ha limpiado para evitar inconsistencias.', 'info');
+        }
+
+        // Filtrado dinámico relacional por proveedorId
+        if (provId) {
+            this.loadingProductos = true;
+            this.productoService.getByProveedor(provId).subscribe({
+                next: (prodsFiltrados) => {
+                    this.loadingProductos = false;
+                    if (prodsFiltrados && prodsFiltrados.length > 0) {
+                        this.productos = prodsFiltrados;
+                    } else {
+                        this.loadProductosGenerales();
+                    }
+                    this.updateFilteredCategorias();
+                },
+                error: () => {
+                    this.loadingProductos = false;
+                    this.loadProductosGenerales();
+                }
+            });
+        } else {
+            this.loadProductosGenerales();
+        }
+    }
+
+    loadProductosGenerales() {
+        this.productoService.getAll().subscribe({
+            next: (data) => {
+                this.productos = data;
+                this.updateFilteredCategorias();
+            }
+        });
     }
 
     filterProductos() {
@@ -134,7 +234,6 @@ export class CompraFormComponent implements OnInit {
         const prodId = Number(event.target.value);
         this.selectedProductoForAdd = this.productos.find(p => p.id === prodId) || null;
         if (this.selectedProductoForAdd) {
-            // Suggest default precio cost as 70% of retail price for instance, or empty
             this.precioCostoForAdd = Number((this.selectedProductoForAdd.precioVenta * 0.75).toFixed(2));
             this.cantidadForAdd = 10;
         } else {
@@ -145,27 +244,25 @@ export class CompraFormComponent implements OnInit {
 
     addItem() {
         if (!this.selectedProductoForAdd) {
-            this.toastService.show('Debe seleccionar un producto', 'error');
+            this.toastService.show('Debe seleccionar un producto del catálogo', 'error');
             return;
         }
         if (!this.cantidadForAdd || this.cantidadForAdd <= 0) {
             this.toastService.show('La cantidad debe ser mayor a cero', 'error');
             return;
         }
-        if (this.precioCostoForAdd === null || this.precioCostoForAdd < 0) {
-            this.toastService.show('El precio de costo no puede ser negativo', 'error');
+        if (this.precioCostoForAdd === null || this.precioCostoForAdd <= 0) {
+            this.toastService.show('El precio de costo debe ser mayor a cero', 'error');
             return;
         }
 
-        // Check if product is already in the list
         const existingIdx = this.detalles.findIndex(d => d.producto.id === this.selectedProductoForAdd!.id);
         const subtotal = Number((this.cantidadForAdd * this.precioCostoForAdd).toFixed(2));
 
         if (existingIdx > -1) {
-            // Update quantity & subtotal
             const d = this.detalles[existingIdx];
             d.cantidad += this.cantidadForAdd;
-            d.precioCosto = this.precioCostoForAdd; // use latest cost
+            d.precioCosto = this.precioCostoForAdd;
             d.subtotal = Number((d.cantidad * d.precioCosto).toFixed(2));
             d.observacion = this.observacionForAdd || d.observacion;
         } else {
@@ -186,7 +283,6 @@ export class CompraFormComponent implements OnInit {
         this.precioCostoForAdd = null;
         this.observacionForAdd = '';
         
-        // Reset HTML Select value
         const selectElem = document.getElementById('prodAddSelect') as HTMLSelectElement;
         if (selectElem) selectElem.value = '';
     }
@@ -197,34 +293,52 @@ export class CompraFormComponent implements OnInit {
     }
 
     calculateTotal() {
-        this.montoTotal = this.detalles.reduce((acc, curr) => acc + curr.subtotal, 0);
+        this.montoTotal = Number(this.detalles.reduce((acc, curr) => acc + curr.subtotal, 0).toFixed(2));
     }
 
+    /**
+     * RF25, RF26, RF27: Envío del Payload DTO Anidado y Validación de Fechas.
+     */
     generarPedido() {
-        if (!this.selectedProveedor) {
-            this.toastService.show('Debe seleccionar un proveedor', 'error');
+        if (!this.selectedProveedor || !this.selectedProveedor.id) {
+            this.toastService.show('Debe seleccionar un proveedor activo de la lista', 'error');
             return;
         }
+        if (!this.selectedProveedor.activo) {
+            this.toastService.show('El proveedor seleccionado se encuentra inactivo y no puede recibir compras', 'error');
+            return;
+        }
+
+        // VALIDACIÓN TEMPORAL DE FECHAS (FECHA ENTREGA >= FECHA PEDIDO)
+        if (this.fechaEntrega && this.fechaPedido && this.fechaEntrega < this.fechaPedido) {
+            this.toastService.show('⚠️ La fecha de entrega debe ser igual o posterior a la fecha del pedido.', 'error');
+            return;
+        }
+
         if (this.detalles.length === 0) {
-            this.toastService.show('Debe añadir al menos un producto a la orden', 'error');
+            this.toastService.show('Debe añadir al menos un producto a la orden de compra', 'error');
             return;
         }
 
         this.loadingService.show();
         
-        const nuevaCompra: Compra = {
-            proveedor: this.selectedProveedor,
+        const payload: CompraRequestPayload = {
+            proveedorId: this.selectedProveedor.id,
             fechaPedido: this.fechaPedido,
             fechaEntrega: this.fechaEntrega || undefined,
             metodoPedido: this.metodoPedidoSeleccionado,
             estadoPago: this.metodoPagoSeleccionado,
-            montoTotal: this.montoTotal,
-            estado: 'RECIBIDO', // Al registrar, se recibe directamente de acuerdo al flujo de las imágenes
+            estado: 'RECIBIDO',
             observacion: this.observacionGeneral || undefined,
-            detalles: this.detalles
+            detalles: this.detalles.map(d => ({
+                productoId: d.producto.id!,
+                cantidad: d.cantidad,
+                precioCosto: d.precioCosto,
+                observacion: d.observacion
+            }))
         };
 
-        this.compraService.create(nuevaCompra).subscribe({
+        this.compraService.create(payload).subscribe({
             next: (res) => {
                 this.loadingService.hide();
                 this.createdCompraInfo = {
@@ -234,9 +348,10 @@ export class CompraFormComponent implements OnInit {
                 };
                 this.showSuccessModal = true;
             },
-            error: () => {
+            error: (err) => {
                 this.loadingService.hide();
-                this.toastService.show('Error al registrar la compra', 'error');
+                const msg = err.error?.message || 'Error al registrar la compra en el servidor';
+                this.toastService.show('⚠️ ' + msg, 'error');
             }
         });
     }

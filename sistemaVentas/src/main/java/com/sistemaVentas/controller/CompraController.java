@@ -2,10 +2,13 @@ package com.sistemaVentas.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.sistemaVentas.business.CompraService;
-import com.sistemaVentas.entity.Compra;
+import com.sistemaVentas.dto.CompraRequestDTO;
+import com.sistemaVentas.dto.CompraResponseDTO;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,26 +20,32 @@ public class CompraController {
     private CompraService service;
 
     @GetMapping("/listar")
-    public ResponseEntity<List<Compra>> listar() {
-        return ResponseEntity.ok(service.listarTodas());
+    public ResponseEntity<List<CompraResponseDTO>> listar() {
+        return ResponseEntity.ok(service.listarTodasDTO());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Compra> obtenerPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.obtenerPorId(id));
+    public ResponseEntity<CompraResponseDTO> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtenerPorIdDTO(id));
     }
 
+    /**
+     * RF25, RF26, RF27: Endpoint para registrar compra con detalle anidado y actualización de inventario.
+     */
     @PostMapping("/guardar")
-    public ResponseEntity<Compra> guardar(@Valid @RequestBody Compra compra) {
-        return ResponseEntity.ok(service.registrar(compra));
+    public ResponseEntity<CompraResponseDTO> guardar(@Valid @RequestBody CompraRequestDTO dto) {
+        CompraResponseDTO creada = service.registrarDTO(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
 
     @PutMapping("/{id}/estado")
-    public ResponseEntity<Compra> actualizarEstado(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<CompraResponseDTO> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
         String nuevoEstado = body.get("estado");
         if (nuevoEstado == null || nuevoEstado.trim().isEmpty()) {
-            throw new IllegalArgumentException("El estado es obligatorio");
+            throw new IllegalArgumentException("El nuevo estado es obligatorio");
         }
-        return ResponseEntity.ok(service.actualizarEstado(id, nuevoEstado));
+        return ResponseEntity.ok(service.actualizarEstadoDTO(id, nuevoEstado));
     }
 }
