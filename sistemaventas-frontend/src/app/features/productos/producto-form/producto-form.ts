@@ -184,12 +184,24 @@ export class ProductoFormComponent implements OnInit {
 
     onSubmit() {
         if (this.isEdit) {
-            this.productoService.update(this.producto.id!, this.producto).subscribe(() => {
-                this.router.navigate(['/productos']);
+            this.productoService.update(this.producto.id!, this.producto).subscribe({
+                next: () => {
+                    this.toastService.show('✅ Producto actualizado exitosamente', 'success');
+                    this.router.navigate(['/productos']);
+                },
+                error: (err) => {
+                    this.toastService.show('⚠️ Error al actualizar el producto: ' + (err.error?.message || 'Error en servidor'), 'error');
+                }
             });
         } else {
-            this.productoService.create(this.producto).subscribe(() => {
-                this.router.navigate(['/productos']);
+            this.productoService.create(this.producto).subscribe({
+                next: () => {
+                    this.toastService.show('✅ Producto registrado exitosamente', 'success');
+                    this.router.navigate(['/productos']);
+                },
+                error: (err) => {
+                    this.toastService.show('⚠️ Error al registrar el producto: ' + (err.error?.message || 'Error en servidor'), 'error');
+                }
             });
         }
     }
