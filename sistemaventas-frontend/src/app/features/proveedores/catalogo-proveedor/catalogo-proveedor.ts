@@ -33,9 +33,12 @@ export class CatalogoProveedorComponent implements OnInit {
 
     // Modo creación de nuevo producto global
     nuevoNombre: '',
+    nuevoDescripcion: '',
     nuevoCodigoBarras: '',
+    nuevoUrlImagen: '',
     nuevoCategoria: undefined as Categoria | undefined,
     nuevoPrecioVenta: 15.00,
+    nuevoPerecible: false,
 
     // Atributos de Suministro por Proveedor
     precioCosto: 10.00,
@@ -187,13 +190,15 @@ export class CatalogoProveedorComponent implements OnInit {
       // 1. Crear producto nuevo primero en el backend
       const nuevoProductoPayload = {
         nombre: this.formModel.nuevoNombre.trim(),
+        descripcion: this.formModel.nuevoDescripcion ? this.formModel.nuevoDescripcion.trim() : undefined,
         codigoBarras: this.formModel.nuevoCodigoBarras ? this.formModel.nuevoCodigoBarras.trim() : undefined,
         categoria: this.formModel.nuevoCategoria,
         precioVenta: Number(this.formModel.nuevoPrecioVenta || (this.formModel.precioCosto * 1.3)),
         stock: Number(this.formModel.stockActual),
         stockMinimo: Number(this.formModel.stockMinimo || 10),
         fechaVencimiento: this.formModel.fechaVencimiento || undefined,
-        perecible: !!this.formModel.fechaVencimiento
+        perecible: this.formModel.nuevoPerecible || !!this.formModel.fechaVencimiento,
+        urlImagen: this.formModel.nuevoUrlImagen ? this.formModel.nuevoUrlImagen.trim() : undefined
       } as Producto;
 
       this.productoService.create(nuevoProductoPayload).subscribe({

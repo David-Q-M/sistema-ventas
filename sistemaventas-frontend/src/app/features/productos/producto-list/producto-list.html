@@ -10,9 +10,14 @@
         <p>Controla el stock en tiempo real, precios de venta y categorías de tu negocio</p>
       </div>
     </div>
-    <a routerLink="/productos/nuevo" class="btn btn-primary">
-      <i class="bi bi-plus-lg"></i> Nuevo Producto
-    </a>
+    <div class="d-flex gap-2 align-items-center">
+      <a routerLink="/compras/nuevo" class="btn btn-primary fw-bold" title="Comprar productos a proveedores y abastecer stock en inventario">
+        <i class="bi bi-cart-plus-fill me-1"></i> + Nuevo Producto (Comprar)
+      </a>
+      <a routerLink="/productos/nuevo" class="btn btn-outline-secondary btn-sm" title="Alta Ficha Manual de Producto">
+        <i class="bi bi-plus-lg"></i> Ficha Manual
+      </a>
+    </div>
   </div>
 
   <!-- KPI Stat Cards Row (Unified Corporate Aesthetic) -->
