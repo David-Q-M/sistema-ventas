@@ -2,14 +2,14 @@
   <!-- Top Bar / Header -->
   <header class="pos-header">
     <div class="header-left">
-      <h2>🛒 Terminal Punto de Venta (POS)</h2>
+      <h2>🛒 Terminal Punto de Venta </h2>
       <span class="header-badge">
         <i class="bi bi-clock-fill me-1"></i> {{ currentDate | date:'medium' }}
       </span>
     </div>
     <div class="header-right">
       <button class="btn btn-outline-info text-white me-2" (click)="openHistorialModal()">
-        📜 Historial y Anulaciones (RF30)
+        Historial y Anulaciones
       </button>
       <div class="user-chip">
         <i class="bi bi-person-badge-fill me-1"></i> {{ sellerRole }}
@@ -111,7 +111,7 @@
       <div class="cart-summary">
         <!-- Motor de Descuentos -->
         <div class="discount-section">
-          <label class="form-label small text-muted font-bold mb-1">Descuento Promocional (RF32)</label>
+          <label class="form-label small text-muted font-bold mb-1">Descuento Promocional</label>
           <div class="row g-2 align-items-center">
             <div class="col-5">
               <select [(ngModel)]="tipoDescuento" (change)="calcularTotales()" class="form-select form-select-sm">
@@ -216,10 +216,11 @@
         <!-- ESTRATEGIA: EFECTIVO -->
         <div *ngIf="metodoPago === 'EFECTIVO'" class="card p-3 border-primary bg-white">
           <label class="form-label font-bold text-primary">Monto Recibido del Cliente *</label>
-          
+
           <!-- Botones de billetes rápidos -->
           <div class="quick-cash-buttons mb-2">
-            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(total)">Exacto (S/ {{ total | number:'1.2-2' }})</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(total)">Exacto (S/ {{
+              total | number:'1.2-2' }})</button>
             <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(10)">+S/ 10</button>
             <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(20)">+S/ 20</button>
             <button class="btn btn-sm btn-outline-secondary" (click)="setMontoEntregadoRapido(50)">+S/ 50</button>
@@ -243,7 +244,8 @@
         <!-- ESTRATEGIA: TARJETA / DIGITAL -->
         <div *ngIf="metodoPago === 'TARJETA' || metodoPago === 'DIGITAL'" class="card p-3 border-info bg-white">
           <label class="form-label font-bold text-info">
-            {{ metodoPago === 'TARJETA' ? 'Número de Voucher o Referencia de Tarjeta *' : 'Número de Operación Digital (Yape / Plin / QR) *' }}
+            {{ metodoPago === 'TARJETA' ? 'Número de Voucher o Referencia de Tarjeta *' : 'Número de Operación Digital
+            (Yape / Plin / QR) *' }}
           </label>
           <input type="text" [(ngModel)]="numeroReferencia"
             [placeholder]="metodoPago === 'TARJETA' ? 'Ej. 458921' : 'Ej. YAPE-985412'"
@@ -266,7 +268,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
-        <h4 class="modal-title">📜 Historial de Ventas y Reversiones (RF30)</h4>
+        <h4 class="modal-title"> Historial de Ventas y Reversiones</h4>
         <button class="btn-close btn-close-white" (click)="closeHistorialModal()"></button>
       </div>
       <div class="modal-body">
@@ -290,13 +292,14 @@
               <td>{{ v.metodoPago || 'EFECTIVO' }}</td>
               <td class="font-bold">S/ {{ v.total | number:'1.2-2' }}</td>
               <td>
-                <span class="badge" [class.bg-success]="v.estado !== 'ANULADA'" [class.bg-danger]="v.estado === 'ANULADA'">
+                <span class="badge" [class.bg-success]="v.estado !== 'ANULADA'"
+                  [class.bg-danger]="v.estado === 'ANULADA'">
                   {{ v.estado || 'COMPLETADA' }}
                 </span>
               </td>
               <td>
-                <button *ngIf="v.estado !== 'ANULADA'" class="btn btn-sm btn-outline-danger" (click)="iniciarAnulacion(v)"
-                  title="Revertir y Anular Venta (Requiere ADMIN)">
+                <button *ngIf="v.estado !== 'ANULADA'" class="btn btn-sm btn-outline-danger"
+                  (click)="iniciarAnulacion(v)" title="Revertir y Anular Venta (Requiere ADMIN)">
                   ⚠️ Anular
                 </button>
                 <span *ngIf="v.estado === 'ANULADA'" class="small text-muted" [title]="v.motivoAnulacion">
@@ -322,11 +325,13 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
-        <h4 class="modal-title">⚠️ Confirmar Anulación de Venta {{ ventaParaAnular?.codigoVenta || 'VTA-' + ventaParaAnular?.id }}</h4>
+        <h4 class="modal-title"> Confirmar Anulación de Venta {{ ventaParaAnular?.codigoVenta || 'VTA-' +
+          ventaParaAnular?.id }}</h4>
         <button class="btn-close btn-close-white" (click)="closeAnularModal()"></button>
       </div>
       <div class="modal-body" *ngIf="ventaParaAnular">
-        <p class="text-danger font-bold">Esta acción restaurará el stock al inventario automáticamente (Audit Log) y marcará la venta como ANULADA.</p>
+        <p class="text-danger font-bold">Esta acción restaurará el stock al inventario automáticamente (Audit Log) y
+          marcará la venta como ANULADA.</p>
         <p><strong>Monto a Revertir:</strong> S/ {{ ventaParaAnular.total | number:'1.2-2' }}</p>
 
         <div class="form-group mt-3">

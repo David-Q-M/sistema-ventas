@@ -228,11 +228,6 @@ export class ProveedorDetailComponent implements OnInit {
     }
 
     onlyLettersKey(event: KeyboardEvent): boolean {
-        const key = event.key;
-        if (/[0-9]/.test(key)) {
-            event.preventDefault();
-            return false;
-        }
         return true;
     }
 
@@ -249,16 +244,10 @@ export class ProveedorDetailComponent implements OnInit {
     }
 
     onProveedorNombreInput() {
-        if (this.proveedorFormModel.nombre) {
-            this.proveedorFormModel.nombre = this.proveedorFormModel.nombre.replace(/[0-9]/g, '');
-        }
         this.onProveedorFieldChange();
     }
 
     onProveedorContactoInput() {
-        if (this.proveedorFormModel.contacto) {
-            this.proveedorFormModel.contacto = this.proveedorFormModel.contacto.replace(/[0-9]/g, '');
-        }
         this.onProveedorFieldChange();
     }
 
@@ -289,11 +278,8 @@ export class ProveedorDetailComponent implements OnInit {
         if (!this.proveedorFormModel.nombre || !this.proveedorFormModel.nombre.trim()) {
             this.proveedorValidationErrors.nombre = 'El nombre o razón social es obligatorio.';
             isValid = false;
-        } else if (this.proveedorFormModel.nombre.trim().length < 3) {
-            this.proveedorValidationErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-            isValid = false;
-        } else if (/[0-9]/.test(this.proveedorFormModel.nombre)) {
-            this.proveedorValidationErrors.nombre = 'El nombre solo debe contener letras. ¡No se permiten números!';
+        } else if (this.proveedorFormModel.nombre.trim().length < 2) {
+            this.proveedorValidationErrors.nombre = 'El nombre debe tener al menos 2 caracteres.';
             isValid = false;
         }
 
@@ -311,12 +297,7 @@ export class ProveedorDetailComponent implements OnInit {
             }
         }
 
-        if (this.proveedorFormModel.contacto && this.proveedorFormModel.contacto.trim()) {
-            if (/[0-9]/.test(this.proveedorFormModel.contacto)) {
-                this.proveedorValidationErrors.contacto = 'El contacto solo debe contener letras. ¡No se permiten números!';
-                isValid = false;
-            }
-        }
+        // Contacto es opcional
 
         if (this.proveedorFormModel.email && this.proveedorFormModel.email.trim()) {
             const emailClean = this.proveedorFormModel.email.trim();
@@ -376,14 +357,23 @@ export class ProveedorDetailComponent implements OnInit {
         this.isEditing = false;
         this.isSubmitted = false;
         this.validationErrors = {};
-        this.updateProductosFiltrados();
+
+        if (!this.productosGlobales || this.productosGlobales.length === 0) {
+            this.loadProductosGlobales();
+        } else {
+            this.updateProductosFiltrados();
+        }
 
         const initialProdId = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0)
             ? this.productosFiltradosPorCategoria[0].id
             : 0;
 
-        const defaultPrice = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0 && this.productosFiltradosPorCategoria[0].precioVenta)
-            ? Number((this.productosFiltradosPorCategoria[0].precioVenta * 0.75).toFixed(2))
+        const selectedProd = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0)
+            ? this.productosFiltradosPorCategoria[0]
+            : null;
+
+        const defaultPrice = (selectedProd && selectedProd.precioVenta)
+            ? Number((selectedProd.precioVenta * 0.75).toFixed(2))
             : 10.00;
 
         this.catalogoFormModel = {

@@ -181,11 +181,6 @@ export class ProveedorListComponent implements OnInit {
    * Bloquea en el teclado el ingreso de números (0-9) para campos de Nombre y Contacto.
    */
   onlyLettersKey(event: KeyboardEvent): boolean {
-    const key = event.key;
-    if (/[0-9]/.test(key)) {
-      event.preventDefault();
-      return false;
-    }
     return true;
   }
 
@@ -206,16 +201,10 @@ export class ProveedorListComponent implements OnInit {
 
   // Sanitizadores en tiempo real
   onNombreInput() {
-    if (this.formModel.nombre) {
-      this.formModel.nombre = this.formModel.nombre.replace(/[0-9]/g, '');
-    }
     this.onFieldChange();
   }
 
   onContactoInput() {
-    if (this.formModel.contacto) {
-      this.formModel.contacto = this.formModel.contacto.replace(/[0-9]/g, '');
-    }
     this.onFieldChange();
   }
 
@@ -238,15 +227,12 @@ export class ProveedorListComponent implements OnInit {
     this.validationErrors = {};
     let isValid = true;
 
-    // 1. NOMBRE: Obligatorio, solo letras y símbolos de nombre, NADA DE NÚMEROS.
+    // 1. NOMBRE: Obligatorio
     if (!this.formModel.nombre || !this.formModel.nombre.trim()) {
       this.validationErrors.nombre = 'El nombre o razón social es obligatorio.';
       isValid = false;
-    } else if (this.formModel.nombre.trim().length < 3) {
-      this.validationErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-      isValid = false;
-    } else if (/[0-9]/.test(this.formModel.nombre)) {
-      this.validationErrors.nombre = 'El nombre solo debe contener letras. ¡No se permiten números!';
+    } else if (this.formModel.nombre.trim().length < 2) {
+      this.validationErrors.nombre = 'El nombre debe tener al menos 2 caracteres.';
       isValid = false;
     }
 
@@ -265,14 +251,8 @@ export class ProveedorListComponent implements OnInit {
       }
     }
 
-    // 3. CONTACTO: Opcional, pero solo letras si se ingresa.
-    if (this.formModel.contacto && this.formModel.contacto.trim()) {
-      if (/[0-9]/.test(this.formModel.contacto)) {
-        this.validationErrors.contacto = 'El contacto solo debe contener letras. ¡No se permiten números!';
-        isValid = false;
-      }
-    }
-
+    // 3. CONTACTO: Opcional.
+    
     // 4. EMAIL: Opcional, formato de correo válido.
     if (this.formModel.email && this.formModel.email.trim()) {
       const emailClean = this.formModel.email.trim();

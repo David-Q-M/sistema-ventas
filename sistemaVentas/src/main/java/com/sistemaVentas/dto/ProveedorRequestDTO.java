@@ -13,8 +13,8 @@ import java.time.LocalDate;
 public class ProveedorRequestDTO {
 
     @NotBlank(message = "El nombre o razón social es obligatorio")
-    @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s\\.\\-]+$", message = "El nombre o razón social solo debe contener letras (no se permiten números)")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s\\.\\,\\-\\&\\/\\(\\)]+$", message = "El nombre o razón social contiene caracteres no válidos")
     private String nombre;
 
     @NotBlank(message = "El número de RUC es obligatorio")
@@ -22,7 +22,7 @@ public class ProveedorRequestDTO {
     private String ruc;
 
     @Size(max = 100, message = "El contacto no debe exceder 100 caracteres")
-    @Pattern(regexp = "^$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El nombre de contacto solo debe contener letras (no se permiten números)")
+    @Pattern(regexp = "^$|^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s\\.\\,\\-\\&\\/\\(\\)]+$", message = "El nombre de contacto contiene caracteres no válidos")
     private String contacto;
 
     @Pattern(regexp = "^$|^\\d{7,9}$", message = "El teléfono debe contener solo números (entre 7 y 9 dígitos)")
