@@ -1,37 +1,37 @@
-<div class="productos-container animate-fade-in mb-5">
+<div class="productos-form-container animate-fade-in">
   <!-- Page Header Card -->
-  <div class="page-header-card mb-4">
+  <div class="page-header-card">
     <div class="page-header-title">
       <div class="page-header-icon">
-        <i class="bi bi-box-seam"></i>
+        <i class="bi bi-box-seam-fill"></i>
       </div>
       <div>
         <h2>{{ isEdit ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
         <p>Complete la información detallada e imagen para catalogar el producto en inventario</p>
       </div>
     </div>
-    <div class="d-flex gap-2">
-      <a routerLink="/productos" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Cancelar
+    <div class="d-flex gap-2 align-items-center">
+      <a routerLink="/productos" class="btn btn-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Cancelar
       </a>
-      <button type="button" class="btn btn-primary" (click)="onSubmit()">
-        <i class="bi bi-check-lg"></i> Guardar Producto
+      <button type="button" class="btn btn-primary btn-sm" (click)="onSubmit()">
+        <i class="bi bi-check-lg me-1"></i> Guardar Producto
       </button>
     </div>
   </div>
 
   <form (ngSubmit)="onSubmit()">
-    <div class="row g-4">
+    <div class="form-grid">
       <!-- Left Column: Image & Barcode Identification -->
-      <div class="col-lg-4">
+      <div class="left-col">
         <!-- Image Preview Card -->
-        <div class="card mb-4">
-          <div class="card-header-title mb-3">
+        <div class="card form-card mb-3">
+          <div class="card-header-title">
             <i class="bi bi-image text-primary fs-5"></i>
-            <h3 class="fs-6">Imagen del Producto</h3>
+            <h3>Imagen del Producto</h3>
           </div>
           <div class="text-center p-3 bg-light rounded-3">
-            <div class="image-upload-wrapper mb-3 mx-auto position-relative" style="width: 180px; height: 180px;">
+            <div class="image-upload-wrapper mb-3 mx-auto position-relative" style="width: 150px; height: 150px;">
               <img [src]="producto.urlImagen || 'assets/no-image.png'"
                 class="img-fluid rounded-3 shadow-sm w-100 h-100 object-fit-contain bg-white p-2"
                 alt="Vista previa" (error)="producto.urlImagen = ''">
@@ -45,18 +45,18 @@
             <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
 
             <div class="form-group mb-0 text-start">
-              <label class="form-label small">URL de Imagen Externa</label>
-              <input type="url" class="form-control form-control-sm" [(ngModel)]="producto.urlImagen" name="urlImagen"
+              <label class="form-label">URL de Imagen Externa</label>
+              <input type="url" class="form-control form-control-sm text-truncate" [(ngModel)]="producto.urlImagen" name="urlImagen"
                 placeholder="https://ejemplo.com/imagen.jpg">
             </div>
           </div>
         </div>
 
         <!-- Barcode Identification Card -->
-        <div class="card">
-          <div class="card-header-title mb-3">
+        <div class="card form-card">
+          <div class="card-header-title">
             <i class="bi bi-upc-scan text-primary fs-5"></i>
-            <h3 class="fs-6">Identificación y Código</h3>
+            <h3>Identificación y Código</h3>
           </div>
           <div class="form-group">
             <label class="form-label">Código de Barras</label>
@@ -68,7 +68,7 @@
                 <i class="bi bi-qr-code-scan"></i>
               </button>
             </div>
-            <button type="button" class="btn btn-secondary btn-sm w-100" (click)="fileInput.click()">
+            <button type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="fileInput.click()">
               <i class="bi bi-file-image me-1"></i> Escanear desde Imagen
             </button>
           </div>
@@ -76,23 +76,23 @@
       </div>
 
       <!-- Right Column: Information & Pricing -->
-      <div class="col-lg-8">
-        <div class="card h-100">
-          <div class="card-header-title mb-4">
+      <div class="right-col">
+        <div class="card form-card">
+          <div class="card-header-title mb-3">
             <i class="bi bi-card-text text-primary fs-5"></i>
-            <h3 class="fs-6">Información Comercial y Precios</h3>
+            <h3>Información Comercial y Precios</h3>
           </div>
 
-          <div class="row g-3">
+          <div class="form-fields-grid">
             <!-- Product Name -->
-            <div class="col-12">
+            <div class="form-group col-full">
               <label class="form-label">Nombre del Producto <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-lg fw-bold" [(ngModel)]="producto.nombre" name="nombre" required
-                placeholder="Ej: Laptop Gamer ASUS TUF FX506...">
+              <input type="text" class="form-control fw-bold" [(ngModel)]="producto.nombre" name="nombre" required
+                placeholder="Ej: Gaseosa Inka Cola 2L...">
             </div>
 
             <!-- Category -->
-            <div class="col-md-6">
+            <div class="form-group">
               <label class="form-label">Categoría <span class="text-danger">*</span></label>
               <select class="form-control" [(ngModel)]="producto.categoria" name="categoria" required [compareWith]="compareCategorias">
                 <option [ngValue]="undefined" disabled>Seleccione una categoría...</option>
@@ -101,7 +101,7 @@
             </div>
 
             <!-- Stock -->
-            <div class="col-md-6">
+            <div class="form-group">
               <label class="form-label">Stock Disponible <span class="text-danger">*</span></label>
               <div class="input-group">
                 <span class="input-group-text bg-white"><i class="bi bi-boxes text-primary"></i></span>
@@ -110,16 +110,16 @@
             </div>
 
             <!-- Price -->
-            <div class="col-md-6">
+            <div class="form-group">
               <label class="form-label">Precio de Venta <span class="text-danger">*</span></label>
-              <div class="input-group input-group-lg">
+              <div class="input-group">
                 <span class="input-group-text bg-light text-primary fw-bold">S/.</span>
                 <input type="number" class="form-control fw-bold text-primary" [(ngModel)]="producto.precioVenta" name="precioVenta" required min="0.01" step="0.01">
               </div>
             </div>
 
             <!-- Fecha de Vencimiento -->
-            <div class="col-md-6">
+            <div class="form-group">
               <label class="form-label">Fecha de Vencimiento de Lote</label>
               <div class="input-group">
                 <span class="input-group-text bg-white"><i class="bi bi-calendar-event text-primary"></i></span>
@@ -128,7 +128,7 @@
             </div>
 
             <!-- Stock Mínimo -->
-            <div class="col-md-6">
+            <div class="form-group col-full">
               <label class="form-label">Stock Mínimo (Alerta Reorden)</label>
               <div class="input-group">
                 <span class="input-group-text bg-white"><i class="bi bi-exclamation-triangle text-primary"></i></span>
@@ -137,7 +137,7 @@
             </div>
 
             <!-- Description -->
-            <div class="col-12 mt-3">
+            <div class="form-group col-full">
               <label class="form-label">Descripción o Notas Adicionales</label>
               <textarea class="form-control" [(ngModel)]="producto.descripcion" name="descripcion" rows="3"
                 placeholder="Detalles técnicos, especificaciones, observaciones..."></textarea>
