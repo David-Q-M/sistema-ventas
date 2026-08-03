@@ -237,20 +237,20 @@
         <table class="table align-middle mb-0">
           <thead>
             <tr>
-              <th class="ps-4">IMAGEN</th>
+              <th class="text-center" style="width: 70px;">IMAGEN</th>
               <th>PRODUCTO / CÓDIGO</th>
               <th>CATEGORÍA</th>
-              <th>PRECIO VENTA (S/.)</th>
-              <th>STOCK</th>
-              <th>FECHA VENC.</th>
-              <th>ESTADO</th>
-              <th class="text-end pe-4">ACCIONES</th>
+              <th class="text-end">PRECIO VENTA</th>
+              <th class="text-center">STOCK</th>
+              <th class="text-center">FECHA VENC.</th>
+              <th class="text-center">ESTADO</th>
+              <th class="text-center" style="width: 120px;">ACCIONES</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of filteredProductos">
-              <td class="ps-4" style="width: 70px;">
-                <div class="table-thumb-container">
+              <td class="text-center">
+                <div class="table-thumb-container mx-auto">
                   <img [src]="p.urlImagen || 'assets/no-image.png'" (error)="p.urlImagen = ''" alt="{{ p.nombre }}">
                 </div>
               </td>
@@ -261,34 +261,34 @@
               <td>
                 <span class="badge bg-light text-dark border">{{ p.categoria?.nombre || 'General' }}</span>
               </td>
-              <td class="fw-bold text-primary fs-6">S/. {{ p.precioVenta | number:'1.2-2' }}</td>
-              <td>
-                <span class="fw-bold" [ngClass]="(p.stock || 0) < 10 ? 'text-danger' : 'text-dark'">
+              <td class="text-end fw-bold text-primary fs-6">S/. {{ p.precioVenta | number:'1.2-2' }}</td>
+              <td class="text-center">
+                <span class="fw-bold" [ngClass]="(p.stock || 0) < (p.stockMinimo || 10) ? 'text-danger' : 'text-dark'">
                   {{ p.stock }} un.
                 </span>
               </td>
-              <td>
+              <td class="text-center">
                 <span *ngIf="p.fechaVencimiento" class="small text-dark fw-semibold">
                   <i class="bi bi-calendar-event me-1 text-primary"></i>{{ p.fechaVencimiento | date:'dd/MM/yyyy' }}
                 </span>
                 <span *ngIf="!p.fechaVencimiento" class="text-muted small">-</span>
               </td>
-              <td>
+              <td class="text-center">
                 <span class="badge" [ngClass]="{
                   'badge-cancelada': (p.stock || 0) === 0,
-                  'badge-pendiente': (p.stock || 0) > 0 && (p.stock || 0) < 10,
-                  'badge-recibida': (p.stock || 0) >= 10
+                  'badge-pendiente': (p.stock || 0) > 0 && (p.stock || 0) < (p.stockMinimo || 10),
+                  'badge-recibida': (p.stock || 0) >= (p.stockMinimo || 10)
                 }">
-                  {{ (p.stock || 0) === 0 ? 'AGOTADO' : ((p.stock || 0) < 10 ? 'POCO STOCK' : 'DISPONIBLE' ) }}
+                  {{ (p.stock || 0) === 0 ? 'AGOTADO' : ((p.stock || 0) < (p.stockMinimo || 10) ? 'POCO STOCK' : 'DISPONIBLE' ) }}
                 </span>
               </td>
-              <td class="text-end pe-4">
-                <div class="action-buttons justify-content-end">
-                  <a [routerLink]="['/productos/editar', p.id]" class="btn-icon text-primary" title="Editar Producto">
-                    <i class="bi bi-pencil"></i>
+              <td class="text-center">
+                <div class="action-buttons justify-content-center">
+                  <a [routerLink]="['/productos/editar', p.id]" class="btn btn-sm btn-outline-primary" title="Editar Producto">
+                    <i class="bi bi-pencil-fill"></i>
                   </a>
-                  <button (click)="p.id && deleteProducto(p.id!)" class="btn-icon text-danger" title="Eliminar Producto">
-                    <i class="bi bi-trash"></i>
+                  <button (click)="p.id && deleteProducto(p.id!)" class="btn btn-sm btn-outline-danger" title="Eliminar Producto">
+                    <i class="bi bi-trash-fill"></i>
                   </button>
                 </div>
               </td>
