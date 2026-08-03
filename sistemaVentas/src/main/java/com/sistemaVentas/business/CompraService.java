@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sistemaVentas.dataaccess.CompraRepository;
 import com.sistemaVentas.dataaccess.ProductoRepository;
 import com.sistemaVentas.dataaccess.ProveedorRepository;
+import com.sistemaVentas.dataaccess.CatalogoProveedorRepository;
 import com.sistemaVentas.dto.CompraRequestDTO;
 import com.sistemaVentas.dto.CompraResponseDTO;
 import com.sistemaVentas.dto.DetalleCompraRequestDTO;
