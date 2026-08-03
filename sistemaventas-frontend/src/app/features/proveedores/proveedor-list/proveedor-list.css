@@ -250,6 +250,19 @@
     margin-top: 0.2rem;
   }
 
+  .clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .clickable-row:hover {
+    background-color: #F1F5F9 !important;
+  }
+
+  .clickable-row:hover .provider-link {
+    color: #1D4ED8 !important;
+  }
+
   .provider-link {
     text-decoration: none;
     color: #0F172A;

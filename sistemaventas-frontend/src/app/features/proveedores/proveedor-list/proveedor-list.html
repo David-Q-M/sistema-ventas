@@ -120,11 +120,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of filteredProveedores">
+          <tr *ngFor="let p of filteredProveedores" class="clickable-row" (click)="p.id && verDetalleProveedor(p.id)">
             <td>
-              <a [routerLink]="['/proveedores/detalle', p.id]" class="provider-link" title="Ver ficha detallada">
+              <div class="provider-link fw-bold text-dark fs-6" title="Ver ficha técnica de {{ p.nombre }}">
                 <i class="bi bi-building me-1 text-primary"></i> <strong>{{ p.nombre }}</strong>
-              </a>
+              </div>
               <div class="subtext-ruc">
                 <span class="badge bg-light text-dark border me-1">RUC</span> {{ p.ruc || 'No registrado' }}
               </div>
@@ -141,25 +141,25 @@
             </td>
             <td>
               <span class="badge cursor-pointer" [ngClass]="p.activo ? 'badge-recibida' : 'badge-cancelada'"
-                    (click)="toggleEstado(p)" [title]="p.activo ? 'Haz clic para desactivar (Soft Delete)' : 'Haz clic para reactivar'">
+                    (click)="$event.stopPropagation(); toggleEstado(p)" [title]="p.activo ? 'Haz clic para desactivar (Soft Delete)' : 'Haz clic para reactivar'">
                 {{ p.activo ? 'ACTIVO' : 'INACTIVO' }}
               </span>
             </td>
             <td>
               <span class="text-muted">{{ p.ultimaOrden || 'Sin órdenes' }}</span>
             </td>
-            <td>
+            <td (click)="$event.stopPropagation()">
               <div class="action-buttons">
-                <a [routerLink]="['/proveedores/detalle', p.id]" class="btn-icon" title="Ver Ficha Detallada">
+                <a [routerLink]="['/proveedores/detalle', p.id]" class="btn-icon" title="Ver Ficha Detallada" (click)="$event.stopPropagation()">
                   <i class="bi bi-eye"></i>
                 </a>
-                <button class="btn-icon text-primary" (click)="openEditModal(p)" title="Modificar Proveedor (RF23)">
+                <button class="btn-icon text-primary" (click)="$event.stopPropagation(); openEditModal(p)" title="Modificar Proveedor (RF23)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button *ngIf="p.activo" class="btn-icon text-warning" (click)="desactivarProveedor(p)" title="Desactivar Proveedor (RF24 - Soft Delete)">
+                <button *ngIf="p.activo" class="btn-icon text-warning" (click)="$event.stopPropagation(); desactivarProveedor(p)" title="Desactivar Proveedor (RF24 - Soft Delete)">
                   <i class="bi bi-person-x-fill"></i>
                 </button>
-                <button *ngIf="!p.activo" class="btn-icon text-success" (click)="toggleEstado(p)" title="Reactivar Proveedor">
+                <button *ngIf="!p.activo" class="btn-icon text-success" (click)="$event.stopPropagation(); toggleEstado(p)" title="Reactivar Proveedor">
                   <i class="bi bi-person-check-fill"></i>
                 </button>
               </div>

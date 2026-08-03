@@ -344,6 +344,12 @@ export class ProveedorListComponent implements OnInit {
   /**
    * RF24: Eliminación Lógica (Soft Delete)
    */
+  verDetalleProveedor(id: number) {
+    if (id) {
+      this.router.navigate(['/proveedores/detalle', id]);
+    }
+  }
+
   async desactivarProveedor(proveedor: Proveedor) {
     if (!proveedor.id) return;
 
