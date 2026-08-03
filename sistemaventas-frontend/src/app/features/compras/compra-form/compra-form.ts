@@ -132,19 +132,24 @@ export class CompraFormComponent implements OnInit, OnDestroy {
                     next: (catItems) => {
                         this.loadingProductos = false;
                         if (catItems && catItems.length > 0) {
-                            this.productos = catItems.map(item => ({
-                                id: item.productoId,
-                                nombre: item.productoNombre,
-                                codigoBarras: item.productoCodigoBarras,
-                                precioVenta: item.precioCosto ? (item.precioCosto * 1.3) : 10.00,
-                                precioCosto: item.precioCosto,
-                                stock: item.stockActual || 0,
-                                categoria: { id: 0, nombre: item.productoCategoriaNombre || 'General' },
-                                activo: item.esActivo
-                            } as any));
+                            this.productos = catItems.map(item => {
+                                const matchedCat = this.categorias.find(c => 
+                                    item.productoCategoriaNombre && c.nombre.trim().toLowerCase() === item.productoCategoriaNombre.trim().toLowerCase()
+                                );
+                                return {
+                                    id: item.productoId,
+                                    nombre: item.productoNombre,
+                                    codigoBarras: item.productoCodigoBarras,
+                                    precioVenta: item.precioCosto ? (item.precioCosto * 1.3) : 10.00,
+                                    precioCosto: item.precioCosto,
+                                    stock: item.stockActual || 0,
+                                    categoria: matchedCat || { id: 0, nombre: item.productoCategoriaNombre || 'General' },
+                                    activo: item.esActivo
+                                } as any;
+                            });
                             this.updateFilteredCategorias();
                         } else {
-                            // Fallback al filtro de productos por categoría/proveedor
+                            // Fallback al catálogo de productos generales si el proveedor no tiene suministros aún
                             this.fallbackLoadProductosByProveedor(provId);
                         }
                     },
@@ -160,10 +165,10 @@ export class CompraFormComponent implements OnInit, OnDestroy {
     }
 
     private fallbackLoadProductosByProveedor(provId: number) {
-        this.productoService.getByProveedor(provId).subscribe({
-            next: (prodsFiltrados) => {
+        this.productoService.getAll().subscribe({
+            next: (allProds) => {
                 this.loadingProductos = false;
-                this.productos = prodsFiltrados || [];
+                this.productos = allProds || [];
                 this.updateFilteredCategorias();
             },
             error: () => {
@@ -227,63 +232,28 @@ export class CompraFormComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * FILTRADO EXCLUSIVO DE CATEGORÍA POR PROVEEDOR
+     * ACTUALIZACIÓN DE CATEGORÍAS Y PRODUCTOS
      */
     updateFilteredCategorias() {
-        if (!this.selectedProveedor) {
-            this.filteredCategorias = [...this.categorias];
-            this.selectedCategoriaId = '';
-            this.filterProductos();
-            return;
-        }
-
-        const provCatName = (this.selectedProveedor.categoria || '').trim().toLowerCase();
-
-        if (provCatName) {
-            const matchingBySupplierCat = this.categorias.filter(c => {
-                const catName = c.nombre.trim().toLowerCase();
-                return catName === provCatName || catName.includes(provCatName) || provCatName.includes(catName);
-            });
-
-            if (matchingBySupplierCat.length > 0) {
-                this.filteredCategorias = matchingBySupplierCat;
-                this.selectedCategoriaId = String(matchingBySupplierCat[0].id);
-                this.filterProductos();
-                return;
-            }
-        }
-
-        const productCategoryIds = new Set<number>(
-            this.productos
-                .filter(p => !!p.categoria && p.categoria.id !== undefined)
-                .map(p => p.categoria!.id!)
-        );
-
-        const matchingByProducts = this.categorias.filter(c => productCategoryIds.has(c.id));
-
-        if (matchingByProducts.length > 0) {
-            this.filteredCategorias = matchingByProducts;
-            if (matchingByProducts.length === 1) {
-                this.selectedCategoriaId = String(matchingByProducts[0].id);
-            } else {
-                this.selectedCategoriaId = '';
-            }
-        } else {
-            this.filteredCategorias = [...this.categorias];
-            this.selectedCategoriaId = '';
-        }
-
+        this.filteredCategorias = [...this.categorias];
+        this.selectedCategoriaId = '';
         this.filterProductos();
     }
 
     filterProductos() {
         this.filteredProductos = this.productos.filter(p => {
-            const matchesSearch = !this.productSearchTerm.trim() || 
-                p.nombre.toLowerCase().includes(this.productSearchTerm.toLowerCase()) ||
-                (p.codigoBarras && p.codigoBarras.includes(this.productSearchTerm));
+            const search = this.productSearchTerm.trim().toLowerCase();
+            const matchesSearch = !search || 
+                p.nombre.toLowerCase().includes(search) ||
+                (p.codigoBarras && p.codigoBarras.toLowerCase().includes(search));
             
-            const matchesCat = !this.selectedCategoriaId || 
-                (p.categoria && p.categoria.id === Number(this.selectedCategoriaId));
+            let matchesCat = true;
+            if (this.selectedCategoriaId) {
+                const targetCatId = Number(this.selectedCategoriaId);
+                const targetCatObj = this.categorias.find(c => c.id === targetCatId);
+                matchesCat = (p.categoria?.id === targetCatId) || 
+                    (!!targetCatObj && !!p.categoria?.nombre && p.categoria.nombre.trim().toLowerCase() === targetCatObj.nombre.trim().toLowerCase());
+            }
                 
             return matchesSearch && matchesCat;
         });
