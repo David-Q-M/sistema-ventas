@@ -365,35 +365,50 @@ export class ProveedorDetailComponent implements OnInit {
         this.isSubmitted = false;
         this.validationErrors = {};
 
-        if (!this.productosGlobales || this.productosGlobales.length === 0) {
-            this.loadProductosGlobales();
-        } else {
+        const openModalLogic = () => {
             this.updateProductosFiltrados();
-        }
 
-        const initialProdId = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0)
-            ? this.productosFiltradosPorCategoria[0].id
-            : 0;
+            const initialProdId = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0)
+                ? this.productosFiltradosPorCategoria[0].id
+                : 0;
 
-        const selectedProd = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0)
-            ? this.productosFiltradosPorCategoria[0]
-            : null;
+            const selectedProd = (this.productosFiltradosPorCategoria && this.productosFiltradosPorCategoria.length > 0)
+                ? this.productosFiltradosPorCategoria[0]
+                : null;
 
-        const defaultPrice = (selectedProd && selectedProd.precioVenta)
-            ? Number((selectedProd.precioVenta * 0.75).toFixed(2))
-            : 10.00;
+            const defaultPrice = (selectedProd && selectedProd.precioVenta)
+                ? Number((selectedProd.precioVenta * 0.75).toFixed(2))
+                : 10.00;
 
-        this.catalogoFormModel = {
-            proveedorId: this.proveedor.id,
-            productoId: Number(initialProdId || 0),
-            precioCosto: defaultPrice,
-            stockActual: 100,
-            stockMinimo: 10,
-            fechaVencimiento: '',
-            codigoLote: '',
-            esActivo: true
+            this.catalogoFormModel = {
+                proveedorId: this.proveedor!.id!,
+                productoId: Number(initialProdId || 0),
+                precioCosto: defaultPrice,
+                stockActual: 100,
+                stockMinimo: 10,
+                fechaVencimiento: '',
+                codigoLote: '',
+                esActivo: true
+            };
+            this.showCatalogoModal = true;
         };
-        this.showCatalogoModal = true;
+
+        if (!this.productosGlobales || this.productosGlobales.length === 0) {
+            this.loadingService.show();
+            this.productoService.getAll().subscribe({
+                next: (prods) => {
+                    this.loadingService.hide();
+                    this.productosGlobales = prods;
+                    openModalLogic();
+                },
+                error: () => {
+                    this.loadingService.hide();
+                    this.toastService.show('Error al cargar catálogo de productos', 'error');
+                }
+            });
+        } else {
+            openModalLogic();
+        }
     }
 
     // Modal Control: Abrir para Editar Suministro Existente
