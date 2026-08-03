@@ -2,52 +2,157 @@
     <!-- Header Title Section -->
     <div class="header-section">
         <div class="title-area">
-            <h2>📦 Gestión de Inventario</h2>
-            <p>Control inteligente de vencimientos y trazabilidad auditada de movimientos</p>
+            <h2>📦 Gestión e Inventario Físico</h2>
+            <p>Control de existencias, valorización en tiempo real, Kardex de productos y alertas de vencimiento</p>
+        </div>
+    </div>
+
+    <!-- General KPI Summary Cards -->
+    <div class="summary-cards-grid">
+        <div class="card stat-card card-blue" (click)="activeTab = 'existencias'; filterEstadoStock = 'TODOS'; filterProductos()">
+            <div class="stat-icon"><i class="bi bi-box-seam-fill"></i></div>
+            <div class="stat-info">
+                <h3>{{ totalProductosCount }}</h3>
+                <p>Productos Registrados</p>
+            </div>
+        </div>
+
+        <div class="card stat-card card-green">
+            <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+            <div class="stat-info">
+                <h3>S/. {{ totalValorInventario | number:'1.2-2' }}</h3>
+                <p>Valor Total del Inventario</p>
+            </div>
+        </div>
+
+        <div class="card stat-card card-warning" (click)="activeTab = 'existencias'; filterEstadoStock = 'BAJO'; filterProductos()">
+            <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="stat-info">
+                <h3>{{ countStockBajo }}</h3>
+                <p>Stock Bajo o Crítico</p>
+            </div>
+        </div>
+
+        <div class="card stat-card card-critico" (click)="activeTab = 'vencimientos'; filterEstadoAlerta = 'CRITICO'; filterVencimientos()">
+            <div class="stat-icon"><i class="bi bi-calendar-x-fill"></i></div>
+            <div class="stat-info">
+                <h3>{{ countCriticos }}</h3>
+                <p>Alertas Vencimiento Crítico</p>
+            </div>
         </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="tab-navigation">
+        <button class="tab-btn" [class.active]="activeTab === 'existencias'" (click)="setTab('existencias')">
+            📦 Existencias de Inventario
+        </button>
         <button class="tab-btn" [class.active]="activeTab === 'vencimientos'" (click)="setTab('vencimientos')">
-            🚨 Control de Vencimientos
+            🚨 Control de Vencimientos ({{ countCriticos + countPrecaucion }})
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'movimientos'" (click)="setTab('movimientos')">
-            📜 Historial de Movimientos
+            📜 Historial de Movimientos / Auditoría
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'ajuste'" (click)="setTab('ajuste')">
             ⚙️ Ajuste Manual de Stock
         </button>
     </div>
 
-    <!-- ==================== TAB 1: CONTROL DE VENCIMIENTOS (RF28) ==================== -->
-    <div class="tab-content" *ngIf="activeTab === 'vencimientos'">
-        <!-- Summary Cards -->
-        <div class="summary-cards-grid">
-            <div class="card stat-card card-critico" (click)="filterEstadoAlerta = 'CRITICO'; filterVencimientos()">
-                <div class="stat-icon">🔴</div>
-                <div class="stat-info">
-                    <h3>{{ countCriticos }}</h3>
-                    <p>Críticos (&lt; 7 días / Vencidos)</p>
+    <!-- ==================== TAB 0: EXISTENCIAS DE INVENTARIO ==================== -->
+    <div class="tab-content" *ngIf="activeTab === 'existencias'">
+        <!-- Filter Bar -->
+        <div class="card search-card">
+            <div class="filter-row">
+                <div class="form-group search-input">
+                    <input type="text" [(ngModel)]="searchExistenciaTerm" (input)="filterProductos()"
+                        placeholder="Buscar por nombre o código de barras..." class="form-control" />
                 </div>
-            </div>
-            <div class="card stat-card card-precaucion"
-                (click)="filterEstadoAlerta = 'PRECAUCION'; filterVencimientos()">
-                <div class="stat-icon">🟡</div>
-                <div class="stat-info">
-                    <h3>{{ countPrecaucion }}</h3>
-                    <p>Precaución (7 - 30 días)</p>
+                <div class="form-group">
+                    <select [(ngModel)]="filterCategoriaId" (change)="filterProductos()" class="form-control">
+                        <option [ngValue]="null">Todas las Categorías</option>
+                        <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
+                    </select>
                 </div>
-            </div>
-            <div class="card stat-card card-normal" (click)="filterEstadoAlerta = 'NORMAL'; filterVencimientos()">
-                <div class="stat-icon">🟢</div>
-                <div class="stat-info">
-                    <h3>{{ countNormales }}</h3>
-                    <p>Estado Normal (&gt; 30 días)</p>
+                <div class="form-group">
+                    <select [(ngModel)]="filterEstadoStock" (change)="filterProductos()" class="form-control">
+                        <option value="TODOS">Todos los Estados de Stock</option>
+                        <option value="BAJO">⚠️ Solo Stock Bajo (≤ Mínimo)</option>
+                        <option value="NORMAL">🟢 Stock Normal</option>
+                    </select>
                 </div>
             </div>
         </div>
 
+        <!-- Existencias Table -->
+        <div class="card table-card">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>PRODUCTO</th>
+                        <th>CÓDIGO</th>
+                        <th>CATEGORÍA</th>
+                        <th>STOCK ACTUAL</th>
+                        <th>STOCK MÍN.</th>
+                        <th>PRECIO VENTA</th>
+                        <th>VALORIZACIÓN TOTAL</th>
+                        <th>ESTADO</th>
+                        <th class="text-center">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of filteredProductos" [class.row-critico]="(p.stock || 0) <= (p.stockMinimo || 10)">
+                        <td>
+                            <div class="product-info-cell">
+                                <div class="product-avatar" *ngIf="p.urlImagen">
+                                    <img [src]="p.urlImagen" alt="Prod" />
+                                </div>
+                                <div class="product-avatar placeholder-avatar" *ngIf="!p.urlImagen">
+                                    <i class="bi bi-box"></i>
+                                </div>
+                                <span class="font-bold">{{ p.nombre }}</span>
+                            </div>
+                        </td>
+                        <td><code>{{ p.codigoBarras || 'N/A' }}</code></td>
+                        <td>{{ p.categoria?.nombre || 'General' }}</td>
+                        <td>
+                            <span class="stock-badge" [class.stock-low]="(p.stock || 0) <= (p.stockMinimo || 10)">
+                                {{ p.stock || 0 }} unids.
+                            </span>
+                        </td>
+                        <td>{{ p.stockMinimo || 10 }} unids.</td>
+                        <td>S/. {{ (p.precioVenta || 0) | number:'1.2-2' }}</td>
+                        <td class="font-bold text-primary">S/. {{ ((p.stock || 0) * (p.precioVenta || 0)) | number:'1.2-2' }}</td>
+                        <td>
+                            <span class="badge-semaforo" [ngClass]="{
+                                'badge-critico': (p.stock || 0) <= 0,
+                                'badge-precaucion': (p.stock || 0) > 0 && (p.stock || 0) <= (p.stockMinimo || 10),
+                                'badge-normal': (p.stock || 0) > (p.stockMinimo || 10)
+                            }">
+                                <i class="bi bi-circle-fill"></i>
+                                {{ (p.stock || 0) <= 0 ? 'SIN STOCK' : ((p.stock || 0) <= (p.stockMinimo || 10) ? 'STOCK BAJO' : 'NORMAL') }}
+                            </span>
+                        </td>
+                        <td class="text-center action-buttons-cell">
+                            <button class="btn btn-sm btn-outline-primary" (click)="verDetalleProducto(p)" title="Ver Kardex y Detalle">
+                                <i class="bi bi-eye"></i> Ver Kardex
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" (click)="iniciarAjusteProducto(p)" title="Ajustar Stock">
+                                <i class="bi bi-sliders"></i> Ajustar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredProductos.length === 0">
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            No se encontraron productos en existencias con los filtros aplicados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 1: CONTROL DE VENCIMIENTOS (RF28) ==================== -->
+    <div class="tab-content" *ngIf="activeTab === 'vencimientos'">
         <!-- Filter Bar -->
         <div class="card search-card">
             <div class="filter-row">
@@ -98,7 +203,8 @@
                                 'dias-normal': item.diasRestantes > 30
                             }">
                                 {{ item.diasRestantes < 0 ? '¡VENCIDO HACE ' + (-item.diasRestantes) + ' DÍAS!' :
-                                    item.diasRestantes + ' días' }} </span>
+                                    item.diasRestantes + ' días' }}
+                            </span>
                         </td>
                         <td>
                             <span class="badge-semaforo" [ngClass]="{
@@ -265,6 +371,83 @@
                 <button class="btn btn-primary btn-lg" (click)="guardarAjuste()">
                     💾 Confirmar y Registrar Ajuste Auditado
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: DETALLE DE KARDEX Y MOVIMIENTOS POR PRODUCTO ==================== -->
+    <div class="modal-backdrop" *ngIf="showKardexModal && selectedProductoKardex">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3>📋 Ficha Técnica y Kardex de Producto</h3>
+                <button class="btn-close" (click)="cerrarModalKardex()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="kardex-product-summary">
+                    <div class="kardex-avatar">
+                        <img *ngIf="selectedProductoKardex.urlImagen" [src]="selectedProductoKardex.urlImagen" alt="Producto" />
+                        <i *ngIf="!selectedProductoKardex.urlImagen" class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="kardex-details">
+                        <h4>{{ selectedProductoKardex.nombre }}</h4>
+                        <div class="kardex-badges">
+                            <span class="badge bg-secondary">Código: {{ selectedProductoKardex.codigoBarras || 'N/A' }}</span>
+                            <span class="badge bg-info">Categoría: {{ selectedProductoKardex.categoria?.nombre || 'General' }}</span>
+                            <span class="badge bg-primary">Precio Venta: S/. {{ (selectedProductoKardex.precioVenta || 0) | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                    <div class="kardex-stock-box">
+                        <div class="kardex-stock-num">{{ selectedProductoKardex.stock || 0 }}</div>
+                        <div class="kardex-stock-label">Stock Actual</div>
+                        <div class="kardex-valor-total">Valor: S/. {{ ((selectedProductoKardex.stock || 0) * (selectedProductoKardex.precioVenta || 0)) | number:'1.2-2' }}</div>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-2">📜 Historial de Movimientos de Inventario (Kardex)</h5>
+                
+                <div *ngIf="loadingKardex" class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Cargando movimientos del producto...</p>
+                </div>
+
+                <table *ngIf="!loadingKardex" class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th>FECHA</th>
+                            <th>TIPO</th>
+                            <th>CANTIDAD</th>
+                            <th>STOCK (ANTES &rarr; DESPUÉS)</th>
+                            <th>AUDITOR</th>
+                            <th>MOTIVO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let m of kardexMovimientos">
+                            <td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td>
+                                <span class="badge-mov" [ngClass]="{
+                                    'badge-entrada': m.tipoMovimiento === 'ENTRADA',
+                                    'badge-salida': m.tipoMovimiento === 'SALIDA',
+                                    'badge-ajuste': m.tipoMovimiento === 'AJUSTE'
+                                }">{{ m.tipoMovimiento }}</span>
+                            </td>
+                            <td class="font-bold" [class.text-success]="m.tipoMovimiento === 'ENTRADA'" [class.text-danger]="m.tipoMovimiento === 'SALIDA'">
+                                {{ m.tipoMovimiento === 'ENTRADA' ? '+' : (m.tipoMovimiento === 'SALIDA' ? '-' : '') }}{{ m.cantidad }}
+                            </td>
+                            <td><code>{{ m.stockAnterior }} &rarr; {{ m.stockFinal }}</code></td>
+                            <td>{{ m.usuario }}</td>
+                            <td class="small text-muted">{{ m.motivo }}</td>
+                        </tr>
+                        <tr *ngIf="kardexMovimientos.length === 0">
+                            <td colspan="6" class="text-center py-3 text-muted">
+                                Sin movimientos registrados recientemente para este producto.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="cerrarModalKardex()">Cerrar</button>
             </div>
         </div>
     </div>

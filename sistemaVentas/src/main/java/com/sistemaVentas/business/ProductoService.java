@@ -23,6 +23,9 @@ public class ProductoService {
     @Autowired
     private DetalleCompraRepository detalleCompraRepo;
 
+    @Autowired
+    private com.sistemaVentas.dataaccess.CatalogoProveedorRepository catalogoRepo;
+
     public Producto guardar(Producto producto) {
         if (producto.getCodigoBarras() != null && producto.getCodigoBarras().trim().isEmpty()) {
             producto.setCodigoBarras(null);
@@ -35,7 +38,22 @@ public class ProductoService {
     }
 
     public List<Producto> listarPorProveedor(Long proveedorId) {
-        return repo.findByProveedorId(proveedorId);
+        List<Producto> directos = repo.findByProveedorId(proveedorId);
+        List<com.sistemaVentas.entity.CatalogoProveedor> catalogo = catalogoRepo.findByProveedorIdAndEsActivoTrue(proveedorId);
+        
+        java.util.Set<Long> prodIds = directos.stream()
+                .filter(p -> p.getId() != null)
+                .map(Producto::getId)
+                .collect(java.util.stream.Collectors.toSet());
+        
+        List<Producto> resultado = new java.util.ArrayList<>(directos);
+        for (com.sistemaVentas.entity.CatalogoProveedor cp : catalogo) {
+            if (cp.getProducto() != null && cp.getProducto().getId() != null && !prodIds.contains(cp.getProducto().getId())) {
+                resultado.add(cp.getProducto());
+                prodIds.add(cp.getProducto().getId());
+            }
+        }
+        return resultado;
     }
 
     public Producto obtenerPorId(Long id) {

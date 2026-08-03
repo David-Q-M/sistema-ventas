@@ -23,11 +23,14 @@ export interface Producto {
     nombre: string;
     descripcion?: string;
     stock: number;
+    stockMinimo?: number;
     precioVenta: number;
-    urlImagen: string;
+    urlImagen?: string;
     categoria?: Categoria;
     proveedor?: Proveedor;
     fechaCreacion?: string;
+    fechaVencimiento?: string;
+    perecible?: boolean;
 }
 
 export interface DetalleVenta {
@@ -108,7 +111,10 @@ export interface Proveedor {
 
 export interface DetalleCompra {
     id?: number;
-    producto: Producto;
+    producto?: Producto;
+    productoId?: number;
+    productoNombre?: string;
+    productoCodigoBarras?: string;
     cantidad: number;
     precioCosto: number;
     subtotal: number;
@@ -118,7 +124,10 @@ export interface DetalleCompra {
 export interface Compra {
     id?: number;
     codigo?: string;
-    proveedor: Proveedor;
+    proveedor?: Proveedor;
+    proveedorId?: number;
+    proveedorNombre?: string;
+    proveedorRuc?: string;
     fechaPedido: string;
     fechaEntrega?: string;
     metodoPedido?: string;
@@ -128,3 +137,21 @@ export interface Compra {
     observacion?: string;
     detalles: DetalleCompra[];
 }
+
+export interface CatalogoProveedor {
+    id?: number;
+    proveedorId: number;
+    proveedorNombre?: string;
+    productoId: number;
+    productoNombre?: string;
+    productoCodigoBarras?: string;
+    productoCategoriaNombre?: string;
+    precioCosto: number;
+    stockActual: number;
+    stockMinimo?: number;
+    fechaVencimiento?: string;
+    codigoLote?: string;
+    esActivo: boolean;
+    fechaActualizacion?: string;
+}
+

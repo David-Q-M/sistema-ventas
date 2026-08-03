@@ -19,6 +19,29 @@
 CREATE DATABASE IF NOT EXISTS `sistema_ventas_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci */;
 USE `sistema_ventas_db`;
 
+-- Volcando estructura para tabla sistema_ventas_db.catalogo_proveedores
+CREATE TABLE IF NOT EXISTS `catalogo_proveedores` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `codigo_lote` varchar(50) DEFAULT NULL,
+  `es_activo` bit(1) NOT NULL,
+  `fecha_actualizacion` datetime(6) DEFAULT NULL,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `precio_costo` decimal(10,2) NOT NULL,
+  `stock_actual` int(11) NOT NULL CHECK (`stock_actual` >= 0),
+  `stock_minimo` int(11) DEFAULT NULL CHECK (`stock_minimo` >= 0),
+  `producto_id` bigint(20) NOT NULL,
+  `proveedor_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK5d7qphsd43oobwwlkofubco5w` (`proveedor_id`,`producto_id`),
+  KEY `FK31s7a8q1jd1yfmred68na3eq8` (`producto_id`),
+  CONSTRAINT `FK31s7a8q1jd1yfmred68na3eq8` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
+  CONSTRAINT `FK7mfwt21tddwrmsvg4frq0gqyv` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- Volcando datos para la tabla sistema_ventas_db.catalogo_proveedores: ~1 rows (aproximadamente)
+INSERT INTO `catalogo_proveedores` (`id`, `codigo_lote`, `es_activo`, `fecha_actualizacion`, `fecha_vencimiento`, `precio_costo`, `stock_actual`, `stock_minimo`, `producto_id`, `proveedor_id`) VALUES
+	(2, 'LOTE-2026-B', b'1', '2026-08-02 20:39:08.320234', '2027-02-16', 15.00, 280, 10, 13, 1);
+
 -- Volcando estructura para tabla sistema_ventas_db.categorias
 CREATE TABLE IF NOT EXISTS `categorias` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -96,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `detalle_ventas` (
   CONSTRAINT `fk_detalle_ventas_ventas` FOREIGN KEY (`venta_id`) REFERENCES `ventas` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.detalle_ventas: ~25 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.detalle_ventas: ~26 rows (aproximadamente)
 INSERT INTO `detalle_ventas` (`id`, `cantidad`, `precio_unitario`, `subtotal`, `venta_id`, `producto_id`) VALUES
 	(5, 1, 6.48, 6.48, 4, 2),
 	(7, 1, 10.50, 10.50, 5, 4),
@@ -165,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `productos` (
   KEY `FK4s80lxlx2fkci25fcx4r0nbex` (`proveedor_id`),
   CONSTRAINT `FK4s80lxlx2fkci25fcx4r0nbex` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`),
   CONSTRAINT `fk_productos_categorias` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Volcando datos para la tabla sistema_ventas_db.productos: ~11 rows (aproximadamente)
 INSERT INTO `productos` (`id`, `nombre`, `stock`, `precio_venta`, `codigo_barras`, `descripcion`, `url_imagen`, `fecha_creacion`, `categoria_id`, `proveedor_id`, `fecha_vencimiento`, `perecible`, `stock_minimo`) VALUES
@@ -179,7 +202,9 @@ INSERT INTO `productos` (`id`, `nombre`, `stock`, `precio_venta`, `codigo_barras
 	(9, 'Aceite Primor 1L', 60, 8.50, NULL, NULL, 'https://tse1.mm.bing.net/th/id/OIP.Ykc_AnQWv0b9Mn0Yko-ycgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', '2026-07-16 16:26:32', 3, NULL, NULL, NULL, NULL),
 	(13, 'Detergente Opal 1kg', 45, 7.50, NULL, NULL, 'https://th.bing.com/th/id/OIP.PFrHykQEeeYr5FMnTLebbAHaHa?w=202&h=202&c=7&r=0&o=7&pid=1.7&rm=3', '2026-07-16 16:26:32', 5, NULL, NULL, NULL, NULL),
 	(14, 'Papel Higiénico Elite 4un', 100, 4.50, NULL, NULL, NULL, '2026-07-16 16:26:32', 6, NULL, NULL, NULL, NULL),
-	(15, 'Pasta Dental Colgate', 90, 6.50, NULL, NULL, NULL, '2026-07-16 16:26:32', 6, NULL, NULL, NULL, NULL);
+	(15, 'Pasta Dental Colgate', 90, 6.50, NULL, NULL, NULL, '2026-07-16 16:26:32', 6, NULL, NULL, NULL, NULL),
+	(16, 'Marina Sal del Mar', 500, 2.50, NULL, NULL, 'https://www.ofimarket.pe/cdn/shop/products/504741_8a2910fc-f38c-4b7b-9f17-51165e5409d1.jpg?v=1633447185', '2026-07-31 16:45:13', 3, 1, '2027-03-03', b'1', 10),
+	(17, 'Sal natural yodada La Fina', 500, 21.90, NULL, NULL, 'https://www.smartnfinal.com.mx/wp-content/uploads/2021/08/90705-sal-la-fina-1-kg-510x510.jpg.webp', '2026-07-31 16:46:57', 3, 1, '2027-02-28', b'1', 10);
 
 -- Volcando estructura para tabla sistema_ventas_db.proveedores
 CREATE TABLE IF NOT EXISTS `proveedores` (
@@ -196,12 +221,14 @@ CREATE TABLE IF NOT EXISTS `proveedores` (
   `dias_pago` int(11) DEFAULT 0,
   `ruc` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.proveedores: ~2 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.proveedores: ~4 rows (aproximadamente)
 INSERT INTO `proveedores` (`id`, `nombre`, `contacto`, `telefono`, `direccion`, `categoria`, `email`, `activo`, `ultima_orden`, `monto_total`, `dias_pago`, `ruc`) VALUES
-	(1, '2233221233s', 'La Vaca Lechera', '966495094', 'das sd', 'Limpieza', 'davidquispemaucaylle75@gmail.com', 1, NULL, 0.00, 0, NULL),
-	(2, 'rut', 'rut', '965415151', 'av. canada', 'Bebidas', 'rut@gmail.com', 1, '2026-07-16', 225.00, 0, '202220202020');
+	(1, 'Proveedor LOS CHOLOS', 'LOS CHOLOS', '966495094', 'av. canada 259', 'Limpieza', 'cholos@gmail.com', 0, NULL, 0.00, 0, '20000000000'),
+	(2, 'rut', 'rut', '965415151', 'av. canada', 'Bebidas', 'rut@gmail.com', 1, '2026-07-16', 225.00, 0, '202220202020'),
+	(4, 'asdasdsadas', 'adsdsaa', '222222222', 'asdasds ad ', 'Abarrotes', 'dsdsadas@gmail.com', 1, NULL, 0.00, 0, '12222222222'),
+	(5, 'Almacenes Juana', 'Juanita Mendoza', '999999999', 'av. Canada 218', 'Bebidas', '25555@unamba.edu.pe', 1, NULL, 0.00, 0, '22222222222');
 
 -- Volcando estructura para tabla sistema_ventas_db.roles
 CREATE TABLE IF NOT EXISTS `roles` (
@@ -232,8 +259,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 
 -- Volcando datos para la tabla sistema_ventas_db.usuarios: ~3 rows (aproximadamente)
 INSERT INTO `usuarios` (`id`, `nombre_completo`, `username`, `password`, `rol_id`, `activo`) VALUES
-	(1, 'Administrador Global', 'admin', '$2a$10$fVmZG99c9W8hIQlWqSzpu.zyZqyFXAZ2ikSCpLTXEZRu5Ruq8DYFC', 1, 1),
-	(2, 'David Quispe Maucaylle', 'david', '$2a$10$FyN52Qwwr7dAZORQ8/riouF9DVawtZrxFzt2pP5zQZFbozvkNS/RC', 2, 1),
+	(1, 'Administrador Global', 'admin', '$2a$10$99gOUhFxu.j1eKO/Eu1Yf.kAIgZYtXyS4JCCNcQ22ZZIYYhLefx9u', 1, 1),
+	(2, 'David Quispe Maucaylle', 'david', '$2a$10$.2gMdqqgo09r8GMJh0/jg.Y9rQ.784viUVmksJ1e2mZulj6J9pIR2', 2, 1),
 	(3, 'Bellido', 'bellido', '$2a$10$5vT8K2aaWWvb1UQ.kzeFIuB5so/dghksfeSGTonPzhaKjZtAaXr0W', 3, 1);
 
 -- Volcando estructura para tabla sistema_ventas_db.ventas

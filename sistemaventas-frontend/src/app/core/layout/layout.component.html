@@ -1,6 +1,7 @@
-<div class="layout-wrapper" [class.sidebar-closed]="!sidebarOpen">
+<div class="layout-wrapper" [class.sidebar-collapsed]="!sidebarOpen">
   <app-loading></app-loading>
   <app-toast></app-toast>
+  <app-confirm-modal></app-confirm-modal>
 
   <!-- Sidebar Component -->
   <aside class="sidebar">
@@ -10,73 +11,73 @@
       </div>
       <div class="brand-text">
         <h3 class="brand-title">Sistema de Ventas</h3>
-        <span class="brand-subtitle">Gestión eficiente y confiable</span>
+        <span class="brand-subtitle">Gestión eficiente</span>
       </div>
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Dashboard' : null">
         <i class="bi bi-grid-1x2-fill icon"></i>
-        <span>Dashboard</span>
+        <span class="nav-label">Dashboard</span>
       </a>
 
       <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/productos" routerLinkActive="active"
-        class="nav-item">
+        class="nav-item" [attr.title]="!sidebarOpen ? 'Productos' : null">
         <i class="bi bi-box-seam-fill icon"></i>
-        <span>Productos</span>
+        <span class="nav-label">Productos</span>
       </a>
 
       <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/inventario" routerLinkActive="active"
-        class="nav-item">
+        class="nav-item" [attr.title]="!sidebarOpen ? 'Inventario' : null">
         <i class="bi bi-boxes icon"></i>
-        <span>Inventario</span>
+        <span class="nav-label">Inventario</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item">
+      <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Proveedores' : null">
         <i class="bi bi-people-fill icon"></i>
-        <span>Proveedores</span>
+        <span class="nav-label">Proveedores</span>
       </a>
 
       <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active"
-        class="nav-item">
+        class="nav-item" [attr.title]="!sidebarOpen ? 'Registrar Compra' : null">
         <i class="bi bi-plus-circle-fill icon"></i>
-        <span>Registrar Compra</span>
+        <span class="nav-label">Registrar Compra</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active" class="nav-item">
+      <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Ventas' : null">
         <i class="bi bi-cart-check-fill icon"></i>
-        <span>Ventas</span>
+        <span class="nav-label">Ventas</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item">
+      <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Usuarios' : null">
         <i class="bi bi-person-gear icon"></i>
-        <span>Usuarios</span>
+        <span class="nav-label">Usuarios</span>
       </a>
 
       <!-- Submenu / Section: Reportes y Consultas -->
       <div *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" class="nav-group">
-        <div class="nav-group-header">
+        <div class="nav-group-header" [attr.title]="!sidebarOpen ? 'Reportes y Consultas' : null">
           <i class="bi bi-pie-chart-fill icon"></i>
-          <span>Reportes y Consultas</span>
+          <span class="nav-label">Reportes y Consultas</span>
           <i class="bi bi-chevron-down arrow"></i>
         </div>
         <div class="nav-sub-items">
-          <a routerLink="/compras" routerLinkActive="active" class="nav-sub-item">
+          <a routerLink="/compras" routerLinkActive="active" class="nav-sub-item" [attr.title]="!sidebarOpen ? 'Historial de Compras' : null">
             <i class="bi bi-journal-text icon"></i>
-            <span>Historial de Compras</span>
+            <span class="nav-label">Historial de Compras</span>
           </a>
-          <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-sub-item">
+          <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-sub-item" [attr.title]="!sidebarOpen ? 'Estadísticas' : null">
             <i class="bi bi-graph-up-arrow icon"></i>
-            <span>Estadísticas de Ventas</span>
+            <span class="nav-label">Estadísticas</span>
           </a>
         </div>
       </div>
     </nav>
 
     <div class="sidebar-footer">
-      <button (click)="logout()" class="logout-btn">
+      <button (click)="logout()" class="logout-btn" [attr.title]="!sidebarOpen ? 'Cerrar Sesión' : null">
         <i class="bi bi-box-arrow-left icon"></i>
-        <span>Cerrar Sesión</span>
+        <span class="nav-label">Cerrar Sesión</span>
       </button>
     </div>
   </aside>
@@ -86,9 +87,10 @@
     <!-- Topbar Navigation -->
     <header class="topbar">
       <div class="topbar-left">
-        <button class="toggle-btn" (click)="toggleSidebar()" title="Alternar menú">
+        <button class="toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen ? 'Contraer menú' : 'Expandir menú'">
           <i class="bi bi-list"></i>
         </button>
+        <span class="topbar-brand-title">Sistema de Ventas</span>
       </div>
 
       <div class="topbar-right">

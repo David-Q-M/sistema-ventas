@@ -19,6 +19,11 @@ public class SecurityConfig {
                 http.csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                                        response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                                        response.setContentType("application/json;charset=UTF-8");
+                                        response.getWriter().write("{\"error\": \"No autorizado\", \"message\": \"Token no válido o expirado\"}");
+                                }))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                                                 .requestMatchers("/api/auth/**").permitAll()
@@ -35,9 +40,8 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(java.util.Arrays.asList(
                                 "http://localhost:4200",
                                 "https://sistemaventa-david.netlify.app"));
-                configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",
-                                "Access-Control-Allow-Origin"));
+                configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
 
                 org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();

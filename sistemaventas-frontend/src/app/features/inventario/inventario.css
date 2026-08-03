@@ -27,6 +27,7 @@
     gap: 0.5rem;
     margin-bottom: 1.5rem;
     border-bottom: 2px solid #e2e8f0;
+    overflow-x: auto;
 }
 
 .tab-btn {
@@ -39,6 +40,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 0.95rem;
+    white-space: nowrap;
 }
 
 .tab-btn:hover {
@@ -65,7 +67,7 @@
 /* Summary Cards Grid */
 .summary-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
@@ -85,29 +87,43 @@
 }
 
 .stat-icon {
-    font-size: 2.2rem;
+    font-size: 2rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
 }
 
 .stat-info h3 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 700;
 }
 
 .stat-info p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #64748b;
 }
 
+.card-blue { border-left: 5px solid #2563eb; background: #eff6ff; }
+.card-blue .stat-icon { background: #dbeafe; color: #1d4ed8; }
+.card-blue h3 { color: #1e40af; }
+
+.card-green { border-left: 5px solid #10b981; background: #ecfdf5; }
+.card-green .stat-icon { background: #d1fae5; color: #047857; }
+.card-green h3 { color: #065f46; }
+
+.card-warning { border-left: 5px solid #f59e0b; background: #fffbeb; }
+.card-warning .stat-icon { background: #fef3c7; color: #b45309; }
+.card-warning h3 { color: #92400e; }
+
 .card-critico { border-left: 5px solid #ef4444; background: #fef2f2; }
-.card-critico h3 { color: #dc2626; }
-
-.card-precaucion { border-left: 5px solid #f59e0b; background: #fffbeb; }
-.card-precaucion h3 { color: #d97706; }
-
-.card-normal { border-left: 5px solid #10b981; background: #ecfdf5; }
-.card-normal h3 { color: #059669; }
+.card-critico .stat-icon { background: #fee2e2; color: #b91c1c; }
+.card-critico h3 { color: #991b1b; }
 
 /* Filter Bar */
 .filter-row {
@@ -121,10 +137,63 @@
     min-width: 280px;
 }
 
+/* Product Info Cell */
+.product-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.product-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+}
+
+.product-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-avatar {
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+/* Stock Badges */
+.stock-badge {
+    display: inline-block;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.stock-badge.stock-low {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Action Buttons Cell */
+.action-buttons-cell {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
 /* Table styles */
 .table-card {
     padding: 0;
-    overflow: hidden;
+    overflow-x: auto;
 }
 
 .table {
@@ -234,4 +303,146 @@
 .ajuste-actions {
     margin-top: 1.5rem;
     text-align: right;
+}
+
+/* Modal Kardex Styling */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 1rem;
+}
+
+.modal-dialog {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 850px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.kardex-product-summary {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.kardex-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.kardex-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.kardex-details {
+    flex: 1;
+}
+
+.kardex-details h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.kardex-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.kardex-stock-box {
+    text-align: right;
+    padding-left: 1rem;
+    border-left: 2px solid #cbd5e1;
+}
+
+.kardex-stock-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1d4ed8;
+    line-height: 1;
+}
+
+.kardex-stock-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.kardex-valor-total {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #059669;
+    margin-top: 0.25rem;
 }

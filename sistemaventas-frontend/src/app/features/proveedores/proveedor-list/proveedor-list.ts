@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProveedorService } from '../../../core/services/proveedor.service';
+import { CategoriaService } from '../../../core/services/categoria.service';
 import { Proveedor } from '../../../shared/models/models';
 import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../core/services/loading.service';
+import { ConfirmModalService } from '../../../core/services/confirm-modal.service';
 
 @Component({
   selector: 'app-proveedor-list',
@@ -53,7 +55,7 @@ export class ProveedorListComponent implements OnInit {
 
   isSubmitted = false;
 
-  categoriesList = [
+  categoriesList: string[] = [
     'Abarrotes',
     'Lácteos',
     'Bebidas',
@@ -65,12 +67,28 @@ export class ProveedorListComponent implements OnInit {
 
   constructor(
     private proveedorService: ProveedorService,
+    private categoriaService: CategoriaService,
     private toastService: ToastService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private confirmModalService: ConfirmModalService
   ) { }
 
   ngOnInit() {
+    this.loadCategorias();
     this.loadProveedores();
+  }
+
+  loadCategorias() {
+    this.categoriaService.getAll().subscribe({
+      next: (cats) => {
+        if (cats && cats.length > 0) {
+          const dbCatNames = cats.map(c => c.nombre);
+          const merged = Array.from(new Set([...dbCatNames, ...this.categoriesList]));
+          this.categoriesList = merged;
+        }
+      },
+      error: (err) => console.error('Error al cargar categorías del sistema:', err)
+    });
   }
 
   loadProveedores() {
@@ -338,11 +356,20 @@ export class ProveedorListComponent implements OnInit {
   /**
    * RF24: Eliminación Lógica (Soft Delete)
    */
-  desactivarProveedor(proveedor: Proveedor) {
+  async desactivarProveedor(proveedor: Proveedor) {
     if (!proveedor.id) return;
-    const confirmMessage = `¿Estás seguro de desactivar al proveedor "${proveedor.nombre}"?\n\nEsta acción realizará una eliminación lógica (Soft Delete). El historial de compras se conservará sin alteración.`;
 
-    if (confirm(confirmMessage)) {
+    const confirmed = await this.confirmModalService.confirm({
+      title: 'Confirmar Desactivación',
+      message: `¿Estás seguro de desactivar al proveedor "${proveedor.nombre}"?`,
+      detail: 'Esta acción realizará una eliminación lógica (Soft Delete). El historial de compras se conservará sin alteración.',
+      icon: 'bi-person-x-fill',
+      type: 'warning',
+      confirmText: 'Sí, Desactivar',
+      cancelText: 'Cancelar'
+    });
+
+    if (confirmed) {
       this.loadingService.show();
       this.proveedorService.delete(proveedor.id).subscribe({
         next: () => {
@@ -358,12 +385,22 @@ export class ProveedorListComponent implements OnInit {
     }
   }
 
-  toggleEstado(proveedor: Proveedor) {
+  async toggleEstado(proveedor: Proveedor) {
     if (!proveedor.id) return;
     const nuevoEstado = !proveedor.activo;
     const accionText = nuevoEstado ? 'reactivar' : 'desactivar (soft delete)';
 
-    if (confirm(`¿Deseas ${accionText} al proveedor "${proveedor.nombre}"?`)) {
+    const confirmed = await this.confirmModalService.confirm({
+      title: nuevoEstado ? 'Confirmar Reactivación' : 'Confirmar Desactivación',
+      message: `¿Deseas ${accionText} al proveedor "${proveedor.nombre}"?`,
+      detail: nuevoEstado ? 'El proveedor volverá a estar disponible en el sistema.' : 'Esta acción realizará una eliminación lógica (Soft Delete).',
+      icon: nuevoEstado ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill',
+      type: nuevoEstado ? 'success' : 'warning',
+      confirmText: nuevoEstado ? 'Sí, Reactivar' : 'Sí, Desactivar',
+      cancelText: 'Cancelar'
+    });
+
+    if (confirmed) {
       this.loadingService.show();
       this.proveedorService.toggleEstado(proveedor.id, nuevoEstado).subscribe({
         next: () => {

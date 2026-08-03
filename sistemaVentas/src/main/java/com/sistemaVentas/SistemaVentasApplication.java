@@ -4,9 +4,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.sistemaVentas.dataaccess.*;
+import com.sistemaVentas.entity.*;
 
 @SpringBootApplication
+@EnableScheduling
 public class SistemaVentasApplication {
 
 	public static void main(String[] args) {
@@ -19,7 +23,7 @@ public class SistemaVentasApplication {
 			ProductoRepository productoRepo,
 			CategoriaRepository categoriaRepo,
 			RolRepository rolRepo,
-			org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+			PasswordEncoder passwordEncoder) {
 		return args -> {
 			System.out.println("====== VERIFICACIÓN Y RESETEO DE BASE DE DATOS ======");
 			try {

@@ -26,7 +26,7 @@ public class CompraRequestDTO {
     private String estadoPago;
 
     @Size(max = 20, message = "El estado no debe exceder 20 caracteres")
-    private String estado = "RECIBIDO";
+    private String estado = "PENDIENTE";
 
     private String observacion;
 

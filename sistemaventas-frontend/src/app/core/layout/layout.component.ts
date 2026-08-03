@@ -5,11 +5,12 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { LoadingComponent } from '../../shared/components/loading';
 import { ToastComponent } from '../../shared/components/toast';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LoadingComponent, ToastComponent],
+    imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LoadingComponent, ToastComponent, ConfirmModalComponent],
     templateUrl: './layout.component.html',
     styleUrls: ['./layout.component.css']
 })

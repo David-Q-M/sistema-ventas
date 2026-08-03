@@ -18,10 +18,12 @@ export class AuthService {
     login(credentials: { username: string, password: string }): Observable<AuthResponse> {
         return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
             tap(response => {
-                localStorage.setItem('token', response.token);
-                localStorage.setItem('rol', response.rol);
-                localStorage.setItem('userId', response.id);
-                this.currentUserSubject.next(response.token);
+                if (response && response.token) {
+                    localStorage.setItem('token', response.token);
+                    localStorage.setItem('rol', response.rol);
+                    localStorage.setItem('userId', response.id);
+                    this.currentUserSubject.next(response.token);
+                }
             })
         );
     }
@@ -34,19 +36,27 @@ export class AuthService {
     }
 
     isLoggedIn(): boolean {
-        return !!localStorage.getItem('token');
+        return !!this.getToken();
     }
 
     getRole(): string | null {
-        return localStorage.getItem('rol');
+        const role = localStorage.getItem('rol');
+        if (!role || role === 'null' || role === 'undefined') return null;
+        return role;
     }
 
     getToken(): string | null {
-        return localStorage.getItem('token');
+        const token = localStorage.getItem('token');
+        if (!token || token === 'null' || token === 'undefined' || token.trim() === '') {
+            return null;
+        }
+        return token;
     }
 
     getUserId(): number | null {
         const id = localStorage.getItem('userId');
-        return id ? parseInt(id, 10) : null;
+        if (!id || id === 'null' || id === 'undefined') return null;
+        const parsed = parseInt(id, 10);
+        return isNaN(parsed) ? null : parsed;
     }
 }

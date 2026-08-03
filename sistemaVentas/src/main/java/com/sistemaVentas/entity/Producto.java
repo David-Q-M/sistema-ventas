@@ -17,7 +17,7 @@ public class Producto {
     private String nombre;
 
     @PositiveOrZero(message = "El stock debe ser positivo o cero")
-    private int stock;
+    private Integer stock = 0;
 
     @Digits(integer = 8, fraction = 2, message = "Formato de precio inválido (8 enteros, 2 decimales)")
     @DecimalMin(value = "0.01", message = "El precio mínimo es 0.01")
@@ -57,5 +57,13 @@ public class Producto {
     private Boolean perecible = true;
 
     @Column(name = "stock_minimo")
-    private int stockMinimo = 10;
+    private Integer stockMinimo = 10;
+
+    public Integer getStock() {
+        return stock != null ? stock : 0;
+    }
+
+    public Integer getStockMinimo() {
+        return stockMinimo != null ? stockMinimo : 10;
+    }
 }

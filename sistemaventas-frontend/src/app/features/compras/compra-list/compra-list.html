@@ -6,98 +6,162 @@
         <i class="bi bi-journal-text"></i>
       </div>
       <div>
-        <h2>RF27 - Historial de Compras</h2>
-        <p>Administra y consulta tus órdenes de pedido e inventario registrado</p>
+        <h2>Historial de Órdenes de Compra</h2>
+        <p>Administra y consulta tus pedidos a proveedores e inventario registrado</p>
       </div>
     </div>
-    <button class="btn btn-primary" routerLink="/compras/nuevo">
-      <i class="bi bi-plus-lg"></i> Registrar Compra
-    </button>
+    <div class="header-actions" style="display: flex; gap: 10px;">
+      <button class="btn btn-outline-info" (click)="procesarEntregasManual()" title="Procesar entregas diferidas cuya fecha es hoy o anterior">
+        <i class="bi bi-clock-history"></i> ⚡ Procesar Entregas JIT
+      </button>
+      <button class="btn btn-primary" routerLink="/compras/nuevo">
+        <i class="bi bi-plus-circle-fill"></i> Registrar Nueva Compra
+      </button>
+    </div>
   </div>
 
-  <!-- Filter Card (Matching exact design reference) -->
+  <!-- Summary KPI Cards -->
+  <div class="summary-cards-grid">
+    <div class="card stat-card card-blue" (click)="selectedEstado = ''; filterList()">
+      <div class="stat-icon"><i class="bi bi-file-earmark-text-fill"></i></div>
+      <div class="stat-info">
+        <h3>{{ totalComprasCount }}</h3>
+        <p>Total Órdenes Registradas</p>
+      </div>
+    </div>
+
+    <div class="card stat-card card-green">
+      <div class="stat-icon"><i class="bi bi-cash-stack"></i></div>
+      <div class="stat-info">
+        <h3>S/. {{ montoTotalInvertido | number:'1.2-2' }}</h3>
+        <p>Inversión Total en Compras</p>
+      </div>
+    </div>
+
+    <div class="card stat-card card-success" (click)="selectedEstado = 'RECIBIDO'; filterList()">
+      <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <div class="stat-info">
+        <h3>{{ countRecibidos }}</h3>
+        <p>Mercadería Recibida</p>
+      </div>
+    </div>
+
+    <div class="card stat-card card-warning" (click)="selectedEstado = 'PENDIENTE'; filterList()">
+      <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+      <div class="stat-info">
+        <h3>{{ countPendientes }}</h3>
+        <p>Pedidos Pendientes</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Card -->
   <div class="card filter-card">
     <div class="card-header-title">
       <i class="bi bi-funnel-fill text-primary"></i>
-      <h3>Filtros de Búsqueda</h3>
+      <h3>Filtros de Búsqueda de Compras</h3>
     </div>
     <div class="filter-grid">
       <div class="form-group">
-        <label class="form-label">Buscar / Proveedor</label>
+        <label class="form-label">Buscar Proveedor o Código</label>
         <div class="input-wrapper">
-          <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Proveedor o Código..." class="form-control" />
+          <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Ej. CMP-0001, Distribuidora..."
+            class="form-control" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Estado de Compra</label>
         <select [(ngModel)]="selectedEstado" (change)="filterList()" class="form-control">
           <option value="">Todas las compras</option>
-          <option value="RECIBIDO">Recibida</option>
-          <option value="PENDIENTE">Pendiente</option>
-          <option value="CANCELADO">Cancelada</option>
+          <option value="RECIBIDO">🟢 Recibidas</option>
+          <option value="PENDIENTE">🟡 Pendientes</option>
+          <option value="CANCELADO">🔴 Canceladas</option>
         </select>
       </div>
-      <div class="form-group filter-btn-group">
-        <button class="btn btn-primary btn-search" (click)="filterList()">
-          <i class="bi bi-search"></i> Buscar / Filtrar
-        </button>
+      <div class="form-group">
+        <label class="form-label">Fecha Desde</label>
+        <input type="date" [(ngModel)]="fechaInicio" (change)="filterList()" class="form-control" />
       </div>
+      <div class="form-group">
+        <label class="form-label">Fecha Hasta</label>
+        <input type="date" [(ngModel)]="fechaFin" (change)="filterList()" class="form-control" />
+      </div>
+    </div>
+    <div class="filter-actions-bar">
+      <button class="btn btn-outline-secondary btn-sm" (click)="resetFilters()">
+        <i class="bi bi-arrow-counterclockwise"></i> Limpiar Filtros
+      </button>
     </div>
   </div>
 
-  <!-- Results Card (Matching reference image table section) -->
+  <!-- Results Card -->
   <div class="card results-card">
     <div class="card-header-title">
-      <i class="bi bi-bar-chart-fill text-primary"></i>
-      <h3>Resultados del Historial</h3>
+      <i class="bi bi-list-check text-primary"></i>
+      <h3>Resultados del Historial ({{ filteredCompras.length }})</h3>
     </div>
-    <p class="subtitle-text">Lista de Compras Registradas</p>
 
     <div class="table-responsive">
-      <table class="table">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th>CÓDIGO COMPRA</th>
             <th>PROVEEDOR</th>
             <th>FECHA EMISIÓN</th>
-            <th>ESTADO PAGO</th>
+            <th>FORMA PAGO</th>
             <th>MONTO TOTAL (S/.)</th>
             <th>ESTADO</th>
-            <th>ACCIÓN</th>
+            <th class="text-center">ACCIONES</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let c of filteredCompras">
-            <td><strong>{{ c.codigo }}</strong></td>
-            <td>{{ c.proveedor.nombre }}</td>
-            <td>{{ c.fechaPedido }}</td>
-            <td>{{ c.estadoPago || 'Contado' }}</td>
-            <td class="fw-bold">S/. {{ c.montoTotal | number:'1.2-2' }}</td>
+            <td><code>{{ c.codigo || 'CMP-00' + c.id }}</code></td>
+            <td>
+              <div class="proveedor-cell">
+                <span class="font-bold">{{ c.proveedorNombre || c.proveedor?.nombre || 'N/A' }}</span>
+                <small class="text-muted" *ngIf="c.proveedorRuc || c.proveedor?.ruc">RUC: {{ c.proveedorRuc || c.proveedor?.ruc }}</small>
+              </div>
+            </td>
+            <td>{{ c.fechaPedido | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <span class="badge-payment">{{ c.estadoPago || 'Contado' }}</span>
+            </td>
+            <td class="fw-bold text-primary">S/. {{ c.montoTotal | number:'1.2-2' }}</td>
             <td>
               <span class="badge" [ngClass]="{
                 'badge-pendiente': c.estado === 'PENDIENTE',
                 'badge-recibida': c.estado === 'RECIBIDO',
                 'badge-cancelada': c.estado === 'CANCELADO'
               }">
+                <i class="bi" [ngClass]="{
+                  'bi-clock': c.estado === 'PENDIENTE',
+                  'bi-check-circle-fill': c.estado === 'RECIBIDO',
+                  'bi-x-circle-fill': c.estado === 'CANCELADO'
+                }"></i>
                 {{ c.estado === 'RECIBIDO' ? 'RECIBIDA' : c.estado }}
               </span>
             </td>
-            <td>
+            <td class="text-center">
               <div class="action-buttons">
-                <button class="btn-icon" (click)="showDetails(c)" title="Ver Detalles">
-                  <i class="bi bi-eye"></i>
+                <button class="btn btn-sm btn-outline-primary" (click)="showDetails(c)" title="Ver Detalles del Pedido">
+                  <i class="bi bi-eye-fill"></i> Ver Detalle
                 </button>
-                <button *ngIf="c.estado === 'PENDIENTE'" class="btn-icon text-success" (click)="changeEstado(c, 'RECIBIDO')" title="Marcar como Recibido">
-                  <i class="bi bi-check-lg"></i>
+                <button *ngIf="c.estado === 'PENDIENTE'" class="btn btn-sm btn-outline-success"
+                  (click)="changeEstado(c, 'RECIBIDO')" title="Recibir y Sumar al Inventario">
+                  <i class="bi bi-box-arrow-in-down"></i> Recibir
                 </button>
-                <button *ngIf="c.estado === 'PENDIENTE'" class="btn-icon text-danger" (click)="changeEstado(c, 'CANCELADO')" title="Cancelar Orden">
+                <button *ngIf="c.estado === 'PENDIENTE'" class="btn btn-sm btn-outline-danger"
+                  (click)="changeEstado(c, 'CANCELADO')" title="Cancelar Orden">
                   <i class="bi bi-x-lg"></i>
                 </button>
               </div>
             </td>
           </tr>
           <tr *ngIf="filteredCompras.length === 0">
-            <td colspan="7" class="text-center py-4 text-muted">No se encontraron órdenes de compra registradas.</td>
+            <td colspan="7" class="text-center py-4 text-muted">
+              No se encontraron órdenes de compra registradas con los filtros seleccionados.
+            </td>
           </tr>
         </tbody>
       </table>
@@ -109,27 +173,27 @@
 <div class="modal-overlay" *ngIf="selectedCompraDetalles">
   <div class="modal-card modal-lg">
     <div class="modal-header">
-      <h3>Detalles del Pedido: {{ selectedCompraDetalles.codigo }}</h3>
-      <button class="btn-close" (click)="closeDetails()">×</button>
+      <h3>📋 Detalles del Pedido: {{ selectedCompraDetalles.codigo || 'CMP-00' + selectedCompraDetalles.id }}</h3>
+      <button class="btn-close" (click)="closeDetails()">&times;</button>
     </div>
     <div class="modal-body">
       <!-- Order Metadata Details -->
       <div class="details-grid">
         <div class="grid-item">
           <strong>Proveedor:</strong>
-          <span>{{ selectedCompraDetalles.proveedor.nombre }}</span>
+          <span>{{ selectedCompraDetalles.proveedorNombre || selectedCompraDetalles.proveedor?.nombre || 'N/A' }}</span>
         </div>
         <div class="grid-item">
           <strong>RUC:</strong>
-          <span>{{ selectedCompraDetalles.proveedor.ruc || 'N/A' }}</span>
+          <span>{{ selectedCompraDetalles.proveedorRuc || selectedCompraDetalles.proveedor?.ruc || 'N/A' }}</span>
         </div>
         <div class="grid-item">
           <strong>Fecha de Pedido:</strong>
-          <span>{{ selectedCompraDetalles.fechaPedido }}</span>
+          <span>{{ selectedCompraDetalles.fechaPedido | date:'dd/MM/yyyy' }}</span>
         </div>
         <div class="grid-item">
           <strong>Fecha Est. Entrega:</strong>
-          <span>{{ selectedCompraDetalles.fechaEntrega || 'No indicada' }}</span>
+          <span>{{ selectedCompraDetalles.fechaEntrega ? (selectedCompraDetalles.fechaEntrega | date:'dd/MM/yyyy') : 'No indicada' }}</span>
         </div>
         <div class="grid-item">
           <strong>Método de Pedido:</strong>
@@ -155,24 +219,24 @@
 
       <!-- Items list -->
       <div class="items-list-section">
-        <h4>Productos Solicitados</h4>
+        <h4>📦 Productos Solicitados</h4>
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>
               <tr>
                 <th>Producto</th>
                 <th>Cantidad</th>
-                <th>Precio Costo</th>
+                <th>Precio Costo Unit.</th>
                 <th>Subtotal</th>
                 <th>Observación</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let det of selectedCompraDetalles.detalles">
-                <td>{{ det.producto.nombre }}</td>
-                <td>{{ det.cantidad }}</td>
+                <td class="font-bold">{{ det.productoNombre || det.producto?.nombre || 'N/A' }}</td>
+                <td>{{ det.cantidad }} unids.</td>
                 <td>S/. {{ det.precioCosto | number:'1.2-2' }}</td>
-                <td>S/. {{ det.subtotal | number:'1.2-2' }}</td>
+                <td class="fw-bold">S/. {{ det.subtotal | number:'1.2-2' }}</td>
                 <td>{{ det.observacion || 'Ninguna' }}</td>
               </tr>
             </tbody>
@@ -188,8 +252,12 @@
     </div>
     <div class="modal-footer">
       <div class="status-actions-footer" *ngIf="selectedCompraDetalles.estado === 'PENDIENTE'">
-        <button class="btn btn-success" (click)="changeEstado(selectedCompraDetalles, 'RECIBIDO')">Recibir Mercadería</button>
-        <button class="btn btn-danger" (click)="changeEstado(selectedCompraDetalles, 'CANCELADO')">Cancelar Pedido</button>
+        <button class="btn btn-success" (click)="changeEstado(selectedCompraDetalles, 'RECIBIDO')">
+          <i class="bi bi-box-arrow-in-down"></i> Recibir Mercadería en Stock
+        </button>
+        <button class="btn btn-danger" (click)="changeEstado(selectedCompraDetalles, 'CANCELADO')">
+          <i class="bi bi-x-lg"></i> Cancelar Pedido
+        </button>
       </div>
       <button class="btn btn-secondary" (click)="closeDetails()">Cerrar</button>
     </div>

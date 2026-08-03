@@ -25,13 +25,13 @@ public class MovimientoInventario {
     private String tipoMovimiento; // ENTRADA, SALIDA, AJUSTE
 
     @Column(nullable = false)
-    private int cantidad;
+    private Integer cantidad = 0;
 
     @Column(name = "stock_anterior", nullable = false)
-    private int stockAnterior;
+    private Integer stockAnterior = 0;
 
     @Column(name = "stock_final", nullable = false)
-    private int stockFinal;
+    private Integer stockFinal = 0;
 
     @Column(length = 100)
     private String usuario;

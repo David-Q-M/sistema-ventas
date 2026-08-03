@@ -45,4 +45,8 @@ export class CompraService {
     updateEstado(id: number, estado: string): Observable<any> {
         return this.http.put<any>(`${this.apiUrl}/${id}/estado`, { estado });
     }
+
+    procesarEntregasPendientes(): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/procesar-entregas-pendientes`, {});
+    }
 }

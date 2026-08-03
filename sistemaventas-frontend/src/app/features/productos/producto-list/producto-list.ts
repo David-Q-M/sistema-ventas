@@ -7,6 +7,7 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { Producto, Categoria } from '../../../shared/models/models';
 import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../core/services/loading.service';
+import { ConfirmModalService } from '../../../core/services/confirm-modal.service';
 
 @Component({
   selector: 'app-producto-list',
@@ -36,7 +37,8 @@ export class ProductoListComponent implements OnInit {
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
     private toastService: ToastService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private confirmModalService: ConfirmModalService
   ) { }
 
   ngOnInit() {
@@ -53,22 +55,19 @@ export class ProductoListComponent implements OnInit {
         this.loadProductos();
       },
       error: () => {
+        this.loadingService.hide();
+        this.loading = false;
         this.toastService.show('Error al cargar categorías', 'error');
-        this.loadProductos();
       }
     });
   }
 
   loadProductos() {
     this.productoService.getAll().subscribe({
-      next: (data) => {
-        this.productos = data;
-        this.calculateStats();
-        if (this.viewMode === 'products' && this.selectedCategory) {
-          this.selectCategory(this.selectedCategory);
-        } else if (this.viewMode === 'search') {
-          this.onSearch();
-        }
+      next: (prods) => {
+        this.productos = prods;
+        this.calculateKpis();
+        this.applyFilters();
         this.loadingService.hide();
         this.loading = false;
       },
@@ -80,105 +79,120 @@ export class ProductoListComponent implements OnInit {
     });
   }
 
-  calculateStats() {
+  calculateKpis() {
     this.totalProductsCount = this.productos.length;
-    this.availableCount = this.productos.filter(p => (p.stock || 0) >= 10).length;
-    this.lowStockCount = this.productos.filter(p => (p.stock || 0) < 10).length;
+    this.availableCount = this.productos.filter(p => (p.stock || 0) > (p.stockMinimo || 10)).length;
+    this.lowStockCount = this.productos.filter(p => (p.stock || 0) <= (p.stockMinimo || 10)).length;
   }
 
-  getProductsCountByCategory(catId: number): number {
-    return this.productos.filter(p => p.categoria?.id === catId).length;
-  }
-
-  onSearch() {
-    if (!this.searchTerm.trim()) {
-      if (this.selectedCategory) {
-        this.selectCategory(this.selectedCategory);
-      } else {
-        this.viewMode = 'products';
-        this.filteredProductos = [...this.productos];
-      }
-      return;
-    }
-
-    this.viewMode = 'search';
-    const term = this.searchTerm.toLowerCase();
-    this.filteredProductos = this.productos.filter(p =>
-      p.nombre.toLowerCase().includes(term) ||
-      (p.codigoBarras && p.codigoBarras.toLowerCase().includes(term)) ||
-      (p.categoria && p.categoria.nombre.toLowerCase().includes(term))
-    );
-  }
-
-  selectCategory(category: Categoria | null) {
-    this.selectedCategory = category;
+  selectCategory(cat: Categoria) {
+    this.selectedCategory = cat;
     this.viewMode = 'products';
-
-    if (category === null) {
-      this.filteredProductos = [...this.productos];
-    } else {
-      this.filteredProductos = this.productos.filter(p =>
-        p.categoria?.id === category.id
-      );
-    }
-
-    this.applyStockFilter();
+    this.applyFilters();
   }
 
-  setStockFilter(filter: 'ALL' | 'AVAILABLE' | 'LOW_STOCK') {
-    this.selectedStockFilter = filter;
-    if (this.viewMode === 'categories') {
-      this.viewMode = 'products';
-      this.selectedCategory = null;
-    }
-    this.applyStockFilter();
+  showAllProducts() {
+    this.selectedCategory = null;
+    this.viewMode = 'products';
+    this.applyFilters();
   }
 
-  applyStockFilter() {
-    let list = this.selectedCategory
-      ? this.productos.filter(p => p.categoria?.id === this.selectedCategory?.id)
-      : [...this.productos];
-
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      list = list.filter(p =>
-        p.nombre.toLowerCase().includes(term) ||
-        (p.codigoBarras && p.codigoBarras.toLowerCase().includes(term))
-      );
-    }
-
-    if (this.selectedStockFilter === 'AVAILABLE') {
-      list = list.filter(p => (p.stock || 0) >= 10);
-    } else if (this.selectedStockFilter === 'LOW_STOCK') {
-      list = list.filter(p => (p.stock || 0) < 10);
-    }
-
-    this.filteredProductos = list;
+  showAllProductsView() {
+    this.showAllProducts();
   }
 
-  switchToCategories() {
+  backToCategories() {
     this.viewMode = 'categories';
     this.selectedCategory = null;
     this.searchTerm = '';
     this.selectedStockFilter = 'ALL';
+    this.applyFilters();
   }
 
-  showAllProductsView() {
-    this.viewMode = 'products';
-    this.selectedCategory = null;
-    this.applyStockFilter();
+  switchToCategories() {
+    this.backToCategories();
+  }
+
+  onSearchChange() {
+    if (this.searchTerm.trim()) {
+      this.viewMode = 'search';
+    } else if (this.selectedCategory) {
+      this.viewMode = 'products';
+    } else {
+      this.viewMode = 'categories';
+    }
+    this.applyFilters();
+  }
+
+  onSearch() {
+    this.onSearchChange();
+  }
+
+  setStockFilter(filter: 'ALL' | 'AVAILABLE' | 'LOW_STOCK') {
+    this.selectedStockFilter = filter;
+    this.applyFilters();
+  }
+
+  applyStockFilter() {
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let prods = [...this.productos];
+
+    if (this.selectedCategory && this.viewMode === 'products') {
+      prods = prods.filter(p => p.categoria?.id === this.selectedCategory?.id);
+    }
+
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      prods = prods.filter(p =>
+        p.nombre.toLowerCase().includes(term) ||
+        (p.codigoBarras && p.codigoBarras.toLowerCase().includes(term)) ||
+        (p.categoria?.nombre && p.categoria.nombre.toLowerCase().includes(term))
+      );
+    }
+
+    if (this.selectedStockFilter === 'AVAILABLE') {
+      prods = prods.filter(p => (p.stock || 0) > (p.stockMinimo || 10));
+    } else if (this.selectedStockFilter === 'LOW_STOCK') {
+      prods = prods.filter(p => (p.stock || 0) <= (p.stockMinimo || 10));
+    }
+
+    this.filteredProductos = prods;
+  }
+
+  getProductCountForCategory(catId: number): number {
+    return this.productos.filter(p => p.categoria?.id === catId).length;
+  }
+
+  getProductsCountByCategory(catId: number): number {
+    return this.getProductCountForCategory(catId);
   }
 
   setDisplayMode(mode: 'grid' | 'table') {
     this.displayMode = mode;
   }
 
-  deleteProducto(id: number) {
-    if (confirm('¿Estás seguro de eliminar este producto del inventario?')) {
+  async deleteProducto(id: number) {
+    const prod = this.productos.find(p => p.id === id);
+    const prodNombre = prod ? prod.nombre : 'este producto';
+
+    const confirmed = await this.confirmModalService.confirm({
+      title: 'Eliminar Producto del Inventario',
+      message: `¿Estás seguro de eliminar el producto "${prodNombre}" del inventario?`,
+      detail: 'El producto será borrado del inventario del sistema.',
+      icon: 'bi-trash-fill',
+      type: 'danger',
+      confirmText: 'Sí, Eliminar',
+      cancelText: 'Cancelar'
+    });
+
+    if (confirmed) {
       this.loadingService.show();
       this.productoService.delete(id).subscribe({
         next: () => {
-          this.toastService.show('Producto eliminado correctamente', 'success');
+          this.toastService.show('✅ Producto eliminado correctamente', 'success');
           this.loadProductos();
         },
         error: (err) => {

@@ -48,4 +48,19 @@ public class CompraController {
         }
         return ResponseEntity.ok(service.actualizarEstadoDTO(id, nuevoEstado));
     }
+
+    /**
+     * Endpoint para ejecutar manualmente la verificación JIT de entregas diferidas pendientes.
+     */
+    @PostMapping("/procesar-entregas-pendientes")
+    public ResponseEntity<Map<String, Object>> procesarEntregasPendientes() {
+        int procesadas = service.procesarEntregasPendientes();
+        return ResponseEntity.ok(Map.of(
+            "status", "success",
+            "ordenesProcesadas", procesadas,
+            "message", procesadas > 0 
+                ? "Se procesaron " + procesadas + " órdenes de compra pendientes a estado RECIBIDO y el stock fue actualizado."
+                : "No hay órdenes pendientes vencidas a la fecha para procesar."
+        ));
+    }
 }

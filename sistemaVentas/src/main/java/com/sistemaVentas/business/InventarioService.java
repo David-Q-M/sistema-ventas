@@ -54,7 +54,7 @@ public class InventarioService {
         Producto producto = productoRepo.findById(dto.getProductoId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + dto.getProductoId()));
 
-        int stockAnterior = producto.getStock();
+        int stockAnterior = (producto.getStock() != null) ? producto.getStock() : 0;
         int nuevoStock = dto.getNuevoStock();
         int diferencia = nuevoStock - stockAnterior;
 
@@ -62,7 +62,7 @@ public class InventarioService {
             throw new RuntimeException("El nuevo stock es idéntico al stock actual. No hay cambios que ajustar.");
         }
 
-        String tipoMovimiento = (diferencia > 0) ? "ENTRADA" : (diferencia < 0 ? "SALIDA" : "AJUSTE");
+        String tipoMovimiento = (diferencia > 0) ? "ENTRADA" : "SALIDA";
         int cantidadMovida = Math.abs(diferencia);
 
         // Actualizar stock del producto
@@ -109,8 +109,8 @@ public class InventarioService {
                             p.getNombre(),
                             p.getCodigoBarras(),
                             catNombre,
-                            p.getStock(),
-                            p.getStockMinimo(),
+                            p.getStock() != null ? p.getStock() : 0,
+                            p.getStockMinimo() != null ? p.getStockMinimo() : 10,
                             fVenc,
                             diasRestantes,
                             estadoAlerta,
@@ -125,6 +125,9 @@ public class InventarioService {
      * RF29: Consultar Historial de Movimientos con Paginación Obligatoria.
      */
     public Page<MovimientoInventario> obtenerMovimientosPaginados(Long productoId, String tipoMovimiento, LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable) {
+        if (tipoMovimiento != null && tipoMovimiento.trim().isEmpty()) {
+            tipoMovimiento = null;
+        }
         return movimientoRepo.buscarConFiltrosPaginados(productoId, tipoMovimiento, fechaInicio, fechaFin, pageable);
     }
 }

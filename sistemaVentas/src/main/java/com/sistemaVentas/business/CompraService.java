@@ -79,7 +79,7 @@ public class CompraService {
         compra.setFechaEntrega(dto.getFechaEntrega());
         compra.setMetodoPedido(dto.getMetodoPedido() != null ? dto.getMetodoPedido() : "Llamada Telefónica");
         compra.setEstadoPago(dto.getEstadoPago() != null ? dto.getEstadoPago() : "Contado");
-        compra.setEstado(dto.getEstado() != null ? dto.getEstado() : "RECIBIDO");
+        compra.setEstado(dto.getEstado() != null ? dto.getEstado() : "PENDIENTE");
         compra.setObservacion(dto.getObservacion());
 
         BigDecimal totalAcumulado = BigDecimal.ZERO;
@@ -111,9 +111,9 @@ public class CompraService {
             detallesEntities.add(detalle);
             totalAcumulado = totalAcumulado.add(subtotal);
 
-            // 5. RF27 & RF29: ACTUALIZACIÓN AUTOMÁTICA DE INVENTARIO Y AUDIT LOG (Módulo 3)
+            // 5. RF27 & RF29: ACTUALIZACIÓN AUTOMÁTICA DE INVENTARIO Y AUDIT LOG SOLO SI NACE COMO RECIBIDO
             if ("RECIBIDO".equalsIgnoreCase(compra.getEstado())) {
-                int stockAnterior = prod.getStock();
+                int stockAnterior = prod.getStock() != null ? prod.getStock() : 0;
                 int nuevoStock = stockAnterior + detDto.getCantidad();
                 prod.setStock(nuevoStock);
                 prod.setProveedor(prov);
@@ -135,7 +135,7 @@ public class CompraService {
         compra.setDetalles(detallesEntities);
         compra.setMontoTotal(totalAcumulado);
 
-        // 6. Actualizar estadísticas acumuladas del Proveedor
+        // 6. Actualizar estadísticas acumuladas del Proveedor si NACE como RECIBIDO
         if ("RECIBIDO".equalsIgnoreCase(compra.getEstado())) {
             prov.setUltimaOrden(compra.getFechaPedido());
             BigDecimal acumuladoActual = prov.getMontoTotal() != null ? prov.getMontoTotal() : BigDecimal.ZERO;
@@ -158,33 +158,61 @@ public class CompraService {
 
         compra.setEstado(nuevoEstado);
 
-        // Transición a RECIBIDO: Incrementar stock
+        // Transición a RECIBIDO: Incrementar stock y audit log
         if ("RECIBIDO".equalsIgnoreCase(nuevoEstado)) {
             Proveedor prov = compra.getProveedor();
-            prov.setUltimaOrden(compra.getFechaPedido());
-            BigDecimal acumuladoActual = prov.getMontoTotal() != null ? prov.getMontoTotal() : BigDecimal.ZERO;
-            prov.setMontoTotal(acumuladoActual.add(compra.getMontoTotal()));
-            proveedorRepo.save(prov);
-
-            for (DetalleCompra detalle : compra.getDetalles()) {
-                Producto prod = detalle.getProducto();
-                prod.setStock(prod.getStock() + detalle.getCantidad());
-                prod.setProveedor(prov);
-                productoRepo.save(prod);
-            }
-        }
-        // Transición de RECIBIDO a CANCELADO: Revertir stock y acumulado de proveedor
-        else if ("RECIBIDO".equalsIgnoreCase(estadoAnterior) && "CANCELADO".equalsIgnoreCase(nuevoEstado)) {
-            Proveedor prov = compra.getProveedor();
-            if (prov.getMontoTotal() != null) {
-                prov.setMontoTotal(prov.getMontoTotal().subtract(compra.getMontoTotal()));
+            if (prov != null) {
+                prov.setUltimaOrden(compra.getFechaPedido());
+                BigDecimal acumuladoActual = prov.getMontoTotal() != null ? prov.getMontoTotal() : BigDecimal.ZERO;
+                prov.setMontoTotal(acumuladoActual.add(compra.getMontoTotal() != null ? compra.getMontoTotal() : BigDecimal.ZERO));
                 proveedorRepo.save(prov);
             }
 
             for (DetalleCompra detalle : compra.getDetalles()) {
                 Producto prod = detalle.getProducto();
-                prod.setStock(Math.max(0, prod.getStock() - detalle.getCantidad()));
+                int stockAnterior = prod.getStock() != null ? prod.getStock() : 0;
+                int nuevoStock = stockAnterior + detalle.getCantidad();
+                prod.setStock(nuevoStock);
+                if (prov != null) {
+                    prod.setProveedor(prov);
+                }
                 productoRepo.save(prod);
+
+                inventarioService.registrarMovimiento(
+                        prod,
+                        "ENTRADA",
+                        detalle.getCantidad(),
+                        stockAnterior,
+                        nuevoStock,
+                        "SISTEMA_COMPRAS",
+                        "Recepción de Orden N° " + compra.getCodigo() + (prov != null ? " de " + prov.getNombre() : "")
+                );
+            }
+        }
+        // Transición de RECIBIDO a CANCELADO: Revertir stock y acumulado de proveedor
+        else if ("RECIBIDO".equalsIgnoreCase(estadoAnterior) && "CANCELADO".equalsIgnoreCase(nuevoEstado)) {
+            Proveedor prov = compra.getProveedor();
+            if (prov != null && prov.getMontoTotal() != null) {
+                prov.setMontoTotal(prov.getMontoTotal().subtract(compra.getMontoTotal() != null ? compra.getMontoTotal() : BigDecimal.ZERO));
+                proveedorRepo.save(prov);
+            }
+
+            for (DetalleCompra detalle : compra.getDetalles()) {
+                Producto prod = detalle.getProducto();
+                int stockAnterior = prod.getStock() != null ? prod.getStock() : 0;
+                int nuevoStock = Math.max(0, stockAnterior - detalle.getCantidad());
+                prod.setStock(nuevoStock);
+                productoRepo.save(prod);
+
+                inventarioService.registrarMovimiento(
+                        prod,
+                        "SALIDA",
+                        detalle.getCantidad(),
+                        stockAnterior,
+                        nuevoStock,
+                        "SISTEMA_COMPRAS",
+                        "Cancelación de Compra N° " + compra.getCodigo()
+                );
             }
         }
 
@@ -247,6 +275,27 @@ public class CompraService {
     public Compra actualizarEstado(Long id, String nuevoEstado) {
         CompraResponseDTO res = actualizarEstadoDTO(id, nuevoEstado);
         return obtenerPorIdEntity(res.getId());
+    }
+
+    /**
+     * Tarea diferida de procesamiento de stock para entregas 'Just-in-Time'.
+     * Busca órdenes PENDIENTE con fechaEntrega <= hoy y las transiciona a RECIBIDO.
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public int procesarEntregasPendientes() {
+        LocalDate hoy = LocalDate.now();
+        List<Compra> pendientes = compraRepo.findByEstadoAndFechaEntregaLessThanEqual("PENDIENTE", hoy);
+        int procesadasCount = 0;
+
+        for (Compra c : pendientes) {
+            try {
+                actualizarEstadoDTO(c.getId(), "RECIBIDO");
+                procesadasCount++;
+            } catch (Exception e) {
+                System.err.println("Error procesando entrega automática para la orden de compra CMP-ID " + c.getId() + ": " + e.getMessage());
+            }
+        }
+        return procesadasCount;
     }
 
     // Mapper Helpers

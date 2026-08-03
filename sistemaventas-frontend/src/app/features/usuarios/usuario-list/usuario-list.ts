@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { Usuario } from '../../../shared/models/models';
 import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmModalService } from '../../../core/services/confirm-modal.service';
 
 @Component({
     selector: 'app-usuario-list',
@@ -23,7 +24,8 @@ export class UsuarioListComponent implements OnInit {
 
     constructor(
         private usuarioService: UsuarioService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private confirmModalService: ConfirmModalService
     ) { }
 
     ngOnInit() {
@@ -62,11 +64,24 @@ export class UsuarioListComponent implements OnInit {
         }
     }
 
-    deleteUsuario(id: number) {
-        if (confirm('¿Estás seguro de eliminar este usuario?')) {
+    async deleteUsuario(id: number) {
+        const uObj = this.allUsuarios.find(u => u.id === id);
+        const username = uObj ? uObj.username : 'este usuario';
+
+        const confirmed = await this.confirmModalService.confirm({
+            title: 'Eliminar Usuario',
+            message: `¿Estás seguro de eliminar al usuario "${username}"?`,
+            detail: 'Esta acción removerá la cuenta del usuario del sistema.',
+            icon: 'bi-person-x-fill',
+            type: 'danger',
+            confirmText: 'Sí, Eliminar',
+            cancelText: 'Cancelar'
+        });
+
+        if (confirmed) {
             this.usuarioService.delete(id).subscribe({
                 next: () => {
-                    this.toastService.show('Usuario eliminado', 'success');
+                    this.toastService.show('✅ Usuario eliminado correctamente', 'success');
                     this.loadUsuarios();
                 },
                 error: () => this.toastService.show('Error al eliminar usuario', 'error')
