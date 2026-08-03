@@ -10,6 +10,7 @@ import { VentaComponent } from './features/ventas/venta/venta';
 import { ReportesComponent } from './features/reportes/reportes';
 import { ProveedorListComponent } from './features/proveedores/proveedor-list/proveedor-list';
 import { ProveedorDetailComponent } from './features/proveedores/proveedor-detail/proveedor-detail';
+import { CatalogoProveedorComponent } from './features/proveedores/catalogo-proveedor/catalogo-proveedor';
 import { CompraListComponent } from './features/compras/compra-list/compra-list';
 import { CompraFormComponent } from './features/compras/compra-form/compra-form';
 import { InventarioComponent } from './features/inventario/inventario';
@@ -80,6 +81,12 @@ export const routes: Routes = [
             {
                 path: 'proveedores/detalle/:id',
                 component: ProveedorDetailComponent,
+                canActivate: [roleGuard],
+                data: { roles: ['ADMIN'] }
+            },
+            {
+                path: 'proveedores/catalogo/:proveedorId',
+                component: CatalogoProveedorComponent,
                 canActivate: [roleGuard],
                 data: { roles: ['ADMIN'] }
             },

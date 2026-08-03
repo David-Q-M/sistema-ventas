@@ -1,0 +1,170 @@
+<div class="catalogo-proveedor-container animate-fade-in mb-5" *ngIf="proveedor">
+  <!-- Top Page Header Card -->
+  <div class="page-header-card shadow-sm">
+    <div class="page-header-title">
+      <div class="page-header-icon">
+        <i class="bi bi-box-seam-fill"></i>
+      </div>
+      <div>
+        <h2>Asignar Suministro a Proveedor</h2>
+        <p>Proveedor seleccionado: <strong class="text-primary">{{ proveedor.nombre }}</strong> (RUC: {{ proveedor.ruc || 'S/N' }})</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <button type="button" class="btn btn-secondary btn-sm" (click)="volverADetalle()">
+        <i class="bi bi-arrow-left me-1"></i> Volver a Ficha Técnica
+      </button>
+      <button type="button" class="btn btn-primary btn-sm fw-bold" (click)="onSubmit()">
+        <i class="bi bi-check-lg me-1"></i> Guardar Suministro
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="card form-card shadow-sm mt-3">
+    <!-- Mode Selection Pills Header -->
+    <div class="mode-tabs-container mb-4">
+      <button type="button" class="tab-pill" [class.active]="assignMode === 'select'" (click)="setAssignMode('select')">
+        <i class="bi bi-boxes me-1"></i> 1. Seleccionar Producto Existente del Sistema
+      </button>
+      <button type="button" class="tab-pill" [class.active]="assignMode === 'new'" (click)="setAssignMode('new')">
+        <i class="bi bi-plus-circle-fill me-1"></i> 2. Crear Nuevo Producto y Asignarlo
+      </button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" novalidate>
+      <!-- SECTION 1: PRODUCT SELECTION / CREATION -->
+      <div class="section-box mb-4">
+        <h4 class="section-title mb-3">
+          <i class="bi" [ngClass]="assignMode === 'select' ? 'bi-box-seam' : 'bi-magic'"></i>
+          {{ assignMode === 'select' ? 'Selección de Producto Existente' : 'Registro de Nuevo Producto Global' }}
+        </h4>
+
+        <!-- Mode A: Existing Product Selector -->
+        <div *ngIf="assignMode === 'select'" class="form-group">
+          <label class="form-label">Producto del Catálogo General <span class="text-danger">*</span></label>
+          <select class="form-control form-select-lg" [(ngModel)]="formModel.productoId" name="productoId"
+            (change)="onProductoSelectChange()" [class.is-invalid]="validationErrors.productoId">
+            <option [ngValue]="0" disabled>-- Seleccione un Producto Registrado --</option>
+            <option *ngFor="let p of productosGlobales" [ngValue]="p.id">
+              {{ p.nombre }} (Categoría: {{ p.categoria?.nombre || 'General' }} - Precio Venta: S/. {{ p.precioVenta | number:'1.2-2' }})
+            </option>
+          </select>
+          <div class="invalid-feedback d-block" *ngIf="validationErrors.productoId">
+            <i class="bi bi-exclamation-circle me-1"></i> {{ validationErrors.productoId }}
+          </div>
+          <small class="text-muted d-block mt-2">
+            <i class="bi bi-info-circle me-1 text-primary"></i> Selecciona un producto para asignarlo con costo y stock propio a este proveedor.
+          </small>
+        </div>
+
+        <!-- Mode B: Create New Global Product -->
+        <div *ngIf="assignMode === 'new'" class="form-fields-grid">
+          <!-- Nombre del Producto -->
+          <div class="form-group col-full">
+            <label class="form-label">Nombre del Nuevo Producto <span class="text-danger">*</span></label>
+            <input type="text" class="form-control fw-bold" [(ngModel)]="formModel.nuevoNombre" name="nuevoNombre"
+              placeholder="Ej. Gaseosa Inka Cola 3L..." [class.is-invalid]="validationErrors.nuevoNombre" />
+            <div class="invalid-feedback d-block" *ngIf="validationErrors.nuevoNombre">
+              <i class="bi bi-exclamation-circle me-1"></i> {{ validationErrors.nuevoNombre }}
+            </div>
+          </div>
+
+          <!-- Categoría -->
+          <div class="form-group">
+            <label class="form-label">Categoría <span class="text-danger">*</span></label>
+            <select class="form-control" [(ngModel)]="formModel.nuevoCategoria" name="nuevoCategoria" [compareWith]="compareCategorias"
+              [class.is-invalid]="validationErrors.nuevoCategoria">
+              <option [ngValue]="undefined" disabled>-- Seleccione una Categoría --</option>
+              <option *ngFor="let cat of categorias" [ngValue]="cat">{{ cat.nombre }}</option>
+            </select>
+            <div class="invalid-feedback d-block" *ngIf="validationErrors.nuevoCategoria">
+              <i class="bi bi-exclamation-circle me-1"></i> {{ validationErrors.nuevoCategoria }}
+            </div>
+          </div>
+
+          <!-- Código de Barras -->
+          <div class="form-group">
+            <label class="form-label">Código de Barras (Opcional)</label>
+            <input type="text" class="form-control" [(ngModel)]="formModel.nuevoCodigoBarras" name="nuevoCodigoBarras"
+              placeholder="Ej. 775123456789" style="font-family: monospace;" />
+          </div>
+
+          <!-- Precio de Venta al Público Sugerido -->
+          <div class="form-group col-full">
+            <label class="form-label">Precio Sugerido de Venta al Público (S/.)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-primary fw-bold">S/.</span>
+              <input type="number" step="0.01" min="0.01" class="form-control fw-bold text-primary"
+                [(ngModel)]="formModel.nuevoPrecioVenta" name="nuevoPrecioVenta" placeholder="0.00" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: SUPPLIER SPECIFIC COST & STOCK ATTRIBUTES -->
+      <div class="section-box mb-4 bg-light p-3 rounded-3 border">
+        <h4 class="section-title mb-3">
+          <i class="bi bi-tags-fill me-1 text-primary"></i> Atributos Exclusivos del Proveedor
+        </h4>
+
+        <div class="form-fields-grid">
+          <!-- Precio de Costo -->
+          <div class="form-group">
+            <label class="form-label">Precio de Costo Pactado (S/.) <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-white fw-bold text-primary">S/.</span>
+              <input type="number" step="0.01" min="0.01" class="form-control fw-bold text-primary"
+                [(ngModel)]="formModel.precioCosto" name="precioCosto" placeholder="0.00"
+                [class.is-invalid]="validationErrors.precioCosto" required />
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="validationErrors.precioCosto">
+              <i class="bi bi-exclamation-circle me-1"></i> {{ validationErrors.precioCosto }}
+            </div>
+          </div>
+
+          <!-- Stock Actual -->
+          <div class="form-group">
+            <label class="form-label">Stock Disponible del Proveedor <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-boxes text-primary"></i></span>
+              <input type="number" min="0" class="form-control fw-bold" [(ngModel)]="formModel.stockActual" name="stockActual"
+                placeholder="100" [class.is-invalid]="validationErrors.stockActual" required />
+            </div>
+            <div class="invalid-feedback d-block" *ngIf="validationErrors.stockActual">
+              <i class="bi bi-exclamation-circle me-1"></i> {{ validationErrors.stockActual }}
+            </div>
+          </div>
+
+          <!-- Stock Mínimo -->
+          <div class="form-group">
+            <label class="form-label">Stock Mínimo (Alerta de Reorden)</label>
+            <input type="number" min="0" class="form-control" [(ngModel)]="formModel.stockMinimo" name="stockMinimo" placeholder="10" />
+          </div>
+
+          <!-- Código de Lote -->
+          <div class="form-group">
+            <label class="form-label">Código de Lote de Fabricación</label>
+            <input type="text" class="form-control" [(ngModel)]="formModel.codigoLote" name="codigoLote" placeholder="Ej. LOTE-2026-A" />
+          </div>
+
+          <!-- Fecha de Vencimiento -->
+          <div class="form-group col-full">
+            <label class="form-label">Fecha de Vencimiento de Lote</label>
+            <input type="date" class="form-control" [(ngModel)]="formModel.fechaVencimiento" name="fechaVencimiento" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer Buttons -->
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" class="btn btn-secondary px-4" (click)="volverADetalle()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary px-4 fw-bold">
+          <i class="bi bi-check-lg me-1"></i> Asignar Producto al Proveedor
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

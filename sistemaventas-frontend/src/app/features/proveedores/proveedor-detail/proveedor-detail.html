@@ -11,9 +11,9 @@
       </div>
     </div>
     <div class="header-actions">
-      <button class="btn btn-primary btn-sm" (click)="abrirModalAgregarSuministro()">
+      <a [routerLink]="['/proveedores/catalogo', proveedor.id]" class="btn btn-primary btn-sm fw-bold">
         <i class="bi bi-cart-plus-fill me-1"></i> Asignar Producto
-      </button>
+      </a>
       <button class="btn btn-primary btn-sm" (click)="registrarCompraDirecta()">
         <i class="bi bi-cart-plus-fill me-1"></i> Registrar Compra
       </button>
@@ -111,9 +111,9 @@
             </div>
           </div>
           <div class="catalog-actions">
-            <button class="btn btn-primary btn-sm fw-bold" (click)="abrirModalAgregarSuministro()">
+            <a [routerLink]="['/proveedores/catalogo', proveedor.id]" class="btn btn-primary btn-sm fw-bold">
               <i class="bi bi-cart-plus-fill me-1"></i> + Asignar Producto
-            </button>
+            </a>
           </div>
         </div>
 
@@ -202,7 +202,8 @@
           </table>
         </div>
 
-        <div class="empty-catalog-box text-center p-4 my-2 border rounded-3 bg-light" *ngIf="filteredCatalogo.length === 0">
+        <div class="empty-catalog-box text-center p-4 my-2 border rounded-3 bg-light"
+          *ngIf="filteredCatalogo.length === 0">
           <div class="alert-content">
             <i class="bi bi-box-seam fs-1 text-primary d-block mb-2 opacity-75"></i>
             <h4 class="m-0 text-dark fw-bold" style="font-size: 0.95rem;">
@@ -211,9 +212,9 @@
             <p class="m-0 text-muted small mt-1 mb-3">
               Este proveedor no tiene productos asignados. Configura precios de costo, lote y disponibilidad.
             </p>
-            <button class="btn btn-primary btn-sm px-4 fw-bold" (click)="abrirModalAgregarSuministro()">
+            <a [routerLink]="['/proveedores/catalogo', proveedor.id]" class="btn btn-primary btn-sm px-4 fw-bold">
               <i class="bi bi-plus-lg me-1"></i> Asignar Primer Producto
-            </button>
+            </a>
           </div>
         </div>
       </div>
