@@ -11,6 +11,9 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn btn-primary btn-sm" (click)="abrirModalAgregarSuministro()">
+        <i class="bi bi-cart-plus-fill me-1"></i> Asignar Producto
+      </button>
       <button class="btn btn-primary btn-sm" (click)="registrarCompraDirecta()">
         <i class="bi bi-cart-plus-fill me-1"></i> Registrar Compra
       </button>
@@ -99,7 +102,7 @@
 
       <!-- Supplied Products Catalog Card -->
       <div class="card catalog-section shadow-sm">
-        <div class="catalog-header">
+        <div class="catalog-header d-flex justify-content-between align-items-center mb-3">
           <div class="catalog-title">
             <i class="bi bi-box-seam text-primary fs-5"></i>
             <div>
@@ -108,14 +111,14 @@
             </div>
           </div>
           <div class="catalog-actions">
-            <button class="btn btn-primary btn-sm" (click)="abrirModalAgregarSuministro()">
-              <i class="bi bi-plus-circle me-1"></i> Asignar Producto
+            <button class="btn btn-primary btn-sm fw-bold" (click)="abrirModalAgregarSuministro()">
+              <i class="bi bi-cart-plus-fill me-1"></i> + Asignar Producto
             </button>
           </div>
         </div>
 
         <!-- Filter Search Bar -->
-        <div class="search-bar-row">
+        <div class="search-bar-row mb-3">
           <div class="search-input-wrapper">
             <i class="bi bi-search search-icon"></i>
             <input type="text" class="form-control search-input"
@@ -199,12 +202,18 @@
           </table>
         </div>
 
-        <div class="empty-catalog-box mt-2" *ngIf="filteredCatalogo.length === 0">
+        <div class="empty-catalog-box text-center p-4 my-2 border rounded-3 bg-light" *ngIf="filteredCatalogo.length === 0">
           <div class="alert-content">
-            <h4 class="m-0 text-dark fw-bold" style="font-size: 0.9rem;"><i
-                class="bi bi-info-circle text-primary me-1"></i> Sin suministros en el catálogo</h4>
-            <p class="m-0 text-muted small mt-1">Este proveedor no tiene productos asignados. Haz clic en <strong>"+
-                Asignar Producto"</strong> para configurar precios de costo y disponibilidad.</p>
+            <i class="bi bi-box-seam fs-1 text-primary d-block mb-2 opacity-75"></i>
+            <h4 class="m-0 text-dark fw-bold" style="font-size: 0.95rem;">
+              Sin suministros en el catálogo
+            </h4>
+            <p class="m-0 text-muted small mt-1 mb-3">
+              Este proveedor no tiene productos asignados. Configura precios de costo, lote y disponibilidad.
+            </p>
+            <button class="btn btn-primary btn-sm px-4 fw-bold" (click)="abrirModalAgregarSuministro()">
+              <i class="bi bi-plus-lg me-1"></i> Asignar Primer Producto
+            </button>
           </div>
         </div>
       </div>
