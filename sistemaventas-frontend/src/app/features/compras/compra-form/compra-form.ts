@@ -164,11 +164,30 @@ export class CompraFormComponent implements OnInit, OnDestroy {
         });
     }
 
+    private getProveedorCategoryNames(): string[] {
+        if (!this.selectedProveedor || !this.selectedProveedor.categoria) {
+            return [];
+        }
+        return this.selectedProveedor.categoria
+            .split(/[,/;]/)
+            .map(s => s.trim().toLowerCase())
+            .filter(Boolean);
+    }
+
     private fallbackLoadProductosByProveedor(provId: number) {
         this.productoService.getAll().subscribe({
             next: (allProds) => {
                 this.loadingProductos = false;
-                this.productos = allProds || [];
+                const allowedCats = this.getProveedorCategoryNames();
+                if (allowedCats.length > 0) {
+                    const prodsPorCat = (allProds || []).filter(p => {
+                        const prodCatName = (p.categoria?.nombre || '').trim().toLowerCase();
+                        return allowedCats.some(ac => prodCatName.includes(ac) || ac.includes(prodCatName));
+                    });
+                    this.productos = prodsPorCat.length > 0 ? prodsPorCat : (allProds || []);
+                } else {
+                    this.productos = allProds || [];
+                }
                 this.updateFilteredCategorias();
             },
             error: () => {
@@ -232,10 +251,33 @@ export class CompraFormComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * ACTUALIZACIÓN DE CATEGORÍAS Y PRODUCTOS
+     * ACTUALIZACIÓN DE CATEGORÍAS FILTRADAS ÚNICAMENTE POR PROVEEDOR
      */
     updateFilteredCategorias() {
-        this.filteredCategorias = [...this.categorias];
+        const allowedCats = this.getProveedorCategoryNames();
+        if (allowedCats.length > 0) {
+            const matchedCats = this.categorias.filter(c => {
+                const cName = c.nombre.trim().toLowerCase();
+                return allowedCats.some(ac => cName.includes(ac) || ac.includes(cName));
+            });
+            if (matchedCats.length > 0) {
+                this.filteredCategorias = matchedCats;
+            } else {
+                this.filteredCategorias = [...this.categorias];
+            }
+        } else {
+            const productCatNames = new Set(
+                this.productos
+                    .map(p => (p.categoria?.nombre || '').trim().toLowerCase())
+                    .filter(Boolean)
+            );
+            if (productCatNames.size > 0) {
+                const matchedByProds = this.categorias.filter(c => productCatNames.has(c.nombre.trim().toLowerCase()));
+                this.filteredCategorias = matchedByProds.length > 0 ? matchedByProds : [...this.categorias];
+            } else {
+                this.filteredCategorias = [...this.categorias];
+            }
+        }
         this.selectedCategoriaId = '';
         this.filterProductos();
     }
