@@ -320,8 +320,8 @@ export class ProveedorDetailComponent implements OnInit {
             if (/\D/.test(phoneClean)) {
                 this.proveedorValidationErrors.telefono = 'El teléfono solo debe contener números.';
                 isValid = false;
-            } else if (phoneClean.length < 7 || phoneClean.length > 9) {
-                this.proveedorValidationErrors.telefono = 'El teléfono debe contener entre 7 y 9 dígitos numéricos.';
+            } else if (phoneClean.length < 7 || phoneClean.length > 15) {
+                this.proveedorValidationErrors.telefono = 'El teléfono debe contener entre 7 y 15 dígitos numéricos.';
                 isValid = false;
             }
         }
@@ -500,10 +500,10 @@ export class ProveedorDetailComponent implements OnInit {
     }
 
     onProductoChange() {
-        this.onFieldChange();
         if (this.catalogoFormModel.productoId) {
-            const prodId = Number(this.catalogoFormModel.productoId);
-            const selectedProd = this.productosGlobales.find(p => p.id === prodId);
+            this.catalogoFormModel.productoId = Number(this.catalogoFormModel.productoId);
+            const prodId = this.catalogoFormModel.productoId;
+            const selectedProd = this.productosGlobales.find(p => Number(p.id) === prodId);
             if (selectedProd) {
                 if (!this.catalogoFormModel.precioCosto || this.catalogoFormModel.precioCosto <= 0) {
                     const price = selectedProd.precioVenta ? Number((selectedProd.precioVenta * 0.75).toFixed(2)) : 10.00;
@@ -511,6 +511,7 @@ export class ProveedorDetailComponent implements OnInit {
                 }
             }
         }
+        this.onFieldChange();
     }
 
     onFieldChange() {
