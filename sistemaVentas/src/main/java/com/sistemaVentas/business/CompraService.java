@@ -34,6 +34,9 @@ public class CompraService {
     private ProveedorRepository proveedorRepo;
 
     @Autowired
+    private CatalogoProveedorRepository catalogoProveedorRepo;
+
+    @Autowired
     private InventarioService inventarioService;
 
     @Transactional(readOnly = true)
@@ -119,6 +122,17 @@ public class CompraService {
                 prod.setProveedor(prov);
                 productoRepo.save(prod);
 
+                // Sincronizar catálogo del proveedor
+                if (prov != null && prod != null) {
+                    catalogoProveedorRepo.findByProveedorIdAndProductoId(prov.getId(), prod.getId())
+                            .ifPresent(cp -> {
+                                int sCp = cp.getStockActual() != null ? cp.getStockActual() : 0;
+                                cp.setStockActual(sCp + detDto.getCantidad());
+                                cp.setPrecioCosto(detDto.getPrecioCosto());
+                                catalogoProveedorRepo.save(cp);
+                            });
+                }
+
                 // Audit Log en MovimientoInventario
                 inventarioService.registrarMovimiento(
                         prod,
@@ -175,6 +189,13 @@ public class CompraService {
                 prod.setStock(nuevoStock);
                 if (prov != null) {
                     prod.setProveedor(prov);
+                    catalogoProveedorRepo.findByProveedorIdAndProductoId(prov.getId(), prod.getId())
+                            .ifPresent(cp -> {
+                                int sCp = cp.getStockActual() != null ? cp.getStockActual() : 0;
+                                cp.setStockActual(sCp + detalle.getCantidad());
+                                cp.setPrecioCosto(detalle.getPrecioCosto());
+                                catalogoProveedorRepo.save(cp);
+                            });
                 }
                 productoRepo.save(prod);
 
@@ -202,6 +223,14 @@ public class CompraService {
                 int stockAnterior = prod.getStock() != null ? prod.getStock() : 0;
                 int nuevoStock = Math.max(0, stockAnterior - detalle.getCantidad());
                 prod.setStock(nuevoStock);
+                if (prov != null) {
+                    catalogoProveedorRepo.findByProveedorIdAndProductoId(prov.getId(), prod.getId())
+                            .ifPresent(cp -> {
+                                int sCp = cp.getStockActual() != null ? cp.getStockActual() : 0;
+                                cp.setStockActual(Math.max(0, sCp - detalle.getCantidad()));
+                                catalogoProveedorRepo.save(cp);
+                            });
+                }
                 productoRepo.save(prod);
 
                 inventarioService.registrarMovimiento(

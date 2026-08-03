@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { CompraService, CompraRequestPayload } from '../../../core/services/compra.service';
 import { ProveedorService } from '../../../core/services/proveedor.service';
 import { ProductoService } from '../../../core/services/producto.service';
+import { CatalogoProveedorService } from '../../../core/services/catalogo-proveedor.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
 import { Proveedor, Producto, Categoria, DetalleCompra } from '../../../shared/models/models';
 import { ToastService } from '../../../core/services/toast.service';
@@ -70,6 +71,7 @@ export class CompraFormComponent implements OnInit, OnDestroy {
         private compraService: CompraService,
         private proveedorService: ProveedorService,
         private productoService: ProductoService,
+        private catalogoService: CatalogoProveedorService,
         private categoriaService: CategoriaService,
         private toastService: ToastService,
         private loadingService: LoadingService,
@@ -123,22 +125,49 @@ export class CompraFormComponent implements OnInit, OnDestroy {
             // Limpiar formulario de adición de producto
             this.resetProductAddForm();
 
-            // Cargar productos exclusivamente del proveedor seleccionado
+            // Cargar productos del catálogo independiente del proveedor seleccionado
             if (provId) {
                 this.loadingProductos = true;
-                this.productoService.getByProveedor(provId).subscribe({
-                    next: (prodsFiltrados) => {
+                this.catalogoService.getActivosByProveedor(provId).subscribe({
+                    next: (catItems) => {
                         this.loadingProductos = false;
-                        this.productos = prodsFiltrados || [];
-                        this.updateFilteredCategorias();
+                        if (catItems && catItems.length > 0) {
+                            this.productos = catItems.map(item => ({
+                                id: item.productoId,
+                                nombre: item.productoNombre,
+                                codigoBarras: item.productoCodigoBarras,
+                                precioVenta: item.precioCosto ? (item.precioCosto * 1.3) : 10.00,
+                                precioCosto: item.precioCosto,
+                                stock: item.stockActual || 0,
+                                categoria: { id: 0, nombre: item.productoCategoriaNombre || 'General' },
+                                activo: item.esActivo
+                            } as any));
+                            this.updateFilteredCategorias();
+                        } else {
+                            // Fallback al filtro de productos por categoría/proveedor
+                            this.fallbackLoadProductosByProveedor(provId);
+                        }
                     },
                     error: () => {
-                        this.loadingProductos = false;
-                        this.productos = [];
-                        this.updateFilteredCategorias();
+                        this.fallbackLoadProductosByProveedor(provId);
                     }
                 });
             } else {
+                this.productos = [];
+                this.updateFilteredCategorias();
+            }
+        });
+    }
+
+    private fallbackLoadProductosByProveedor(provId: number) {
+        this.productoService.getByProveedor(provId).subscribe({
+            next: (prodsFiltrados) => {
+                this.loadingProductos = false;
+                this.productos = prodsFiltrados || [];
+                this.updateFilteredCategorias();
+            },
+            error: () => {
+                this.loadingProductos = false;
                 this.productos = [];
                 this.updateFilteredCategorias();
             }
@@ -272,7 +301,14 @@ export class CompraFormComponent implements OnInit, OnDestroy {
     selectProductForAdd(prod: Producto) {
         this.selectedProductoForAdd = prod;
         this.searchProductQuery = prod.nombre;
-        this.precioCostoForAdd = Number((prod.precioVenta * 0.75).toFixed(2));
+        const supplierCost = (prod as any).precioCosto;
+        if (supplierCost !== undefined && supplierCost !== null && Number(supplierCost) > 0) {
+            this.precioCostoForAdd = Number(supplierCost);
+        } else if (prod.precioVenta && prod.precioVenta > 0) {
+            this.precioCostoForAdd = Number((prod.precioVenta * 0.75).toFixed(2));
+        } else {
+            this.precioCostoForAdd = 10.00;
+        }
         if (!this.cantidadForAdd || this.cantidadForAdd <= 0) {
             this.cantidadForAdd = 10;
         }
