@@ -98,11 +98,18 @@ export class ProveedorDetailComponent implements OnInit {
     ngOnInit() {
         this.loadCategorias();
         const id = this.route.snapshot.paramMap.get('id');
+        const autoAdd = this.route.snapshot.queryParamMap.get('autoAdd');
         if (id) {
             const proveedorId = Number(id);
             this.loadProveedorDetail(proveedorId);
             this.loadCatalogoProveedor(proveedorId);
             this.loadProductosGlobales();
+
+            if (autoAdd === 'true') {
+                setTimeout(() => {
+                    this.abrirModalAgregarSuministro();
+                }, 600);
+            }
         }
     }
 

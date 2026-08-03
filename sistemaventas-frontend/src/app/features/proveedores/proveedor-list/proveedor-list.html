@@ -262,11 +262,16 @@
       </div>
     </div>
 
-    <div class="modal-footer">
+    <div class="modal-footer justify-content-between">
       <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" (click)="saveProveedor()">
-        <i class="bi bi-check-lg"></i> Crear Proveedor
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" (click)="saveProveedor(false)">
+          <i class="bi bi-save"></i> Solo Guardar
+        </button>
+        <button class="btn btn-primary fw-bold" (click)="saveProveedor(true)" title="Guardar y abrir el catálogo para vincular productos">
+          <i class="bi bi-arrow-right-circle-fill me-1"></i> Guardar y Asignar Productos ➔
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProveedorService } from '../../../core/services/proveedor.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
@@ -68,6 +68,7 @@ export class ProveedorListComponent implements OnInit {
   constructor(
     private proveedorService: ProveedorService,
     private categoriaService: CategoriaService,
+    private router: Router,
     private toastService: ToastService,
     private loadingService: LoadingService,
     private confirmModalService: ConfirmModalService
@@ -284,7 +285,7 @@ export class ProveedorListComponent implements OnInit {
     }
   }
 
-  saveProveedor() {
+  saveProveedor(redirectAfterSave: boolean = false) {
     this.isSubmitted = true;
 
     // BLOQUEO ABSOLUTO SI LA VALIDACIÓN NO SE CUMPLE
@@ -296,10 +297,13 @@ export class ProveedorListComponent implements OnInit {
     this.loadingService.show();
     if (this.isEdit && this.formModel.id) {
       this.proveedorService.update(this.formModel.id, this.formModel).subscribe({
-        next: () => {
-          this.toastService.show('Proveedor actualizado correctamente', 'success');
+        next: (updated) => {
+          this.toastService.show('✅ Proveedor actualizado correctamente', 'success');
           this.closeModal();
           this.loadProveedores();
+          if (redirectAfterSave && updated?.id) {
+            this.router.navigate(['/proveedores/detalle', updated.id], { queryParams: { autoAdd: 'true' } });
+          }
         },
         error: (err) => {
           this.loadingService.hide();
@@ -314,10 +318,14 @@ export class ProveedorListComponent implements OnInit {
       });
     } else {
       this.proveedorService.create(this.formModel).subscribe({
-        next: () => {
-          this.toastService.show('Proveedor creado correctamente', 'success');
+        next: (created) => {
+          this.toastService.show('✅ Proveedor creado correctamente', 'success');
           this.closeModal();
           this.loadProveedores();
+          if (redirectAfterSave && created?.id) {
+            this.toastService.show(`🚀 Redirigiendo a asignación de productos para ${created.nombre}...`, 'info');
+            this.router.navigate(['/proveedores/detalle', created.id], { queryParams: { autoAdd: 'true' } });
+          }
         },
         error: (err) => {
           this.loadingService.hide();
