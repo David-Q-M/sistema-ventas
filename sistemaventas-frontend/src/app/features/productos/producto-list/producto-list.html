@@ -242,6 +242,7 @@
               <th>CATEGORÍA</th>
               <th>PRECIO VENTA (S/.)</th>
               <th>STOCK</th>
+              <th>FECHA VENC.</th>
               <th>ESTADO</th>
               <th class="text-end pe-4">ACCIONES</th>
             </tr>
@@ -265,6 +266,12 @@
                 <span class="fw-bold" [ngClass]="(p.stock || 0) < 10 ? 'text-danger' : 'text-dark'">
                   {{ p.stock }} un.
                 </span>
+              </td>
+              <td>
+                <span *ngIf="p.fechaVencimiento" class="small text-dark fw-semibold">
+                  <i class="bi bi-calendar-event me-1 text-primary"></i>{{ p.fechaVencimiento | date:'dd/MM/yyyy' }}
+                </span>
+                <span *ngIf="!p.fechaVencimiento" class="text-muted small">-</span>
               </td>
               <td>
                 <span class="badge" [ngClass]="{

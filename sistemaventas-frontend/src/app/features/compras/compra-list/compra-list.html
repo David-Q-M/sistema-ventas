@@ -11,8 +11,9 @@
       </div>
     </div>
     <div class="header-actions" style="display: flex; gap: 10px;">
-      <button class="btn btn-outline-info" (click)="procesarEntregasManual()" title="Procesar entregas diferidas cuya fecha es hoy o anterior">
-        <i class="bi bi-clock-history"></i> ⚡ Procesar Entregas JIT
+      <button class="btn btn-outline-info" (click)="procesarEntregasManual()"
+        title="Procesar entregas diferidas cuya fecha es hoy o anterior">
+        <i class="bi bi-clock-history"></i> Procesar Entregas JIT
       </button>
       <button class="btn btn-primary" routerLink="/compras/nuevo">
         <i class="bi bi-plus-circle-fill"></i> Registrar Nueva Compra
@@ -65,8 +66,8 @@
       <div class="form-group">
         <label class="form-label">Buscar Proveedor o Código</label>
         <div class="input-wrapper">
-          <input type="text" [(ngModel)]="searchTerm" (input)="filterList()" placeholder="Ej. CMP-0001, Distribuidora..."
-            class="form-control" />
+          <input type="text" [(ngModel)]="searchTerm" (input)="filterList()"
+            placeholder="Ej. CMP-0001, Distribuidora..." class="form-control" />
         </div>
       </div>
       <div class="form-group">
@@ -120,7 +121,8 @@
             <td>
               <div class="proveedor-cell">
                 <span class="font-bold">{{ c.proveedorNombre || c.proveedor?.nombre || 'N/A' }}</span>
-                <small class="text-muted" *ngIf="c.proveedorRuc || c.proveedor?.ruc">RUC: {{ c.proveedorRuc || c.proveedor?.ruc }}</small>
+                <small class="text-muted" *ngIf="c.proveedorRuc || c.proveedor?.ruc">RUC: {{ c.proveedorRuc ||
+                  c.proveedor?.ruc }}</small>
               </div>
             </td>
             <td>{{ c.fechaPedido | date:'dd/MM/yyyy' }}</td>
@@ -193,7 +195,8 @@
         </div>
         <div class="grid-item">
           <strong>Fecha Est. Entrega:</strong>
-          <span>{{ selectedCompraDetalles.fechaEntrega ? (selectedCompraDetalles.fechaEntrega | date:'dd/MM/yyyy') : 'No indicada' }}</span>
+          <span>{{ selectedCompraDetalles.fechaEntrega ? (selectedCompraDetalles.fechaEntrega | date:'dd/MM/yyyy') : 'No
+            indicada' }}</span>
         </div>
         <div class="grid-item">
           <strong>Método de Pedido:</strong>

@@ -118,6 +118,24 @@
               </div>
             </div>
 
+            <!-- Fecha de Vencimiento -->
+            <div class="col-md-6">
+              <label class="form-label">Fecha de Vencimiento de Lote</label>
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-calendar-event text-primary"></i></span>
+                <input type="date" class="form-control" [(ngModel)]="producto.fechaVencimiento" name="fechaVencimiento">
+              </div>
+            </div>
+
+            <!-- Stock Mínimo -->
+            <div class="col-md-6">
+              <label class="form-label">Stock Mínimo (Alerta Reorden)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-exclamation-triangle text-primary"></i></span>
+                <input type="number" class="form-control" [(ngModel)]="producto.stockMinimo" name="stockMinimo" min="0" placeholder="10">
+              </div>
+            </div>
+
             <!-- Description -->
             <div class="col-12 mt-3">
               <label class="form-label">Descripción o Notas Adicionales</label>

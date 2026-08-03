@@ -72,6 +72,9 @@ public class ProductoService {
         producto.setPrecioVenta(productoDetalles.getPrecioVenta());
         producto.setUrlImagen(productoDetalles.getUrlImagen());
         producto.setCategoria(productoDetalles.getCategoria());
+        producto.setFechaVencimiento(productoDetalles.getFechaVencimiento());
+        producto.setPerecible(productoDetalles.getPerecible());
+        producto.setStockMinimo(productoDetalles.getStockMinimo());
         return repo.save(producto);
     }
 
