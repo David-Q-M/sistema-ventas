@@ -36,11 +36,13 @@ CREATE TABLE IF NOT EXISTS `catalogo_proveedores` (
   KEY `FK31s7a8q1jd1yfmred68na3eq8` (`producto_id`),
   CONSTRAINT `FK31s7a8q1jd1yfmred68na3eq8` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
   CONSTRAINT `FK7mfwt21tddwrmsvg4frq0gqyv` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.catalogo_proveedores: ~1 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.catalogo_proveedores: ~3 rows (aproximadamente)
 INSERT INTO `catalogo_proveedores` (`id`, `codigo_lote`, `es_activo`, `fecha_actualizacion`, `fecha_vencimiento`, `precio_costo`, `stock_actual`, `stock_minimo`, `producto_id`, `proveedor_id`) VALUES
-	(2, 'LOTE-2026-B', b'1', '2026-08-02 20:39:08.320234', '2027-02-16', 15.00, 280, 10, 13, 1);
+	(2, 'LOTE-2026-B', b'1', '2026-08-02 20:39:08.320234', '2027-02-16', 15.00, 280, 10, 13, 1),
+	(3, NULL, b'1', '2026-08-03 16:37:37.385449', NULL, 13.94, 134, 10, 3, 2),
+	(4, NULL, b'1', '2026-08-03 16:42:37.262324', NULL, 4.86, 5010, 10, 2, 2);
 
 -- Volcando estructura para tabla sistema_ventas_db.categorias
 CREATE TABLE IF NOT EXISTS `categorias` (
@@ -76,12 +78,16 @@ CREATE TABLE IF NOT EXISTS `compras` (
   UNIQUE KEY `UK_p0y0t4viw3l9uek522cddegvk` (`codigo`),
   KEY `FKabfd3b61ss0f7ebhao6evn5ec` (`proveedor_id`),
   CONSTRAINT `FKabfd3b61ss0f7ebhao6evn5ec` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.compras: ~2 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.compras: ~6 rows (aproximadamente)
 INSERT INTO `compras` (`id`, `codigo`, `estado`, `estado_pago`, `fecha_entrega`, `fecha_pedido`, `metodo_pedido`, `monto_total`, `observacion`, `proveedor_id`) VALUES
 	(1, 'CMP-0001', 'RECIBIDO', 'Contado', NULL, '2026-07-16', 'Llamada Telefónica', 112.50, NULL, 2),
-	(2, 'CMP-0002', 'RECIBIDO', 'Contado', '2026-07-19', '2026-07-16', 'Llamada Telefónica', 112.50, NULL, 2);
+	(2, 'CMP-0002', 'RECIBIDO', 'Contado', '2026-07-19', '2026-07-16', 'Llamada Telefónica', 112.50, NULL, 2),
+	(3, 'CMP-0003', 'RECIBIDO', 'Contado', '2026-08-03', '2026-08-03', 'Llamada Telefónica', 236.98, NULL, 2),
+	(4, 'CMP-0004', 'RECIBIDO', 'Contado', '2026-08-03', '2026-08-03', 'Llamada Telefónica', 236.98, NULL, 2),
+	(5, 'CMP-0005', 'RECIBIDO', 'Contado', '2026-08-03', '2026-08-03', 'Llamada Telefónica', 48.60, NULL, 2),
+	(6, 'CMP-0006', 'PENDIENTE', 'Contado', '2026-08-03', '2026-08-03', 'Llamada Telefónica', 192.86, NULL, 2);
 
 -- Volcando estructura para tabla sistema_ventas_db.detalle_compras
 CREATE TABLE IF NOT EXISTS `detalle_compras` (
@@ -97,12 +103,17 @@ CREATE TABLE IF NOT EXISTS `detalle_compras` (
   KEY `FKobinn960qd4nxk1b3b0n6aps1` (`producto_id`),
   CONSTRAINT `FKobinn960qd4nxk1b3b0n6aps1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
   CONSTRAINT `FKs7ksdchwhuo5bv58t28iti0f0` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.detalle_compras: ~2 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.detalle_compras: ~7 rows (aproximadamente)
 INSERT INTO `detalle_compras` (`id`, `cantidad`, `observacion_item`, `precio_costo`, `subtotal`, `compra_id`, `producto_id`) VALUES
 	(1, 10, '5', 11.25, 112.50, 1, 5),
-	(2, 10, '5', 11.25, 112.50, 2, 5);
+	(2, 10, '5', 11.25, 112.50, 2, 5),
+	(3, 17, '', 13.94, 236.98, 3, 3),
+	(4, 17, '', 13.94, 236.98, 4, 3),
+	(5, 10, '', 4.86, 48.60, 5, 2),
+	(6, 11, '', 4.86, 53.46, 6, 2),
+	(7, 10, '', 13.94, 139.40, 6, 3);
 
 -- Volcando estructura para tabla sistema_ventas_db.detalle_ventas
 CREATE TABLE IF NOT EXISTS `detalle_ventas` (
@@ -163,9 +174,13 @@ CREATE TABLE IF NOT EXISTS `movimiento_inventarios` (
   KEY `idx_mov_producto` (`producto_id`),
   KEY `idx_mov_tipo` (`tipo_movimiento`),
   CONSTRAINT `FKa9sd6fl88v6ixrt3u15j1091o` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.movimiento_inventarios: ~0 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.movimiento_inventarios: ~3 rows (aproximadamente)
+INSERT INTO `movimiento_inventarios` (`id`, `cantidad`, `fecha`, `motivo`, `stock_anterior`, `stock_final`, `tipo_movimiento`, `usuario`, `producto_id`) VALUES
+	(1, 17, '2026-08-03 16:37:37.352993', 'Recepción de Orden N° CMP-0003 de rut', 247, 264, 'ENTRADA', 'SISTEMA_COMPRAS', 3),
+	(2, 17, '2026-08-03 16:37:37.382484', 'Recepción de Orden N° CMP-0004 de rut', 264, 281, 'ENTRADA', 'SISTEMA_COMPRAS', 3),
+	(3, 10, '2026-08-03 16:42:37.257364', 'Recepción de Orden N° CMP-0005 de rut', 997, 1007, 'ENTRADA', 'SISTEMA_COMPRAS', 2);
 
 -- Volcando estructura para tabla sistema_ventas_db.productos
 CREATE TABLE IF NOT EXISTS `productos` (
@@ -190,11 +205,11 @@ CREATE TABLE IF NOT EXISTS `productos` (
   CONSTRAINT `fk_productos_categorias` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.productos: ~11 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.productos: ~13 rows (aproximadamente)
 INSERT INTO `productos` (`id`, `nombre`, `stock`, `precio_venta`, `codigo_barras`, `descripcion`, `url_imagen`, `fecha_creacion`, `categoria_id`, `proveedor_id`, `fecha_vencimiento`, `perecible`, `stock_minimo`) VALUES
-	(2, 'Leche Gloria', 997, 6.48, NULL, NULL, 'https://th.bing.com/th/id/OIP.hHWhkRCeY2WK1YEcOBHJhwHaHa?w=165&h=180&c=7&r=0&o=7&pid=1.7&rm=3', '2026-07-16 16:26:32', 3, NULL, NULL, NULL, NULL),
-	(3, 'VINO Viña Vieja Malbec', 247, 18.59, NULL, NULL, 'https://tse1.mm.bing.net/th/id/OIP.5r-F0WbvOBFeRr7jBrH5DQAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', '2026-07-16 16:26:32', 4, NULL, NULL, NULL, NULL),
-	(4, 'Gaseosa Inka Cola 2L', 100, 10.50, NULL, NULL, 'https://tse1.mm.bing.net/th/id/OIP.wQMXurIaHF67AFIx-dCaEAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', '2026-07-16 16:26:32', 4, NULL, NULL, NULL, NULL),
+	(2, 'Leche Gloria', 1007, 6.48, NULL, NULL, 'https://th.bing.com/th/id/OIP.hHWhkRCeY2WK1YEcOBHJhwHaHa?w=165&h=180&c=7&r=0&o=7&pid=1.7&rm=3', '2026-07-16 16:26:32', 3, 2, NULL, NULL, NULL),
+	(3, 'VINO Viña Vieja Malbec', 281, 18.59, NULL, NULL, 'https://tse1.mm.bing.net/th/id/OIP.5r-F0WbvOBFeRr7jBrH5DQAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', '2026-07-16 16:26:32', 4, 2, NULL, NULL, NULL),
+	(4, 'Gaseosa Inka Cola 2L', 100, 10.50, NULL, NULL, 'https://tse1.mm.bing.net/th/id/OIP.wQMXurIaHF67AFIx-dCaEAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', '2026-07-16 16:26:32', 4, NULL, '2027-01-04', NULL, 10),
 	(5, 'Arroz Costeño 5kg', 69, 15.00, NULL, NULL, 'https://th.bing.com/th/id/OIP.QT97kievF42g6ZFzF_J-EgHaHa?w=216&h=216&c=7&r=0&o=7&pid=1.7&rm=3', '2026-07-16 16:26:32', 3, 2, NULL, NULL, NULL),
 	(6, 'Caramelo Limon Unitario', 1000, 0.20, NULL, NULL, 'data:image/webp;base64,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', '2026-07-16 16:26:32', 3, NULL, NULL, NULL, NULL),
 	(7, 'Shampoo Head & Shoulders', 40, 12.50, NULL, NULL, 'https://th.bing.com/th/id/OIP.0fLAlNjmpQFHQx07ciqqzwHaHa?w=216&h=216&c=7&r=0&o=7&pid=1.7&rm=3', '2026-07-16 16:26:32', 6, NULL, NULL, NULL, NULL),
@@ -221,14 +236,15 @@ CREATE TABLE IF NOT EXISTS `proveedores` (
   `dias_pago` int(11) DEFAULT 0,
   `ruc` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- Volcando datos para la tabla sistema_ventas_db.proveedores: ~4 rows (aproximadamente)
+-- Volcando datos para la tabla sistema_ventas_db.proveedores: ~5 rows (aproximadamente)
 INSERT INTO `proveedores` (`id`, `nombre`, `contacto`, `telefono`, `direccion`, `categoria`, `email`, `activo`, `ultima_orden`, `monto_total`, `dias_pago`, `ruc`) VALUES
 	(1, 'Proveedor LOS CHOLOS', 'LOS CHOLOS', '966495094', 'av. canada 259', 'Limpieza', 'cholos@gmail.com', 0, NULL, 0.00, 0, '20000000000'),
-	(2, 'rut', 'rut', '965415151', 'av. canada', 'Bebidas', 'rut@gmail.com', 1, '2026-07-16', 225.00, 0, '202220202020'),
-	(4, 'asdasdsadas', 'adsdsaa', '222222222', 'asdasds ad ', 'Abarrotes', 'dsdsadas@gmail.com', 1, NULL, 0.00, 0, '12222222222'),
-	(5, 'Almacenes Juana', 'Juanita Mendoza', '999999999', 'av. Canada 218', 'Bebidas', '25555@unamba.edu.pe', 1, NULL, 0.00, 0, '22222222222');
+	(2, 'rut', 'rut', '965415151', 'av. canada', 'Bebidas', 'rut@gmail.com', 1, '2026-08-03', 747.56, 0, '202220202020'),
+	(4, 'dos y tres', 'adsdsaa', '222222222', 'asdasds ad ', 'Abarrotes', 'dsdsadas@gmail.com', 1, NULL, 0.00, 0, '12222222222'),
+	(5, 'Almacenes Juana', 'Juanita Mendoza', '999999999', 'av. Canada 218', 'Bebidas', '25555@unamba.edu.pe', 1, NULL, 0.00, 0, '22222222222'),
+	(6, 'Almacenes Doris', 'Doris Mendoza', '999999999', 'av. Canada 234', 'Higiene Personal', '25545@unamba.edu.pe', 1, NULL, 0.00, 0, '22222227777');
 
 -- Volcando estructura para tabla sistema_ventas_db.roles
 CREATE TABLE IF NOT EXISTS `roles` (
@@ -259,8 +275,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 
 -- Volcando datos para la tabla sistema_ventas_db.usuarios: ~3 rows (aproximadamente)
 INSERT INTO `usuarios` (`id`, `nombre_completo`, `username`, `password`, `rol_id`, `activo`) VALUES
-	(1, 'Administrador Global', 'admin', '$2a$10$99gOUhFxu.j1eKO/Eu1Yf.kAIgZYtXyS4JCCNcQ22ZZIYYhLefx9u', 1, 1),
-	(2, 'David Quispe Maucaylle', 'david', '$2a$10$.2gMdqqgo09r8GMJh0/jg.Y9rQ.784viUVmksJ1e2mZulj6J9pIR2', 2, 1),
+	(1, 'Administrador Global', 'admin', '$2a$10$dUaH96JlF5Vqv0iZ6rJCxuzUz9hFBL9VMWJ0sTJfeY1JBUJMzfa5K', 1, 1),
+	(2, 'David Quispe Maucaylle', 'david', '$2a$10$3MfTFkmRVO1zTkDVNnYVk.AaYxwXdIFzB6kIVzZxIPr5r8EtXuGlW', 2, 1),
 	(3, 'Bellido', 'bellido', '$2a$10$5vT8K2aaWWvb1UQ.kzeFIuB5so/dghksfeSGTonPzhaKjZtAaXr0W', 3, 1);
 
 -- Volcando estructura para tabla sistema_ventas_db.ventas
