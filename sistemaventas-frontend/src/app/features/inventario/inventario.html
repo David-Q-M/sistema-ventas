@@ -376,11 +376,11 @@
     </div>
 
     <!-- ==================== MODAL: DETALLE DE KARDEX Y MOVIMIENTOS POR PRODUCTO ==================== -->
-    <div class="modal-backdrop" *ngIf="showKardexModal && selectedProductoKardex">
-        <div class="modal-dialog modal-lg">
+    <div class="modal-backdrop" *ngIf="showKardexModal && selectedProductoKardex" (click)="cerrarModalKardex($event)">
+        <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
             <div class="modal-header">
                 <h3>📋 Ficha Técnica y Kardex de Producto</h3>
-                <button class="btn-close" (click)="cerrarModalKardex()">&times;</button>
+                <button type="button" class="btn-close-modal" (click)="cerrarModalKardex($event)" title="Cerrar modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="kardex-product-summary">
@@ -447,7 +447,9 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" (click)="cerrarModalKardex()">Cerrar</button>
+                <button type="button" class="btn btn-secondary" (click)="cerrarModalKardex($event)">
+                    <i class="bi bi-x-circle me-1"></i> Cerrar
+                </button>
             </div>
         </div>
     </div>

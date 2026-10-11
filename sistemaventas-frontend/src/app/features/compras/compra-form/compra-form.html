@@ -1,281 +1,335 @@
-<div class="compra-form-container">
-    <!-- Header Section -->
-    <div class="header-section">
-        <div class="title-area">
-            <h2>Registrar Nueva Orden de Compra</h2>
-            <p>Gestión de Pedidos Just-in-Time con recepción de stock diferida o inmediata</p>
+<div class="compra-form-container animate-fade-in">
+    <!-- Compact Header Banner -->
+    <div class="page-header-card compact-header mb-2">
+        <div class="page-header-title">
+            <div class="page-header-icon sm-icon">
+                <i class="bi bi-cart-plus-fill"></i>
+            </div>
+            <div>
+                <h2 class="fs-6 fw-bold mb-0">Registrar Nueva Orden de Compra</h2>
+                <small class="text-secondary text-truncate d-block">Gestión de pedidos a proveedores con recepción de stock diferida o inmediata (JIT)</small>
+            </div>
         </div>
-        <button class="btn btn-secondary" routerLink="/compras">⬅️ Regresar</button>
+        <button class="btn btn-secondary btn-sm d-flex align-items-center gap-1" routerLink="/compras">
+            <i class="bi bi-arrow-left"></i> Regresar al Listado
+        </button>
     </div>
 
     <!-- Main Layout Grid wrapped in ReactiveForm -->
-    <form [formGroup]="compraForm">
-        <div class="form-layout">
-            <!-- Left Side: Identification and Contact Card -->
-            <div class="card id-contact-card">
-                <h3>Identificación y Contacto</h3>
+    <form [formGroup]="compraForm" class="flex-grow-1 d-flex flex-column overflow-hidden">
+        <div class="form-layout flex-grow-1">
+            <!-- Left Side: Formulario General de Compra -->
+            <div class="card id-contact-card p-2">
+                <div class="card-header-title mb-2 pb-1">
+                    <i class="bi bi-journal-check text-cyan me-1"></i>
+                    <h3 class="mb-0 fs-6 fw-bold">Datos del Comprobante</h3>
+                </div>
 
-                <div class="form-group">
-                    <label>Proveedor </label>
-                    <select formControlName="proveedorId" class="form-control"
+                <!-- Selector de Proveedor -->
+                <div class="form-group mb-2">
+                    <label class="form-label fw-bold small-label mb-1">Proveedor <span class="text-rose">*</span></label>
+                    <select formControlName="proveedorId" class="form-select form-select-sm"
                         [class.is-invalid]="compraForm.get('proveedorId')?.invalid && compraForm.get('proveedorId')?.touched">
-                        <option value="" disabled selected>-- Seleccione un Proveedor Activo --</option>
-                        <option *ngFor="let p of proveedores" [value]="p.id">{{ p.nombre }} (RUC: {{ p.ruc || 'N/A' }})
-                        </option>
-                    </select>
-                    <small class="text-danger"
-                        *ngIf="compraForm.get('proveedorId')?.invalid && compraForm.get('proveedorId')?.touched">
-                        ⚠️ Debe seleccionar un proveedor activo.
-                    </small>
-                </div>
-
-                <!-- Contact info card -->
-                <div class="info-block contact-block" *ngIf="selectedProveedor">
-                    <h4>Contacto Directo</h4>
-                    <p><strong>Persona:</strong> {{ selectedProveedor.contacto || 'Sin contacto' }}</p>
-                    <p><strong>Teléfono:</strong> {{ selectedProveedor.telefono || 'Sin teléfono' }}</p>
-                    <p><strong>Categoría:</strong> {{ selectedProveedor.categoria || 'General' }}</p>
-                </div>
-
-                <div class="form-group">
-                    <label>Estado Inicial de Recepción </label>
-                    <select formControlName="estado" class="form-control">
-                        <option value="PENDIENTE">⏳ PENDIENTE </option>
-                        <option value="RECIBIDO">✅ RECIBIDO </option>
-                    </select>
-                    <small class="form-text text-muted" *ngIf="compraForm.get('estado')?.value === 'PENDIENTE'">
-                        ℹ️ El stock <strong>NO se aumentará</strong> ahora. Se procesará automáticamente en la fecha de
-                        entrega o al confirmarse manualmente.
-                    </small>
-                    <small class="form-text text-success" *ngIf="compraForm.get('estado')?.value === 'RECIBIDO'">
-                        El stock <strong>se incrementará de inmediato</strong> en el inventario tras guardar.
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label>Método de pedido</label>
-                    <select formControlName="metodoPedido" class="form-control">
-                        <option *ngFor="let m of metodosPedido" [value]="m">{{ m }}</option>
+                        <option value="" disabled selected>-- Seleccione un Proveedor --</option>
+                        <option *ngFor="let p of proveedores" [value]="p.id">{{ p.nombre }} (RUC: {{ p.ruc || 'N/A' }})</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>Método de Pago</label>
-                    <select formControlName="estadoPago" class="form-control">
-                        <option *ngFor="let mp of metodosPago" [value]="mp">{{ mp }}</option>
+                <!-- Contact info pill block -->
+                <div class="info-block contact-block p-2 mb-2" *ngIf="selectedProveedor">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="badge badge-cyan py-1"><i class="bi bi-person me-1"></i> {{ selectedProveedor.contacto || 'Sin contacto' }}</span>
+                        <span class="badge badge-recibida py-1">RUC: {{ selectedProveedor.ruc || 'N/A' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-secondary">
+                        <span>Tel: <strong>{{ selectedProveedor.telefono || '-' }}</strong></span>
+                        <span>Cat: <strong>{{ selectedProveedor.categoria || 'General' }}</strong></span>
+                    </div>
+                </div>
+
+                <!-- Tipo de Comprobante & N° Comprobante -->
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label fw-bold small-label mb-1">Comprobante <span class="text-rose">*</span></label>
+                            <select formControlName="tipoComprobante" class="form-select form-select-sm">
+                                <option *ngFor="let tc of tiposComprobante" [value]="tc">{{ tc }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label fw-bold small-label mb-1">N° Comprobante</label>
+                            <input type="text" formControlName="numeroComprobante" class="form-control form-control-sm" placeholder="Ej. F001-00234" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado Inicial de Recepción JIT -->
+                <div class="form-group mb-2">
+                    <label class="form-label fw-bold small-label mb-1">Estado de Recepción</label>
+                    <select formControlName="estado" class="form-select form-select-sm">
+                        <option value="PENDIENTE">⏳ PENDIENTE (En camino / JIT)</option>
+                        <option value="RECIBIDO">✅ RECIBIDO (Ingreso directo)</option>
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Fecha de Pedido </label>
-                    <input type="date" formControlName="fechaPedido" class="form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label>Fecha Estimada de Entrega </label>
-                    <input type="date" formControlName="fechaEntrega" class="form-control" />
-                    <small class="text-danger"
-                        *ngIf="compraForm.get('fechaEntrega')?.value < compraForm.get('fechaPedido')?.value">
-                        ⚠️ La fecha de entrega no puede ser anterior a la fecha de pedido.
+                    <small class="form-text text-warning mt-1 d-block tiny-text" *ngIf="compraForm.get('estado')?.value === 'PENDIENTE'">
+                        <i class="bi bi-clock-history me-1"></i> Stock NO se suma aún (Recepción diferida).
                     </small>
+                    <small class="form-text text-emerald mt-1 d-block tiny-text" *ngIf="compraForm.get('estado')?.value === 'RECIBIDO'">
+                        <i class="bi bi-check-circle me-1"></i> Stock se incrementa de inmediato.
+                    </small>
+                </div>
+
+                <!-- Método de Pedido & Forma de Pago -->
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label small-label mb-1">Vía Pedido</label>
+                            <select formControlName="metodoPedido" class="form-select form-select-sm">
+                                <option *ngFor="let m of metodosPedido" [value]="m">{{ m }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label small-label mb-1">Forma Pago</label>
+                            <select formControlName="estadoPago" class="form-select form-select-sm">
+                                <option *ngFor="let mp of metodosPago" [value]="mp">{{ mp }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fechas del Pedido -->
+                <div class="row g-2 mb-1">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label fw-bold small-label mb-1">Fecha Pedido <span class="text-rose">*</span></label>
+                            <input type="date" formControlName="fechaPedido" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label fw-bold small-label mb-1">Est. Entrega <span class="text-rose">*</span></label>
+                            <input type="date" formControlName="fechaEntrega" class="form-control form-control-sm" />
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Right Side: Order Items Building Card -->
-            <div class="card order-build-card">
-                <h3>Construcción de la Orden de Pedido</h3>
-
-                <div class="catalog-header" *ngIf="selectedProveedor">
-                    <span class="subtext">Catálogo Exclusivo de <strong>{{ selectedProveedor.nombre }}</strong> ({{
-                        productos.length }} productos asignados)</span>
-                </div>
-                <div class="catalog-header alert-no-prov" *ngIf="!selectedProveedor">
-                    <span class="text-warning">⚠️ Seleccione primero un proveedor en el panel izquierdo para cargar sus
-                        productos asignados.</span>
-                </div>
-
-                <!-- Dedicated Add Product Panel -->
-                <div class="add-product-panel shadow-sm" *ngIf="selectedProveedor">
-                    <div class="panel-title">
-                        <i class="bi bi-plus-circle"></i> <strong>Agregar Producto al Pedido</strong>
+            <div class="card order-build-card p-2 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-boxes text-cyan me-1"></i>
+                        <h3 class="mb-0 fs-6 fw-bold">Construcción de Orden de Pedido</h3>
                     </div>
+                    <span *ngIf="selectedProveedor" class="badge badge-pill-dark">
+                        Catálogo {{ selectedProveedor.nombre }}: {{ productos.length }} ítems
+                    </span>
+                </div>
 
-                    <div class="panel-grid">
+                <div class="catalog-header alert-no-prov py-1 px-2 mb-2" *ngIf="!selectedProveedor">
+                    <span class="text-warning tiny-text"><i class="bi bi-info-circle me-1"></i> Seleccione un proveedor a la izquierda para cargar sus productos.</span>
+                </div>
+
+                <!-- Dedicated Add Product Panel Bar -->
+                <div class="add-product-panel p-2 mb-2 shadow-sm" *ngIf="selectedProveedor">
+                    <div class="panel-grid gap-2">
                         <!-- Searchable Dropdown for Product -->
-                        <div class="form-group grid-item-product">
-                            <label>Producto </label>
+                        <div class="form-group grid-item-product mb-0">
+                            <label class="form-label small-label mb-1">Producto del Catálogo</label>
                             <div class="searchable-select-container">
-                                <input type="text" class="form-control search-product-input"
+                                <input type="text" class="form-control form-control-sm search-product-input"
                                     placeholder="🔍 Buscar por nombre o código de barras..."
                                     [(ngModel)]="searchProductQuery" [ngModelOptions]="{standalone: true}"
                                     (focus)="onSearchInputFocus()" (input)="onSearchInputChange()" />
                                 <div class="searchable-dropdown shadow-lg" *ngIf="showProductDropdown">
-                                    <div class="dropdown-item-option" *ngFor="let p of filteredDropdownProducts"
+                                    <div class="dropdown-item-option py-1 px-2" *ngFor="let p of filteredDropdownProducts"
                                         (click)="selectProductForAdd(p)">
                                         <div class="prod-item-header">
-                                            <strong class="prod-name">{{ p.nombre }}</strong>
+                                            <strong class="prod-name text-main small">{{ p.nombre }}</strong>
                                             <span class="badge badge-stock"
                                                 [class.stock-low]="(p.stock || 0) <= (p.stockMinimo || 10)">
                                                 Stock: {{ p.stock || 0 }}
                                             </span>
                                         </div>
-                                        <small class="d-block text-muted">
-                                            Venta: S/. {{ p.precioVenta | number:'1.2-2' }} | Costo Sugerido: S/. {{
-                                            (p.precioVenta * 0.75) | number:'1.2-2' }}
+                                        <small class="d-block text-secondary tiny-text">
+                                            Venta: S/. {{ p.precioVenta | number:'1.2-2' }} | Sugerido: S/. {{ (p.precioVenta * 0.75) | number:'1.2-2' }}
                                         </small>
                                     </div>
-                                    <div class="dropdown-item-empty" *ngIf="filteredDropdownProducts.length === 0">
-                                        No hay productos de este proveedor que coincidan con la búsqueda.
+                                    <div class="dropdown-item-empty text-secondary tiny-text py-2" *ngIf="filteredDropdownProducts.length === 0">
+                                        No hay coincidencias.
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Quantity -->
-                        <div class="form-group grid-item-qty">
-                            <label>Cantidad </label>
+                        <div class="form-group grid-item-qty mb-0">
+                            <label class="form-label small-label mb-1">Cant.</label>
                             <input type="number" [(ngModel)]="cantidadForAdd" [ngModelOptions]="{standalone: true}"
-                                class="form-control" placeholder="Cant." min="1" />
+                                class="form-control form-control-sm text-center" placeholder="Cant." min="1" />
                         </div>
 
                         <!-- Unit Cost Price -->
-                        <div class="form-group grid-item-cost">
-                            <label>Costo Unit. (S/.) </label>
+                        <div class="form-group grid-item-cost mb-0">
+                            <label class="form-label small-label mb-1">Costo U. (S/.)</label>
                             <input type="number" [(ngModel)]="precioCostoForAdd" [ngModelOptions]="{standalone: true}"
-                                class="form-control" placeholder="0.00" step="0.01" min="0.01" />
+                                class="form-control form-control-sm text-end" placeholder="0.00" step="0.01" min="0.01" />
                         </div>
 
                         <!-- Observation -->
-                        <div class="form-group grid-item-obs">
-                            <label>Observación Ítem</label>
+                        <div class="form-group grid-item-obs mb-0">
+                            <label class="form-label small-label mb-1">Nota Ítem</label>
                             <input type="text" [(ngModel)]="observacionForAdd" [ngModelOptions]="{standalone: true}"
-                                class="form-control" placeholder="Ej. Lote #102..." />
+                                class="form-control form-control-sm" placeholder="Ej. Lote..." />
                         </div>
 
                         <!-- Action Add Button -->
-                        <div class="form-group grid-item-btn">
-                            <label>&nbsp;</label>
-                            <button class="btn btn-primary w-100" (click)="addItem()" title="Añadir Ítem a la Orden">
-                                ➕ Agregar
+                        <div class="form-group grid-item-btn mb-0">
+                            <label class="form-label small-label mb-1">&nbsp;</label>
+                            <button class="btn btn-primary btn-sm w-100 fw-bold" (click)="addItem()" title="Añadir Ítem">
+                                <i class="bi bi-plus-lg"></i> Agregar
                             </button>
                         </div>
                     </div>
-
-                    <div class="subtotal-preview" *ngIf="cantidadForAdd && precioCostoForAdd">
-                        <span>Subtotal de este ítem: <strong>S/. {{ (cantidadForAdd * precioCostoForAdd) |
-                                number:'1.2-2' }}</strong></span>
-                    </div>
                 </div>
 
-                <!-- Selected items list table -->
-                <div class="items-table-section">
-                    <table class="table table-hover align-middle" *ngIf="detalles.length > 0">
+                <!-- Selected items list table (with scrollbar inside table box) -->
+                <div class="items-table-section flex-grow-1 custom-scrollbar mb-2" style="max-height: 230px; overflow-y: auto;">
+                    <table class="table align-middle mb-0 compact-table" *ngIf="detalles.length > 0">
                         <thead>
                             <tr>
                                 <th>PRODUCTO</th>
-                                <th width="110" class="text-center">CANTIDAD</th>
-                                <th width="140" class="text-end">COSTO UNIT.</th>
-                                <th width="140" class="text-end">SUBTOTAL</th>
-                                <th>OBSERVACIÓN</th>
-                                <th width="70" class="text-center">ACCIÓN</th>
+                                <th width="90" class="text-center">CANTIDAD</th>
+                                <th width="120" class="text-end">COSTO UNIT.</th>
+                                <th width="120" class="text-end">SUBTOTAL</th>
+                                <th>NOTA</th>
+                                <th width="50" class="text-center"></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of detalles; let i = index">
                                 <td>
-                                    <strong class="text-dark">{{ item.producto?.nombre || item.productoNombre
-                                        }}</strong>
-                                    <small class="d-block text-muted" *ngIf="item.producto?.codigoBarras">Cód: {{
-                                        item.producto?.codigoBarras }}</small>
+                                    <strong class="text-main d-block lh-sm">{{ item.producto ? item.producto.nombre : item.productoNombre }}</strong>
+                                    <small class="text-secondary tiny-text" *ngIf="item.producto?.codigoBarras">Cód: {{ item.producto?.codigoBarras }}</small>
                                 </td>
-                                <td class="text-center font-bold">{{ item.cantidad }} unids.</td>
-                                <td class="text-end">S/. {{ item.precioCosto | number:'1.2-2' }}</td>
-                                <td class="text-end fw-bold text-primary">S/. {{ item.subtotal | number:'1.2-2' }}</td>
-                                <td>{{ item.observacion || '-' }}</td>
-                                <td class="text-center">
-                                    <button class="btn-icon text-danger" (click)="removeItem(i)"
-                                        title="Eliminar ítem de la lista">🗑️</button>
+                                <td class="text-center fw-bold text-main">{{ item.cantidad }} un.</td>
+                                <td class="text-end text-cyan">S/. {{ item.precioCosto | number:'1.2-2' }}</td>
+                                <td class="text-end fw-bold text-emerald">S/. {{ item.subtotal | number:'1.2-2' }}</td>
+                                <td class="text-secondary tiny-text">{{ item.observacion || '-' }}</td>
+                                <td class="text-center p-1">
+                                    <button class="btn btn-link text-rose p-0 border-0" (click)="removeItem(i)" title="Eliminar ítem">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
                     <!-- Empty State when no items in order -->
-                    <div class="empty-cart-state text-center py-4" *ngIf="detalles.length === 0">
-                        <div class="empty-icon">🛒</div>
-                        <p class="mb-0 text-muted">Aún no has agregado productos a esta orden de compra.</p>
-                        <small class="text-secondary" *ngIf="selectedProveedor">Selecciona un producto del catálogo de
-                            {{ selectedProveedor.nombre }} para comenzar.</small>
+                    <div class="empty-cart-state text-center py-3" *ngIf="detalles.length === 0">
+                        <i class="bi bi-cart-x fs-2 text-secondary d-block mb-1"></i>
+                        <p class="mb-0 text-main fw-bold small">Aún no has agregado productos a esta orden de compra.</p>
+                        <small class="text-secondary tiny-text" *ngIf="selectedProveedor">Selecciona un producto del catálogo para comenzar.</small>
                     </div>
                 </div>
 
-                <!-- Observation text area -->
-                <div class="form-group">
-                    <label>Observaciones Generales de la Compra</label>
-                    <textarea formControlName="observacion" class="form-control" rows="2"
-                        placeholder="Comentarios o notas de la orden..."></textarea>
-                </div>
+                <!-- Combined Single Footer Box: Observaciones + Totals Metrics + Actions -->
+                <div class="single-footer-bar p-2 rounded bg-surface-elevated border d-flex align-items-center justify-content-between gap-3">
+                    <!-- Observaciones text input -->
+                    <div class="flex-grow-1" style="max-width: 280px;">
+                        <input type="text" formControlName="observacion" class="form-control form-control-sm" placeholder="Observación general / N° guía..." />
+                    </div>
 
-                <!-- Big total label -->
-                <div class="total-row">
-                    <span class="total-label">Monto Total Estimado:</span>
-                    <span class="total-value text-primary">S/. {{ montoTotal | number:'1.2-2' }}</span>
+                    <!-- Executive Totals Metrics Pills -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="text-end">
+                            <small class="text-secondary d-block tiny-text">Subtotal (Sin IGV):</small>
+                            <span class="fw-bold text-main small">S/. {{ subtotalSinIgv | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-secondary d-block tiny-text">IGV (18%):</small>
+                            <span class="fw-bold text-indigo small">S/. {{ montoIgv | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-secondary d-block tiny-text">Ítems (Unidades):</small>
+                            <span class="badge badge-pill-dark">{{ totalUnidades }} un.</span>
+                        </div>
+                        <div class="text-end ps-2 border-start border-secondary">
+                            <small class="text-secondary d-block tiny-text fw-bold">TOTAL ESTIMADO:</small>
+                            <span class="fw-bold text-emerald fs-5 lh-1">S/. {{ montoTotal | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="d-flex gap-2 align-items-center">
+                        <button class="btn btn-secondary btn-sm" routerLink="/compras">Cancelar</button>
+                        <button class="btn btn-primary btn-sm fw-bold px-3" (click)="generarPedido()" [disabled]="detalles.length === 0">
+                            <i class="bi bi-floppy me-1"></i> Registrar Compra
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Bottom Actions -->
-        <div class="footer-actions">
-            <button class="btn btn-secondary" routerLink="/compras">Cancelar</button>
-            <button class="btn btn-success btn-lg" (click)="generarPedido()" [disabled]="detalles.length === 0">💾
-                Registrar Orden de Compra</button>
         </div>
     </form>
 </div>
 
 <!-- Modal: Compra Registrada con Éxito -->
-<div class="modal-overlay" *ngIf="showSuccessModal && createdCompraInfo">
-    <div class="modal-card success-modal">
+<div class="modal-overlay" *ngIf="showSuccessModal && createdCompraInfo" (click)="showSuccessModal = false">
+    <div class="modal-card success-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-emerald fs-4"></i>
+                <h3 class="mb-0 fs-6 fw-bold">Orden de Compra Registrada</h3>
+            </div>
+            <button class="btn-close" (click)="showSuccessModal = false">×</button>
+        </div>
         <div class="modal-body text-center">
-            <div class="success-icon">✔️</div>
-            <h2>Orden de Compra Guardada Exitosamente</h2>
-            <p *ngIf="createdCompraInfo.estado === 'PENDIENTE'">
+            <div class="success-icon mb-2">
+                <i class="bi bi-check2-circle text-emerald display-4"></i>
+            </div>
+            <h4 class="text-main fw-bold mb-1">¡Operación Exitosa!</h4>
+            <p class="text-secondary small mb-3" *ngIf="createdCompraInfo.estado === 'PENDIENTE'">
                 La orden <strong>{{ createdCompraInfo.codigo }}</strong> ha sido registrada en estado
-                <strong>PENDIENTE</strong>.<br />
-                El inventario se actualizará automáticamente en la fecha de entrega (<strong>{{
-                    createdCompraInfo.fechaEntrega }}</strong>) o al confirmarse manualmente.
+                <span class="badge badge-pendiente me-1">PENDIENTE</span>.<br />
+                El inventario se actualizará al confirmarse la recepción física del pedido.
             </p>
-            <p *ngIf="createdCompraInfo.estado === 'RECIBIDO'">
-                La orden <strong>{{ createdCompraInfo.codigo }}</strong> ha sido marcada como <strong>RECIBIDA</strong>
-                y el stock se actualizó de inmediato.
+            <p class="text-secondary small mb-3" *ngIf="createdCompraInfo.estado === 'RECIBIDO'">
+                La orden <strong>{{ createdCompraInfo.codigo }}</strong> fue marcada como <span class="badge badge-recibida me-1">RECIBIDA</span> y el stock se incrementó de inmediato.
             </p>
 
-            <div class="summary-card">
-                <div class="summary-item">
-                    <span class="summary-label">Código de Compra:</span>
-                    <span class="summary-val bold">{{ createdCompraInfo.codigo }}</span>
+            <div class="details-grid mb-3">
+                <div class="grid-item">
+                    <strong>Código Compra:</strong>
+                    <span class="fw-bold text-cyan">{{ createdCompraInfo.codigo }}</span>
                 </div>
-                <div class="summary-item">
-                    <span class="summary-label">Monto Total Guardado:</span>
-                    <span class="summary-val bold text-primary">S/. {{ createdCompraInfo.montoTotal | number:'1.2-2'
-                        }}</span>
+                <div class="grid-item">
+                    <strong>Comprobante:</strong>
+                    <span>{{ createdCompraInfo.tipoComprobante }} {{ createdCompraInfo.numeroComprobante || '' }}</span>
                 </div>
-                <div class="summary-item">
-                    <span class="summary-label">Total Unidades Solicitadas:</span>
-                    <span class="summary-val bold">{{ createdCompraInfo.totalUnidades }}</span>
+                <div class="grid-item">
+                    <strong>Subtotal (Sin IGV):</strong>
+                    <span>S/. {{ createdCompraInfo.subtotalSinIgv | number:'1.2-2' }}</span>
                 </div>
-                <div class="summary-item">
-                    <span class="summary-label">Estado de la Orden:</span>
-                    <span class="badge"
-                        [ngClass]="{'badge-warning': createdCompraInfo.estado === 'PENDIENTE', 'badge-success': createdCompraInfo.estado === 'RECIBIDO'}">
-                        {{ createdCompraInfo.estado }}
-                    </span>
+                <div class="grid-item">
+                    <strong>IGV (18%):</strong>
+                    <span class="text-indigo">S/. {{ createdCompraInfo.montoIgv | number:'1.2-2' }}</span>
+                </div>
+                <div class="grid-item">
+                    <strong>Total Estimado:</strong>
+                    <span class="text-emerald fw-bold fs-5">S/. {{ createdCompraInfo.montoTotal | number:'1.2-2' }}</span>
+                </div>
+                <div class="grid-item">
+                    <strong>Total Unidades:</strong>
+                    <span class="text-main fw-bold">{{ createdCompraInfo.totalUnidades }} un.</span>
                 </div>
             </div>
         </div>
-        <div class="modal-footer justify-center" style="gap: 10px;">
-            <button class="btn btn-secondary" (click)="irAListadoCompras()">Volver a Lista de Compras</button>
-            <button class="btn btn-primary" (click)="irAInventario()">Ver Inventario</button>
+        <div class="modal-footer justify-content-center gap-2">
+            <button class="btn btn-secondary btn-sm" (click)="irAListadoCompras()">Volver a Lista de Compras</button>
+            <button class="btn btn-primary btn-sm" (click)="irAInventario()">Ver Inventario de Productos</button>
         </div>
     </div>
 </div>

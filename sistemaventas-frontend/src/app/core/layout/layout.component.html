@@ -7,16 +7,21 @@
   <aside class="sidebar">
     <div class="sidebar-brand-top">
       <div class="brand-logo-icon">
-        <i class="bi bi-cart-fill"></i>
+        <i class="bi bi-shop"></i>
       </div>
       <div class="brand-text">
-        <h3 class="brand-title">Sistema de Ventas</h3>
-        <span class="brand-subtitle">Gestión eficiente</span>
+        <h3 class="brand-title">Sistema Ventas</h3>
+        <span class="brand-subtitle">
+          <span class="status-dot"></span> Online & Operational
+        </span>
       </div>
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Dashboard' : null">
+      <div class="nav-section-title" *ngIf="sidebarOpen">Módulos Principales</div>
+
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item"
+        [attr.title]="!sidebarOpen ? 'Dashboard' : null">
         <i class="bi bi-grid-1x2-fill icon"></i>
         <span class="nav-label">Dashboard</span>
       </a>
@@ -33,44 +38,38 @@
         <span class="nav-label">Inventario</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Proveedores' : null">
+      <a *ngIf="role === 'ADMIN'" routerLink="/proveedores" routerLinkActive="active" class="nav-item"
+        [attr.title]="!sidebarOpen ? 'Proveedores' : null">
         <i class="bi bi-people-fill icon"></i>
         <span class="nav-label">Proveedores</span>
       </a>
 
       <a *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" routerLink="/compras" routerLinkActive="active"
         class="nav-item" [attr.title]="!sidebarOpen ? 'Registrar Compra' : null">
-        <i class="bi bi-plus-circle-fill icon"></i>
-        <span class="nav-label">Registrar Compra</span>
+        <i class="bi bi-bag-check-fill icon"></i>
+        <span class="nav-label">Compras</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Ventas' : null">
+      <a *ngIf="role === 'ADMIN' || role === 'CAJERO'" routerLink="/ventas" routerLinkActive="active" class="nav-item"
+        [attr.title]="!sidebarOpen ? 'Ventas' : null">
         <i class="bi bi-cart-check-fill icon"></i>
         <span class="nav-label">Ventas</span>
       </a>
 
-      <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item" [attr.title]="!sidebarOpen ? 'Usuarios' : null">
+      <a *ngIf="role === 'ADMIN'" routerLink="/usuarios" routerLinkActive="active" class="nav-item"
+        [attr.title]="!sidebarOpen ? 'Usuarios' : null">
         <i class="bi bi-person-gear icon"></i>
         <span class="nav-label">Usuarios</span>
       </a>
 
       <!-- Submenu / Section: Reportes y Consultas -->
       <div *ngIf="role === 'ADMIN' || role === 'ALMACENERO'" class="nav-group">
-        <div class="nav-group-header" [attr.title]="!sidebarOpen ? 'Reportes y Consultas' : null">
-          <i class="bi bi-pie-chart-fill icon"></i>
-          <span class="nav-label">Reportes y Consultas</span>
-          <i class="bi bi-chevron-down arrow"></i>
-        </div>
-        <div class="nav-sub-items">
-          <a routerLink="/compras" routerLinkActive="active" class="nav-sub-item" [attr.title]="!sidebarOpen ? 'Historial de Compras' : null">
-            <i class="bi bi-journal-text icon"></i>
-            <span class="nav-label">Historial de Compras</span>
-          </a>
-          <a *ngIf="role === 'ADMIN'" routerLink="/reportes" routerLinkActive="active" class="nav-sub-item" [attr.title]="!sidebarOpen ? 'Estadísticas' : null">
-            <i class="bi bi-graph-up-arrow icon"></i>
-            <span class="nav-label">Estadísticas</span>
-          </a>
-        </div>
+        <div class="nav-section-title" *ngIf="sidebarOpen">Análisis & Reportes</div>
+        <a routerLink="/reportes" routerLinkActive="active" class="nav-item"
+          [attr.title]="!sidebarOpen ? 'Estadísticas & Reportes' : null">
+          <i class="bi bi-graph-up-arrow icon"></i>
+          <span class="nav-label">Estadísticas</span>
+        </a>
       </div>
     </nav>
 
@@ -84,22 +83,31 @@
 
   <!-- Main Workspace Area -->
   <main class="main-content">
-    <!-- Topbar Navigation -->
+    <!-- Topbar Navigation (Nielsen #1 & #6) -->
     <header class="topbar">
       <div class="topbar-left">
         <button class="toggle-btn" (click)="toggleSidebar()" [title]="sidebarOpen ? 'Contraer menú' : 'Expandir menú'">
-          <i class="bi bi-list"></i>
+          <i class="bi" [ngClass]="sidebarOpen ? 'bi-text-indent-left' : 'bi-text-indent-right'"></i>
         </button>
-        <span class="topbar-brand-title">Sistema de Ventas</span>
+        <div class="topbar-breadcrumb">
+          <span class="system-tag"><i class="bi bi-shield-check"></i> Enterprise POS</span>
+        </div>
       </div>
 
       <div class="topbar-right">
+        <!-- Live System Status Badge (Nielsen #1) -->
+        <div class="live-status-pill" title="Estado de conexión del sistema con la Base de Datos">
+          <span class="pulse-indicator"></span>
+          <span class="status-text">BD Conectada</span>
+        </div>
+
         <div class="user-profile-badge">
           <div class="user-avatar-circle">
-            <i class="bi bi-person"></i>
+            <i class="bi bi-person-fill"></i>
           </div>
-          <span class="user-role-label">{{ role || 'USUARIO' }}</span>
-          <i class="bi bi-chevron-down dropdown-arrow"></i>
+          <div class="user-info-text">
+            <span class="user-role-label">{{ role || 'USUARIO' }}</span>
+          </div>
         </div>
       </div>
     </header>

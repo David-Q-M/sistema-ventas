@@ -1,39 +1,42 @@
-/* Animation */
 .animate-fade-in {
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(6px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* KPI Cards */
 .kpi-card {
+    background: var(--bg-surface, #101726) !important;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.07)) !important;
+    border-radius: 12px;
+    padding: 0.9rem 1rem !important;
     transition: transform 0.2s;
+    color: var(--text-main, #F9FAFB) !important;
 }
 
 .kpi-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
+    border-color: var(--border-medium) !important;
 }
 
 .icon-box {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
 }
 
-/* Utilities */
 .hover-scale {
     transition: transform 0.2s;
 }
@@ -46,12 +49,14 @@
     letter-spacing: 1px;
 }
 
-/* Table Avatar */
 .avatar-mini {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
+    background: var(--bg-surface-elevated, #1A2333);
+    color: var(--primary-cyan, #06B6D4);
 }

@@ -13,7 +13,7 @@ import { Proveedor, Producto, Categoria, CatalogoProveedor } from '../../../shar
 @Component({
   selector: 'app-catalogo-proveedor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './catalogo-proveedor.html',
   styleUrls: ['./catalogo-proveedor.css']
 })
@@ -66,7 +66,7 @@ export class CatalogoProveedorComponent implements OnInit {
     private categoriaService: CategoriaService,
     private toastService: ToastService,
     private loadingService: LoadingService
-  ) {}
+  ) { }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('proveedorId');

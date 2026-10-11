@@ -1,88 +1,652 @@
+/* ==========================================
+   SYSTEMA VENTAS - CYBER 3D LIVING PLANETS COSMOS LOGIN
+   ========================================== */
+
 .login-container {
   position: relative;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #092C5E 0%, #0D47A1 50%, #1976D2 100%);
-  font-family: var(--font-family, 'Inter', sans-serif);
-  padding: 1.5rem;
+  background-color: #010307;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(14, 116, 144, 0.22) 0px, transparent 45%),
+    radial-gradient(at 90% 90%, rgba(217, 70, 239, 0.18) 0px, transparent 45%),
+    radial-gradient(at 50% 50%, rgba(3, 7, 18, 0.98) 0px, transparent 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  user-select: none;
 }
 
-.background-overlay {
+/* Deep Space Canvas (Stars, Nebulae, Laser Beams, Lightning) */
+.cyber-canvas {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 80% 20%, rgba(25, 118, 210, 0.3), transparent 60%);
   z-index: 1;
+  pointer-events: none;
 }
 
-/* Glassmorphic Corporate Card */
+/* Ambient Dark Spotlight Overlay */
+.spotlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.15s ease-out;
+}
+
+/* ==========================================
+   CENTRAL HOLOGRAM GLOBE (Behind Login Card)
+   ========================================== */
+.central-hologram-globe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.45;
+}
+
+.globe-wireframe {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(6, 182, 212, 0.45);
+  box-shadow: 0 0 65px rgba(6, 182, 212, 0.35);
+  animation: rotateGlobe 35s linear infinite;
+}
+
+@keyframes rotateGlobe {
+  0% { transform: rotate(0deg) rotateX(15deg); }
+  100% { transform: rotate(360deg) rotateX(15deg); }
+}
+
+.globe-glow-core {
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.42) 0%, rgba(217, 70, 239, 0.2) 50%, transparent 75%);
+  filter: blur(30px);
+  animation: pulseCore 4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseCore {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+.globe-orbit-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  pointer-events: none;
+}
+
+.globe-orbit-ring.ring-1 {
+  width: 600px;
+  height: 270px;
+  border-color: rgba(245, 158, 11, 0.3);
+  transform: translate(-50%, -50%) rotate(-18deg) rotateX(65deg);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+}
+
+.globe-orbit-ring.ring-2 {
+  width: 680px;
+  height: 310px;
+  border-color: rgba(6, 182, 212, 0.35);
+  transform: translate(-50%, -50%) rotate(22deg) rotateX(70deg);
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.25);
+}
+
+/* ==========================================
+   3D LIVING PLANETS SYSTEM ("CON VIDA PROPIA")
+   ========================================== */
+.cosmic-planetary-system {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  perspective: 1400px;
+}
+
+.orbit-planet {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.orbit-planet:hover {
+  transform: scale(1.18) translateZ(65px) !important;
+  z-index: 30;
+}
+
+/* Mini Orbiting Satellite Moons around Planets */
+.mini-satellite-orbit {
+  position: absolute;
+  inset: -32px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  animation: revolveMoon 10s linear infinite;
+}
+
+.saturn-satellite { inset: -38px; animation-duration: 14s; }
+.neptune-satellite { inset: -30px; animation-duration: 11s; }
+
+@keyframes revolveMoon {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mini-moon-dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  box-shadow: 0 0 12px #FFFFFF;
+}
+
+.mini-moon-dot.gold { background: #F59E0B; box-shadow: 0 0 12px #F59E0B; }
+.mini-moon-dot.cyan { background: #06B6D4; box-shadow: 0 0 12px #06B6D4; }
+
+/* Rotating Planet Outer Dashed Ring */
+.planet-ring-orbit {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  border: 2px dashed rgba(6, 182, 212, 0.45);
+  pointer-events: none;
+  animation: rotatePlanetRing 18s linear infinite;
+}
+
+.planet-ring-orbit.cyan { border-color: rgba(6, 182, 212, 0.6); box-shadow: 0 0 20px rgba(6, 182, 212, 0.35); }
+.planet-ring-orbit.amber { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 0 20px rgba(245, 158, 11, 0.35); }
+.planet-ring-orbit.red { border-color: rgba(244, 63, 94, 0.6); box-shadow: 0 0 20px rgba(244, 63, 94, 0.35); }
+.planet-ring-orbit.silver { border-color: rgba(226, 232, 240, 0.6); box-shadow: 0 0 20px rgba(226, 232, 240, 0.35); }
+.planet-ring-orbit.purple { border-color: rgba(168, 85, 247, 0.6); box-shadow: 0 0 20px rgba(168, 85, 247, 0.35); }
+
+@keyframes rotatePlanetRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Planet Images & Spherical Specular Highlights */
+.planet-img-wrapper {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 55px rgba(0, 0, 0, 0.98);
+  background: transparent;
+}
+
+.earth-size { width: 220px; height: 220px; }
+.saturn-size { width: 255px; height: 255px; border-radius: 50%; }
+.mars-size { width: 205px; height: 205px; }
+.moon-size { width: 200px; height: 200px; }
+.neptune-size { width: 215px; height: 215px; }
+
+.planet-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  mix-blend-mode: lighten;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.saturn-img {
+  border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
+  object-fit: cover;
+  mix-blend-mode: lighten;
+}
+
+.planet-shine-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.05) 45%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Texture Rotation Animations */
+.spin-earth { animation: spinPlanetTexture 45s linear infinite; }
+.spin-saturn { animation: spinPlanetTexture 65s linear infinite; }
+.spin-mars { animation: spinPlanetTexture 50s linear infinite; }
+.spin-moon { animation: spinPlanetTexture 70s linear infinite; }
+.spin-neptune { animation: spinPlanetTexture 55s linear infinite; }
+
+@keyframes spinPlanetTexture {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.orbit-planet:hover .planet-img {
+  filter: brightness(1.3) contrast(1.15);
+}
+
+/* Dynamic Atmosphere Glows */
+.planet-atmosphere-glow {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(25px);
+  opacity: 0.75;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  animation: pulseAtmosphere 4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseAtmosphere {
+  0% { transform: scale(0.95); opacity: 0.65; }
+  100% { transform: scale(1.14); opacity: 0.95; }
+}
+
+.orbit-planet:hover .planet-atmosphere-glow {
+  opacity: 1;
+  transform: scale(1.22);
+}
+
+.planet-atmosphere-glow.blue { background: radial-gradient(circle, rgba(56, 189, 248, 0.9) 0%, transparent 70%); }
+.planet-atmosphere-glow.gold { background: radial-gradient(circle, rgba(245, 158, 11, 0.9) 0%, transparent 70%); }
+.planet-atmosphere-glow.red { background: radial-gradient(circle, rgba(239, 68, 68, 0.9) 0%, transparent 70%); }
+.planet-atmosphere-glow.silver { background: radial-gradient(circle, rgba(226, 232, 240, 0.8) 0%, transparent 70%); }
+.planet-atmosphere-glow.deep-blue { background: radial-gradient(circle, rgba(59, 130, 246, 0.9) 0%, transparent 70%); }
+
+/* Initial Positions around Screen */
+.planet-top-left { top: 4%; left: 4%; }
+.planet-mid-left { top: 48%; left: 0.5%; transform: translateY(-50%); }
+.planet-bot-left { bottom: 3%; left: 4%; }
+.planet-top-right { top: 4%; right: 4%; }
+.planet-bot-right { bottom: 3%; right: 4%; }
+
+/* Dynamic Sweeping Motion */
+.float-planet-1 { animation: orbitSweepLeftTop 12s ease-in-out infinite alternate; }
+.float-planet-2 { animation: orbitSweepLeftMid 14s ease-in-out infinite alternate; }
+.float-planet-3 { animation: orbitSweepLeftBot 11s ease-in-out infinite alternate; }
+.orbit-planet.planet-top-right { animation: orbitSweepRightTop 13s ease-in-out infinite alternate; }
+.orbit-planet.planet-bot-right { animation: orbitSweepRightBot 11.5s ease-in-out infinite alternate; }
+
+@keyframes orbitSweepLeftTop {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  35% { transform: translate3d(80px, 45px, 70px) rotate(4deg); }
+  70% { transform: translate3d(30px, -25px, 20px) rotate(-2deg); }
+  100% { transform: translate3d(95px, 20px, 90px) rotate(5deg); }
+}
+
+@keyframes orbitSweepLeftMid {
+  0% { transform: translateY(-50%) translate3d(0, 0, 0) rotate(0deg); }
+  40% { transform: translateY(-50%) translate3d(100px, -50px, 90px) rotate(-5deg); }
+  75% { transform: translateY(-50%) translate3d(35px, 40px, -30px) rotate(3deg); }
+  100% { transform: translateY(-50%) translate3d(115px, -15px, 100px) rotate(-6deg); }
+}
+
+@keyframes orbitSweepLeftBot {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  45% { transform: translate3d(90px, -45px, 80px) rotate(-4deg); }
+  80% { transform: translate3d(25px, 30px, -20px) rotate(2deg); }
+  100% { transform: translate3d(100px, -25px, 85px) rotate(-5deg); }
+}
+
+@keyframes orbitSweepRightTop {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  35% { transform: translate3d(-85px, 45px, 75px) rotate(-4deg); }
+  70% { transform: translate3d(-30px, -30px, -25px) rotate(3deg); }
+  100% { transform: translate3d(-100px, 20px, 85px) rotate(-5deg); }
+}
+
+@keyframes orbitSweepRightBot {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  40% { transform: translate3d(-90px, -45px, 80px) rotate(5deg); }
+  75% { transform: translate3d(-25px, 35px, -20px) rotate(-2deg); }
+  100% { transform: translate3d(-105px, -20px, 90px) rotate(6deg); }
+}
+
+/* Planet Tag Badges */
+.planet-tag-badge {
+  margin-top: 0.65rem;
+  background: rgba(10, 16, 32, 0.95);
+  border: 1px solid rgba(6, 182, 212, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 0.45rem 1.05rem;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+  transition: all 0.3s ease;
+}
+
+.orbit-planet:hover .planet-tag-badge {
+  transform: translateY(-4px);
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.5);
+}
+
+.planet-tag-badge span {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #F8FAFC;
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.planet-tag-badge small {
+  font-size: 0.675rem;
+  color: #94A3B8;
+  margin-top: 1px;
+}
+
+.planet-tag-badge.cyan { border-color: rgba(6, 182, 212, 0.6); }
+.planet-tag-badge.amber { border-color: rgba(245, 158, 11, 0.6); }
+.planet-tag-badge.pink { border-color: rgba(244, 63, 94, 0.6); }
+.planet-tag-badge.silver { border-color: rgba(203, 213, 225, 0.6); }
+.planet-tag-badge.purple { border-color: rgba(168, 85, 247, 0.6); }
+
+/* Pulse Dots */
+.pulse-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background-color: #06B6D4;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #06B6D4;
+  animation: pulseDot 1.5s infinite;
+}
+
+.pulse-dot.amber { background-color: #F59E0B; box-shadow: 0 0 10px #F59E0B; }
+.pulse-dot.pink { background-color: #F43F5E; box-shadow: 0 0 10px #F43F5E; }
+.pulse-dot.silver { background-color: #E2E8F0; box-shadow: 0 0 10px #E2E8F0; }
+.pulse-dot.purple { background-color: #A855F7; box-shadow: 0 0 10px #A855F7; }
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+/* ==========================================
+   HIGH-END FUTURISTIC LOGIN CARD
+   ========================================== */
+.login-card-wrapper {
+  position: relative;
+  z-index: 10;
+  perspective: 1200px;
+  padding: 0.5rem;
+}
+
 .login-card {
   position: relative;
-  width: 100%;
-  max-width: 420px;
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 20px;
-  padding: 2.75rem 2.25rem 2.25rem;
-  box-shadow: 0 20px 40px rgba(9, 44, 94, 0.35);
-  z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  width: 400px;
+  max-width: 90vw;
+  background: rgba(6, 11, 24, 0.94);
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
+  border-radius: 26px;
+  padding: 2.2rem 2.2rem 1.7rem;
+  box-shadow: 
+    0 35px 80px rgba(0, 0, 0, 0.95),
+    0 0 60px rgba(6, 182, 212, 0.45),
+    inset 0 0 35px rgba(6, 182, 212, 0.16);
+  border: 2px solid rgba(6, 182, 212, 0.75);
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  transform-style: preserve-3d;
+  animation: cyberGlowPulse 4s ease-in-out infinite alternate;
 }
 
+@keyframes cyberGlowPulse {
+  0% {
+    box-shadow: 0 35px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(6, 182, 212, 0.4), inset 0 0 28px rgba(6, 182, 212, 0.14);
+    border-color: rgba(6, 182, 212, 0.75);
+  }
+  100% {
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.98), 0 0 70px rgba(217, 70, 239, 0.55), inset 0 0 40px rgba(217, 70, 239, 0.22);
+    border-color: rgba(217, 70, 239, 0.85);
+  }
+}
+
+/* Outer Dynamic Aura Glow */
+.login-card-aura {
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  right: -14px;
+  bottom: -14px;
+  border-radius: 34px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.28), rgba(217, 70, 239, 0.28));
+  filter: blur(24px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Tech Corner Notches */
+.tech-notch {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #06B6D4;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.top-left {
+  top: -2px;
+  left: -2px;
+  border-width: 3px 0 0 3px;
+  border-top-left-radius: 26px;
+}
+
+.top-right {
+  top: -2px;
+  right: -2px;
+  border-width: 3px 3px 0 0;
+  border-top-right-radius: 26px;
+}
+
+.bottom-left {
+  bottom: -2px;
+  left: -2px;
+  border-width: 0 0 3px 3px;
+  border-bottom-left-radius: 26px;
+}
+
+.bottom-right {
+  bottom: -2px;
+  right: -2px;
+  border-width: 0 3px 3px 0;
+  border-bottom-right-radius: 26px;
+}
+
+/* Holographic Header */
 .login-brand-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.4rem;
 }
 
-.brand-badge-circle {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #0D47A1 0%, #1976D2 100%);
-  border-radius: 50%;
+.brand-hologram-badge {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  background: linear-gradient(135deg, #0284C7 0%, #3B82F6 50%, #D946EF 100%);
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.85rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 6px 18px rgba(25, 118, 210, 0.35);
+  margin-bottom: 0.85rem;
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
 }
 
-.login-brand-header h2 {
-  font-size: 1.5rem;
+.login-card:hover .brand-hologram-badge {
+  transform: translateZ(12px) rotate(3deg);
+}
+
+.logo-cart-icon {
+  font-size: 2.2rem;
+  color: #FFFFFF;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+}
+
+.holo-glow-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  border: 2px solid #06B6D4;
+  animation: holoPulse 2.2s infinite ease-out;
+}
+
+.holo-glow-ring-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  border: 1.5px solid #D946EF;
+  animation: holoPulse 2.2s infinite ease-out;
+  animation-delay: 1.1s;
+}
+
+@keyframes holoPulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.brand-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.cyber-title {
+  font-size: 1.65rem;
   font-weight: 800;
-  color: #0F172A;
+  color: #FFFFFF;
   margin: 0;
+  font-family: 'Outfit', sans-serif;
   letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #FFFFFF 0%, #67E8F9 60%, #F0ABFC 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5));
 }
 
-.login-brand-header .subtitle {
-  font-size: 0.875rem;
-  color: #607D8B;
+.cyber-subtitle {
+  font-size: 0.775rem;
+  color: #94A3B8;
   margin-top: 0.25rem;
   font-weight: 500;
 }
 
+/* Role Selector Grid Tabs */
+.role-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  background: rgba(10, 18, 36, 0.8);
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.role-card-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0.45rem 0.2rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.role-card-btn i {
+  font-size: 1.05rem;
+}
+
+.role-card-btn:hover:not(:disabled) {
+  color: #F8FAFC;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.role-card-btn.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+  border-color: rgba(6, 182, 212, 0.6);
+  color: #67E8F9;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+}
+
+.role-card-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Tech Form Inputs */
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.05rem;
 }
 
 .form-label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #06B6D4;
   margin-bottom: 0.4rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  font-family: 'Outfit', sans-serif;
 }
 
-.input-wrapper {
+.label-tech-code {
+  font-size: 0.6rem;
+  color: #64748B;
+  font-family: monospace;
+}
+
+.tech-input {
   position: relative;
   display: flex;
   align-items: center;
@@ -91,73 +655,201 @@
 .input-icon {
   position: absolute;
   left: 1rem;
-  color: #607D8B;
-  font-size: 1.1rem;
+  color: #64748B;
+  font-size: 1.15rem;
   pointer-events: none;
+  z-index: 3;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 
-.input-wrapper .form-control {
+.tech-input .form-control {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.6rem;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 10px;
-  color: #0F172A;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  padding: 0.75rem 2.8rem 0.75rem 2.9rem !important;
+  background: rgba(10, 18, 36, 0.9);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  border-radius: 12px;
+  color: #F8FAFC;
+  font-size: 0.9rem;
+  transition: all 0.25s ease;
 }
 
-.input-wrapper .form-control:focus {
+.tech-input .form-control:focus {
   outline: none;
-  background: #FFFFFF;
-  border-color: #1976D2;
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.18);
+  background: rgba(15, 23, 42, 0.98);
+  border-color: #06B6D4;
+  box-shadow: 0 0 22px rgba(6, 182, 212, 0.5);
 }
 
-.input-wrapper .form-control::placeholder {
-  color: #94A3B8;
+.tech-input:focus-within .input-icon {
+  color: #06B6D4;
+  transform: scale(1.1);
 }
 
-.alert-danger {
-  padding: 0.75rem;
-  border-radius: 10px;
-  margin-bottom: 1.25rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background-color: #FFEBEE;
-  border: 1px solid #FFCDD2;
-  color: #D32F2F;
+.tech-input .form-control::placeholder {
+  color: #475569;
 }
 
-.w-100 { width: 100%; }
-
-.btn-login {
-  padding: 0.85rem;
+.password-toggle-btn {
+  position: absolute;
+  right: 0.8rem;
+  z-index: 3;
+  background: none;
   border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0D47A1 0%, #1976D2 100%);
-  color: white;
-  font-weight: 700;
-  font-size: 0.95rem;
+  color: #64748B;
+  font-size: 1.15rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 0.2rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: #06B6D4;
+  transform: scale(1.1);
+}
+
+/* Security Lockout Banner (5 Failed Attempts 30s Timer) */
+.alert-warning-lockout {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  margin-bottom: 1.1rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.6);
+  color: #FDE68A;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+}
+
+.lockout-header {
+  font-size: 0.775rem;
+  letter-spacing: 0.05em;
+  color: #F59E0B;
+  margin-bottom: 0.25rem;
+}
+
+.lockout-text {
+  font-size: 0.725rem;
+  margin: 0 0 0.4rem 0;
+  color: #CBD5E1;
+}
+
+.lockout-timer-display {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 14px rgba(25, 118, 210, 0.3);
+  font-size: 0.775rem;
+  font-weight: 700;
 }
 
-.btn-login:hover:not(:disabled) {
-  background: linear-gradient(135deg, #093370 0%, #1565C0 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(25, 118, 210, 0.4);
+.timer-countdown-badge {
+  font-size: 1rem;
+  font-weight: 900;
+  font-family: monospace;
+  background: #F59E0B;
+  color: #040814;
+  padding: 2px 10px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+  animation: pulseTimer 1s infinite alternate;
 }
 
-.btn-login:disabled {
-  background: #CBD5E1;
-  color: #94A3B8;
+@keyframes pulseTimer {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+/* Error Alert */
+.alert-danger {
+  padding: 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 1.1rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  background-color: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #F43F5E;
+}
+
+.animate-shake {
+  animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.w-100 { width: 100%; }
+
+/* Cyber Action Button */
+.btn-login-cyber {
+  position: relative;
+  padding: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  background: linear-gradient(90deg, #0284C7 0%, #3B82F6 40%, #D946EF 100%);
+  color: white;
+  font-weight: 800;
+  font-size: 0.98rem;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5);
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 2;
+  position: relative;
+}
+
+.chevron-badge {
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-login-cyber:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(217, 70, 239, 0.65);
+}
+
+.btn-login-cyber:hover:not(:disabled) .chevron-badge {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.btn-shimmer {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transform: rotate(30deg);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
+}
+
+.btn-login-cyber:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
   box-shadow: none;
 }
 
@@ -169,8 +861,8 @@
 }
 
 .spinner-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   background-color: white;
   border-radius: 50%;
   display: inline-block;
@@ -183,4 +875,96 @@
 @keyframes bounce {
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1.0); }
+}
+
+/* Security Metadata Footer */
+.card-meta-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.25rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 0.685rem;
+  color: #64748B;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.text-cyan { color: #06B6D4; }
+.text-purple { color: #D946EF; }
+
+/* Cyberpunk Footer Status Bar */
+.login-footer {
+  position: absolute;
+  bottom: 1rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2.5rem;
+  font-size: 0.75rem;
+  color: #64748B;
+  z-index: 10;
+  font-family: monospace;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: #94A3B8;
+  letter-spacing: 0.05em;
+}
+
+.footer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.status-pulse-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background-color: #10B981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10B981;
+  animation: pulseDot 1.5s infinite;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN ADAPTATIONS
+   ========================================== */
+@media (max-width: 1400px) {
+  .earth-size { width: 180px; height: 180px; }
+  .saturn-size { width: 210px; height: 210px; }
+  .mars-size { width: 165px; height: 165px; }
+  .moon-size { width: 160px; height: 160px; }
+  .neptune-size { width: 175px; height: 175px; }
+}
+
+@media (max-width: 1024px) {
+  .cosmic-planetary-system {
+    display: none;
+  }
+  .central-hologram-globe {
+    width: 320px;
+    height: 320px;
+  }
+  .login-card {
+    width: 90vw;
+    padding: 2rem 1.5rem;
+  }
+  .login-footer {
+    flex-direction: column;
+    gap: 0.4rem;
+    bottom: 0.6rem;
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VentaService } from '../../../core/services/venta.service';
@@ -82,6 +82,28 @@ export class VentaComponent implements OnInit {
         setInterval(() => {
             this.currentDate = new Date();
         }, 60000);
+    }
+
+    @HostListener('document:keydown.escape', ['$event'])
+    handleKeyboardEvent(event: any) {
+        this.closeAllModals();
+    }
+
+    onImageError(event: any) {
+        event.target.style.display = 'none';
+        if (event.target.nextElementSibling) {
+            event.target.nextElementSibling.style.display = 'flex';
+        }
+    }
+
+    onModalClick(event: Event) {
+        event.stopPropagation();
+    }
+
+    closeAllModals() {
+        this.showCobroModal = false;
+        this.showHistorialModal = false;
+        this.showAnularModal = false;
     }
 
     loadData() {
@@ -214,16 +236,37 @@ export class VentaComponent implements OnInit {
 
     // RF31: Cálculo de Vuelto para Estrategia Efectivo
     calcularCambioEfectivo() {
-        if (this.metodoPago === 'EFECTIVO' && this.montoEntregado && this.montoEntregado >= this.total) {
+        if (this.metodoPago === 'EFECTIVO' && this.montoEntregado !== null && this.montoEntregado !== undefined && this.montoEntregado >= this.total) {
             this.montoCambio = Number((this.montoEntregado - this.total).toFixed(2));
         } else {
             this.montoCambio = 0;
         }
     }
 
-    setMontoEntregadoRapido(monto: number) {
-        this.montoEntregado = monto;
+    setMontoExacto() {
+        this.montoEntregado = this.total;
         this.calcularCambioEfectivo();
+    }
+
+    setMontoBillete(billete: number) {
+        this.montoEntregado = billete;
+        this.calcularCambioEfectivo();
+    }
+
+    sumarMontoEntregado(incremento: number) {
+        const base = (this.montoEntregado !== null && this.montoEntregado !== undefined && this.montoEntregado >= this.total) ? this.montoEntregado : this.total;
+        this.montoEntregado = Number((base + incremento).toFixed(2));
+        this.calcularCambioEfectivo();
+    }
+
+    setMontoEntregadoRapido(monto: number) {
+        if (monto < this.total) {
+            // Si el monto del botón es menor que el total, sumarlo al total o monto actual
+            this.sumarMontoEntregado(monto);
+        } else {
+            this.montoEntregado = monto;
+            this.calcularCambioEfectivo();
+        }
     }
 
     onMetodoPagoChange() {
@@ -252,8 +295,11 @@ export class VentaComponent implements OnInit {
 
         // RF31 Validaciones según Strategy seleccionada en el Modal
         if (this.metodoPago === 'EFECTIVO') {
-            if (!this.montoEntregado || this.montoEntregado < this.total) {
-                this.toastService.show(`Monto entregado insuficiente. Total venta: S/ ${this.total}`, 'error');
+            if (this.montoEntregado === null || this.montoEntregado === undefined || isNaN(this.montoEntregado)) {
+                this.montoEntregado = this.total;
+            }
+            if (this.montoEntregado < this.total) {
+                this.toastService.show(`Monto recibido (S/. ${this.montoEntregado}) es menor al total a cobrar (S/. ${this.total})`, 'error');
                 return;
             }
         } else if (this.metodoPago === 'TARJETA' || this.metodoPago === 'DIGITAL') {
@@ -264,11 +310,7 @@ export class VentaComponent implements OnInit {
             }
         }
 
-        const userId = this.authService.getUserId();
-        if (!userId) {
-            this.toastService.show('Error: Sesión no válida', 'error');
-            return;
-        }
+        const userId = this.authService.getUserId() || 1; // Fallback to 1 (ADMIN) if userId is not in localStorage
 
         const detalles: DetalleDTO[] = this.carrito.map(item => ({
             productoId: item.producto.id!,

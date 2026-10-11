@@ -1,14 +1,13 @@
 /* Animation */
 .animate-fade-in {
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(6px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -19,7 +18,6 @@
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Utilities */
 .ls-1 {
     letter-spacing: 1px;
 }
@@ -30,50 +28,58 @@
 
 /* Filter Cards */
 .filter-card {
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    background: var(--bg-surface, #101726) !important;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.07)) !important;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    color: var(--text-main, #F9FAFB) !important;
+    padding: 0.9rem 1rem !important;
 }
 
 .filter-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-3px);
+    border-color: var(--border-medium) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
 }
 
 .active-card {
-    border-bottom: 4px solid var(--bs-primary) !important;
-    background-color: #f8f9fa;
+    border-bottom: 3px solid var(--primary-cyan, #06B6D4) !important;
+    background-color: var(--bg-surface-elevated, #1A2333) !important;
 }
 
 .active-card .icon-box {
-    background-color: var(--bs-primary) !important;
+    background-color: var(--primary-indigo, #6366F1) !important;
     color: white !important;
 }
 
 .icon-box {
-    width: 60px;
-    height: 60px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 /* Avatar */
 .avatar-initial {
-    width: 45px;
-    height: 45px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1rem;
+    background: linear-gradient(135deg, var(--primary-indigo), var(--primary-cyan));
+    color: #FFFFFF;
 }
 
 .bg-gradient-primary {
-    background: linear-gradient(135deg, #0d6efd 0%, #0043a5 100%);
+    background: linear-gradient(135deg, var(--primary-indigo) 0%, #4F46E5 100%) !important;
 }
 
-/* Hover Scale */
 .hover-scale {
     transition: transform 0.2s;
 }
@@ -82,7 +88,6 @@
     transform: scale(1.05);
 }
 
-/* List Item Hover */
 tr.fade-in-item:hover td {
-    background-color: #f8faff;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }

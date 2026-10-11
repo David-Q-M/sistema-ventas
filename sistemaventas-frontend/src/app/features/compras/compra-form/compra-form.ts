@@ -44,6 +44,7 @@ export class CompraFormComponent implements OnInit, OnDestroy {
     detalles: DetalleCompra[] = [];
     montoTotal = 0;
 
+    tiposComprobante = ['Factura', 'Boleta', 'Orden de Compra', 'Guía de Remisión', 'Nota de Entrada'];
     metodosPedido = ['Llamada Telefónica', 'Correo Electrónico', 'Mensaje WhatsApp', 'Visita Presencial'];
     metodosPago = ['Contado', 'Crédito 30 días', 'Crédito 60 días', 'Transferencia (2 días)'];
 
@@ -60,7 +61,11 @@ export class CompraFormComponent implements OnInit, OnDestroy {
     createdCompraInfo: {
         codigo: string;
         montoTotal: number;
+        subtotalSinIgv: number;
+        montoIgv: number;
         totalUnidades: number;
+        tipoComprobante?: string;
+        numeroComprobante?: string;
         estado: string;
         fechaEntrega?: string;
     } | null = null;
@@ -95,13 +100,35 @@ export class CompraFormComponent implements OnInit, OnDestroy {
         const today = new Date().toISOString().split('T')[0];
         this.compraForm = this.fb.group({
             proveedorId: ['', [Validators.required]],
+            tipoComprobante: ['Factura', [Validators.required]],
+            numeroComprobante: [''],
             fechaPedido: [today, [Validators.required]],
             fechaEntrega: [today, [Validators.required]],
             metodoPedido: ['Llamada Telefónica', [Validators.required]],
             estadoPago: ['Contado', [Validators.required]],
             estado: ['PENDIENTE', [Validators.required]], // Default Just-in-Time (PENDIENTE)
-            observacion: ['']
+            observacion: [''],
+            incluirIgv: [true]
         });
+    }
+
+    // Calculations for Totals Summary
+    get totalUnidades(): number {
+        return this.detalles.reduce((acc, curr) => acc + (curr.cantidad || 0), 0);
+    }
+
+    get subtotalSinIgv(): number {
+        if (!this.compraForm?.get('incluirIgv')?.value) {
+            return this.montoTotal;
+        }
+        return Number((this.montoTotal / 1.18).toFixed(2));
+    }
+
+    get montoIgv(): number {
+        if (!this.compraForm?.get('incluirIgv')?.value) {
+            return 0;
+        }
+        return Number((this.montoTotal - this.subtotalSinIgv).toFixed(2));
     }
 
     /**
@@ -427,14 +454,24 @@ export class CompraFormComponent implements OnInit, OnDestroy {
 
         this.loadingService.show();
         
-        const payload: CompraRequestPayload = {
+        const comprobanteTag = formVal.numeroComprobante ? 
+            `[${formVal.tipoComprobante} N° ${formVal.numeroComprobante}]` : 
+            `[${formVal.tipoComprobante}]`;
+        
+        const observacionFinal = formVal.observacion ? 
+            `${comprobanteTag} ${formVal.observacion}` : 
+            comprobanteTag;
+
+        const payload: CompraRequestPayload | any = {
             proveedorId: Number(formVal.proveedorId),
+            tipoComprobante: formVal.tipoComprobante,
+            numeroComprobante: formVal.numeroComprobante || undefined,
             fechaPedido: formVal.fechaPedido,
             fechaEntrega: formVal.fechaEntrega || undefined,
             metodoPedido: formVal.metodoPedido,
             estadoPago: formVal.estadoPago,
             estado: formVal.estado, // PENDIENTE (Just-in-Time) o RECIBIDO
-            observacion: formVal.observacion || undefined,
+            observacion: observacionFinal,
             detalles: this.detalles.map(d => ({
                 productoId: (d.producto?.id || d.productoId)!,
                 cantidad: d.cantidad,
@@ -448,8 +485,12 @@ export class CompraFormComponent implements OnInit, OnDestroy {
                 this.loadingService.hide();
                 this.createdCompraInfo = {
                     codigo: res.codigo || 'N/A',
-                    montoTotal: res.montoTotal,
-                    totalUnidades: this.detalles.reduce((acc, curr) => acc + curr.cantidad, 0),
+                    montoTotal: res.montoTotal || this.montoTotal,
+                    subtotalSinIgv: this.subtotalSinIgv,
+                    montoIgv: this.montoIgv,
+                    totalUnidades: this.totalUnidades,
+                    tipoComprobante: formVal.tipoComprobante,
+                    numeroComprobante: formVal.numeroComprobante,
                     estado: res.estado || formVal.estado,
                     fechaEntrega: res.fechaEntrega
                 };
@@ -473,3 +514,4 @@ export class CompraFormComponent implements OnInit, OnDestroy {
         this.router.navigate(['/compras']);
     }
 }
+

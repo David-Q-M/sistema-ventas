@@ -1,6 +1,6 @@
-<div class="container-fluid py-4 animate-fade-in">
-  <!-- Header Banner -->
-  <div class="page-header-card mb-4">
+<div class="container-fluid p-0 animate-fade-in">
+  <!-- Compact Page Header Banner -->
+  <div class="page-header-card mb-3">
     <div class="page-header-title">
       <div class="page-header-icon">
         <i class="bi bi-speedometer2"></i>
@@ -10,40 +10,21 @@
         <p>Resumen ejecutivo y estadísticas de tu negocio en tiempo real</p>
       </div>
     </div>
-    <div>
-      <button class="btn btn-primary d-flex align-items-center gap-2" routerLink="/ventas">
+    <div class="d-flex gap-2">
+      <button class="btn btn-secondary d-flex align-items-center gap-1" routerLink="/compras">
+        <i class="bi bi-bag-plus"></i> Nueva Compra
+      </button>
+      <button class="btn btn-primary d-flex align-items-center gap-1" routerLink="/ventas">
         <i class="bi bi-cart-plus"></i> Nueva Venta
       </button>
     </div>
   </div>
 
-  <!-- 4 Interactive Stat Cards (Unified Corporate Aesthetic) -->
-  <div class="row g-4 mb-4">
-    <!-- Card 1: Ventas Hoy -->
+  <!-- 4 Interactive Compact KPI Stat Cards -->
+  <div class="row g-3 mb-3">
+    <!-- Card 1: Total Productos -->
     <div class="col-xl-3 col-md-6">
-      <div class="kpi-card card-blue" (click)="openModal('ventasHoy')" title="Haz clic para ver las ventas de hoy">
-        <div class="kpi-card-body">
-          <div class="kpi-info">
-            <span class="kpi-title">Ventas Hoy</span>
-            <h3 class="kpi-value">S/. {{ ventasHoy | number:'1.2-2' }}</h3>
-            <span class="kpi-badge badge-blue">
-              <i class="bi bi-receipt"></i> {{ cantidadVentasHoy }} transacciones
-            </span>
-          </div>
-          <div class="kpi-icon-wrapper icon-blue">
-            <i class="bi bi-currency-dollar"></i>
-          </div>
-        </div>
-        <div class="kpi-footer-hint">
-          <span>Ver detalle de hoy</span>
-          <i class="bi bi-arrow-right-short"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card 2: Total Productos -->
-    <div class="col-xl-3 col-md-6">
-      <div class="kpi-card card-cyan" (click)="openModal('totalProductos')" title="Haz clic para ver el catálogo de productos">
+      <div class="kpi-card card-cyan" (click)="openModal('totalProductos')" title="Haz clic para ver el catálogo completo de productos">
         <div class="kpi-card-body">
           <div class="kpi-info">
             <span class="kpi-title">Total Productos</span>
@@ -57,43 +38,65 @@
           </div>
         </div>
         <div class="kpi-footer-hint">
-          <span>Ver productos</span>
+          <span>Ver productos registrados</span>
           <i class="bi bi-arrow-right-short"></i>
         </div>
       </div>
     </div>
 
-    <!-- Card 3: Ingresos Totales -->
+    <!-- Card 2: Ventas del Día -->
     <div class="col-xl-3 col-md-6">
-      <div class="kpi-card card-green" (click)="openModal('ingresosTotales')" title="Haz clic para ver el histórico de ingresos">
+      <div class="kpi-card card-blue" (click)="openModal('ventasHoy')" title="Haz clic para ver las ventas registradas el día de hoy">
         <div class="kpi-card-body">
           <div class="kpi-info">
-            <span class="kpi-title">Ingresos Totales</span>
-            <h3 class="kpi-value text-success">S/. {{ totalVentas | number:'1.2-2' }}</h3>
-            <span class="kpi-badge badge-green">
-              <i class="bi bi-graph-up"></i> Histórico general
+            <span class="kpi-title">Ventas del Día</span>
+            <h3 class="kpi-value">S/. {{ ventasHoy | number:'1.2-2' }}</h3>
+            <span class="kpi-badge badge-blue">
+              <i class="bi bi-receipt"></i> {{ cantidadVentasHoy }} transacciones hoy
             </span>
           </div>
-          <div class="kpi-icon-wrapper icon-green">
-            <i class="bi bi-graph-up-arrow"></i>
+          <div class="kpi-icon-wrapper icon-blue">
+            <i class="bi bi-currency-dollar"></i>
           </div>
         </div>
         <div class="kpi-footer-hint">
-          <span>Ver informe histórico</span>
+          <span>Ver detalle de hoy</span>
           <i class="bi bi-arrow-right-short"></i>
         </div>
       </div>
     </div>
 
-    <!-- Card 4: Alertas Stock -->
+    <!-- Card 3: Compras -->
     <div class="col-xl-3 col-md-6">
-      <div class="kpi-card card-amber" (click)="openModal('alertasStock')" title="Haz clic para ver productos con stock bajo">
+      <div class="kpi-card card-purple" (click)="openModal('compras')" title="Haz clic para ver el registro histórico de compras">
         <div class="kpi-card-body">
           <div class="kpi-info">
-            <span class="kpi-title">Alertas Stock</span>
+            <span class="kpi-title">Compras</span>
+            <h3 class="kpi-value text-indigo">S/. {{ montoTotalCompras | number:'1.2-2' }}</h3>
+            <span class="kpi-badge badge-purple">
+              <i class="bi bi-truck"></i> {{ totalComprasCount }} órdenes de compra
+            </span>
+          </div>
+          <div class="kpi-icon-wrapper icon-purple">
+            <i class="bi bi-bag-check"></i>
+          </div>
+        </div>
+        <div class="kpi-footer-hint">
+          <span>Ver detalle de compras</span>
+          <i class="bi bi-arrow-right-short"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Alertas de Stock Mínimo -->
+    <div class="col-xl-3 col-md-6">
+      <div class="kpi-card card-amber" (click)="openModal('alertasStock')" title="Haz clic para ver los productos con alerta de stock bajo">
+        <div class="kpi-card-body">
+          <div class="kpi-info">
+            <span class="kpi-title">Alertas Stock Mínimo</span>
             <h3 class="kpi-value text-warning">{{ lowStockProducts.length }}</h3>
             <span class="kpi-badge badge-amber">
-              <i class="bi bi-exclamation-triangle"></i> Productos bajos
+              <i class="bi bi-exclamation-triangle"></i> Productos por reponer
             </span>
           </div>
           <div class="kpi-icon-wrapper icon-amber">
@@ -109,13 +112,13 @@
   </div>
 
   <!-- Charts & Low Stock Quick Overview -->
-  <div class="row g-4 mb-4">
+  <div class="row g-3 mb-3">
     <!-- Weekly Trend Chart -->
     <div class="col-lg-8">
       <div class="card h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart-line text-primary me-2"></i>Tendencia Semanal</h5>
-          <small class="text-muted">Últimos 7 días</small>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0 fw-bold section-card-title"><i class="bi bi-bar-chart-line text-cyan me-2"></i>Tendencia Semanal de Ventas</h5>
+          <small class="text-secondary">Últimos 7 días</small>
         </div>
         <div class="chart-wrapper">
           <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"></canvas>
@@ -126,25 +129,25 @@
     <!-- Shortcuts / Low Stock Quick List -->
     <div class="col-lg-4">
       <div class="card h-100">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0 fw-bold"><i class="bi bi-shield-exclamation text-warning me-2"></i>Reponer Stock</h5>
-          <span class="badge badge-warning">{{ lowStockProducts.length }} alertas</span>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0 fw-bold section-card-title"><i class="bi bi-shield-exclamation text-warning me-2"></i>Reponer Stock</h5>
+          <span class="badge badge-amber">{{ lowStockProducts.length }} alertas</span>
         </div>
-        <div class="list-group list-group-flush custom-scrollbar" style="max-height: 280px; overflow-y: auto;">
+        <div class="list-group list-group-flush custom-scrollbar" style="max-height: 240px; overflow-y: auto;">
           <div *ngFor="let p of lowStockProducts" class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
             <div class="d-flex align-items-center">
-              <div class="avatar-sm bg-light text-dark rounded me-3 d-flex align-items-center justify-content-center">
+              <div class="avatar-sm rounded me-2 d-flex align-items-center justify-content-center item-avatar-icon">
                 <i class="bi bi-box"></i>
               </div>
               <div>
-                <h6 class="mb-0 fw-bold text-dark fs-6">{{ p.nombre }}</h6>
-                <small class="text-danger fw-bold"><i class="bi bi-exclamation-circle me-1"></i>{{ p.stock }} en stock</small>
+                <h6 class="mb-0 fw-bold text-main fs-6">{{ p.nombre }}</h6>
+                <small class="text-rose fw-bold"><i class="bi bi-exclamation-circle me-1"></i>{{ p.stock }} en stock (Mín: {{ p.stockMinimo || 10 }})</small>
               </div>
             </div>
-            <button class="btn btn-sm btn-secondary" routerLink="/productos">Ver</button>
+            <button class="btn btn-sm btn-secondary" routerLink="/compras">Pedir</button>
           </div>
-          <div *ngIf="lowStockProducts.length === 0" class="text-center py-4 text-muted">
-            <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
+          <div *ngIf="lowStockProducts.length === 0" class="text-center py-4 text-secondary">
+            <i class="bi bi-check-circle fs-2 d-block mb-2 text-emerald"></i>
             Stock suficiente en todo el inventario
           </div>
         </div>
@@ -154,8 +157,8 @@
 
   <!-- Recent Transactions Table -->
   <div class="card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history text-primary me-2"></i>Transacciones Recientes</h5>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0 fw-bold section-card-title"><i class="bi bi-clock-history text-cyan me-2"></i>Transacciones Recientes</h5>
       <a routerLink="/ventas" class="btn btn-secondary btn-sm">Ver todas</a>
     </div>
     <div class="table-responsive">
@@ -171,18 +174,18 @@
         </thead>
         <tbody>
           <tr *ngFor="let venta of recentSales">
-            <td class="fw-bold text-primary">#{{ venta.id }}</td>
-            <td>{{ venta.fechaVenta | date:'medium' }}</td>
+            <td class="fw-bold text-cyan">#{{ venta.id }}</td>
+            <td class="text-secondary">{{ venta.fechaVenta | date:'medium' }}</td>
             <td>
               <span class="badge badge-recibida">
                 <i class="bi bi-person me-1"></i> {{ venta.usuario ? venta.usuario.username : 'Sistema' }}
               </span>
             </td>
-            <td><span class="badge bg-light text-dark border">{{ venta.tipoComprobante || 'Boleta' }}</span></td>
-            <td class="text-end fw-bold text-dark">S/. {{ venta.total | number:'1.2-2' }}</td>
+            <td><span class="badge badge-pill-dark">{{ venta.tipoComprobante || 'Boleta' }}</span></td>
+            <td class="text-end fw-bold text-emerald">S/. {{ venta.total | number:'1.2-2' }}</td>
           </tr>
           <tr *ngIf="recentSales.length === 0">
-            <td colspan="5" class="text-center py-4 text-muted">No se registran ventas recientes.</td>
+            <td colspan="5" class="text-center py-4 text-secondary">No se registran ventas recientes.</td>
           </tr>
         </tbody>
       </table>
@@ -194,86 +197,47 @@
 <!-- MODALS DETAIL BREAKDOWN (ON CARD CLICK)    -->
 <!-- ========================================== -->
 
-<!-- MODAL 1: Ventas Hoy -->
-<div class="modal-overlay" *ngIf="activeModal === 'ventasHoy'">
-  <div class="modal-card modal-lg">
+<!-- MODAL 1: Total Productos -->
+<div class="modal-overlay" *ngIf="activeModal === 'totalProductos'" (click)="closeModal()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-currency-dollar fs-4 text-primary"></i>
-        <h3 class="mb-0">Detalle de Ventas de Hoy</h3>
+        <i class="bi bi-box-seam fs-4 text-cyan"></i>
+        <div>
+          <h3 class="mb-0 text-main">Catálogo de Productos</h3>
+          <small class="text-secondary">Vista detallada de existencias e inventario general</small>
+        </div>
       </div>
       <button class="btn-close" (click)="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <!-- Summary stats bar inside modal -->
-      <div class="details-grid mb-4">
+      <div class="details-grid mb-3">
         <div class="grid-item">
-          <strong>Monto Total Hoy:</strong>
-          <span class="text-primary fw-bold fs-5">S/. {{ ventasHoy | number:'1.2-2' }}</span>
-        </div>
-        <div class="grid-item">
-          <strong>Transacciones Hoy:</strong>
-          <span class="fw-bold fs-5">{{ cantidadVentasHoy }} ventas</span>
-        </div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ID VENTA</th>
-              <th>HORA</th>
-              <th>USUARIO / CAJERO</th>
-              <th>COMPROBANTE</th>
-              <th class="text-end">MONTO TOTAL</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let v of salesTodayList">
-              <td class="fw-bold text-primary">#{{ v.id }}</td>
-              <td>{{ v.fechaVenta | date:'shortTime' }}</td>
-              <td>{{ v.usuario ? v.usuario.username : 'Cajero' }}</td>
-              <td><span class="badge bg-light text-dark border">{{ v.tipoComprobante || 'Boleta' }}</span></td>
-              <td class="text-end fw-bold text-success">S/. {{ v.total | number:'1.2-2' }}</td>
-            </tr>
-            <tr *ngIf="salesTodayList.length === 0">
-              <td colspan="5" class="text-center py-4 text-muted">Aún no se han registrado ventas el día de hoy.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" routerLink="/ventas" (click)="closeModal()"><i class="bi bi-plus-lg"></i> Registrar Nueva Venta</button>
-      <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL 2: Total Productos -->
-<div class="modal-overlay" *ngIf="activeModal === 'totalProductos'">
-  <div class="modal-card modal-lg">
-    <div class="modal-header">
-      <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-box-seam fs-4 text-info"></i>
-        <h3 class="mb-0">Catálogo de Productos</h3>
-      </div>
-      <button class="btn-close" (click)="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="details-grid mb-4">
-        <div class="grid-item">
-          <strong>Total de Ítems Registrados:</strong>
-          <span class="fw-bold fs-5">{{ totalProductos }} productos</span>
+          <strong>Total Ítems Registrados:</strong>
+          <span class="fw-bold fs-5 text-main">{{ totalProductos }} productos</span>
         </div>
         <div class="grid-item">
           <strong>Valor Total Inventario:</strong>
-          <span class="text-primary fw-bold fs-5">S/. {{ totalStockValue | number:'1.2-2' }}</span>
+          <span class="text-cyan fw-bold fs-5">S/. {{ totalStockValue | number:'1.2-2' }}</span>
+        </div>
+        <div class="grid-item">
+          <strong>Productos con Alerta:</strong>
+          <span class="text-warning fw-bold fs-5">{{ lowStockProducts.length }} bajo el mínimo</span>
         </div>
       </div>
 
-      <div class="table-responsive" style="max-height: 350px;">
-        <table class="table">
+      <!-- Live Filter Bar -->
+      <div class="mb-3">
+        <div class="input-group">
+          <span class="input-group-text bg-surface-elevated text-secondary border-end-0">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" placeholder="Buscar por código, nombre de producto o categoría..." [(ngModel)]="modalSearchTerm">
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 340px;">
+        <table class="table align-middle mb-0">
           <thead>
             <tr>
               <th>CÓDIGO</th>
@@ -281,19 +245,28 @@
               <th>CATEGORÍA</th>
               <th>PRECIO VENTA</th>
               <th>STOCK</th>
+              <th>STOCK MÍN.</th>
+              <th>FECHA VENCIMIENTO</th>
               <th>ESTADO</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of allProductos">
+            <tr *ngFor="let p of filteredProductosModal">
               <td><code>{{ p.codigoBarras || ('PRD-' + p.id) }}</code></td>
-              <td class="fw-bold">{{ p.nombre }}</td>
-              <td>{{ p.categoria?.nombre || 'General' }}</td>
-              <td class="fw-bold text-primary">S/. {{ p.precioVenta | number:'1.2-2' }}</td>
+              <td class="fw-bold text-main">{{ p.nombre }}</td>
+              <td class="text-secondary">{{ p.categoria?.nombre || 'General' }}</td>
+              <td class="fw-bold text-cyan">S/. {{ p.precioVenta | number:'1.2-2' }}</td>
               <td>
-                <span class="fw-bold" [ngClass]="{'text-danger': p.stock < 10, 'text-success': p.stock >= 10}">
+                <span class="fw-bold" [ngClass]="{'text-rose': p.stock <= (p.stockMinimo || 10), 'text-emerald': p.stock > (p.stockMinimo || 10)}">
                   {{ p.stock }} un.
                 </span>
+              </td>
+              <td class="text-secondary">{{ p.stockMinimo || 10 }} un.</td>
+              <td>
+                <span *ngIf="p.fechaVencimiento" class="badge badge-amber font-bold">
+                  <i class="bi bi-calendar-event me-1"></i> {{ p.fechaVencimiento | date:'dd/MM/yyyy' }}
+                </span>
+                <span *ngIf="!p.fechaVencimiento" class="text-muted small">N/A</span>
               </td>
               <td>
                 <span class="badge" [ngClass]="p.stock > 0 ? 'badge-recibida' : 'badge-cancelada'">
@@ -301,129 +274,339 @@
                 </span>
               </td>
             </tr>
-            <tr *ngIf="allProductos.length === 0">
-              <td colspan="6" class="text-center py-4 text-muted">No se encontraron productos registrados.</td>
+            <tr *ngIf="filteredProductosModal.length === 0">
+              <td colspan="8" class="text-center py-4 text-secondary">No se encontraron productos coincidentes.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" routerLink="/productos" (click)="closeModal()"><i class="bi bi-pencil-square"></i> Gestionar Productos</button>
+      <button class="btn btn-primary" routerLink="/productos" (click)="closeModal()">
+        <i class="bi bi-pencil-square"></i> Ir a Gestión de Productos
+      </button>
       <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL 3: Ingresos Totales -->
-<div class="modal-overlay" *ngIf="activeModal === 'ingresosTotales'">
-  <div class="modal-card modal-lg">
+<!-- MODAL 2: Ventas del Día -->
+<div class="modal-overlay" *ngIf="activeModal === 'ventasHoy'" (click)="closeModal()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-graph-up-arrow fs-4 text-success"></i>
-        <h3 class="mb-0">Informe de Ingresos Históricos</h3>
+        <i class="bi bi-currency-dollar fs-4 text-cyan"></i>
+        <div>
+          <h3 class="mb-0 text-main">Detalle de Ventas del Día</h3>
+          <small class="text-secondary">Registro completo de transacciones realizadas hoy</small>
+        </div>
       </div>
       <button class="btn-close" (click)="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="details-grid mb-4">
+      <div class="details-grid mb-3">
         <div class="grid-item">
-          <strong>Ingresos Totales Acumulados:</strong>
-          <span class="text-success fw-bold fs-4">S/. {{ totalVentas | number:'1.2-2' }}</span>
+          <strong>Monto Total Hoy:</strong>
+          <span class="text-emerald fw-bold fs-4">S/. {{ ventasHoy | number:'1.2-2' }}</span>
         </div>
         <div class="grid-item">
-          <strong>Ticket Promedio por Venta:</strong>
-          <span class="fw-bold fs-5">S/. {{ averageTicketSize | number:'1.2-2' }}</span>
+          <strong>Ventas Realizadas Hoy:</strong>
+          <span class="fw-bold fs-5 text-main">{{ cantidadVentasHoy }} transacciones</span>
+        </div>
+        <div class="grid-item">
+          <strong>Ticket Promedio Hoy:</strong>
+          <span class="text-cyan fw-bold fs-5">S/. {{ averageTicketSizeToday | number:'1.2-2' }}</span>
         </div>
       </div>
 
-      <div class="table-responsive" style="max-height: 350px;">
-        <table class="table">
+      <!-- Live Filter Bar -->
+      <div class="mb-3">
+        <div class="input-group">
+          <span class="input-group-text bg-surface-elevated text-secondary border-end-0">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" placeholder="Buscar por ID, comprobante o vendedor..." [(ngModel)]="modalSearchTerm">
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 340px;">
+        <table class="table align-middle mb-0">
           <thead>
             <tr>
+              <th></th>
               <th>ID VENTA</th>
-              <th>FECHA Y HORA</th>
-              <th>USUARIO</th>
-              <th>TIPO COMPROBANTE</th>
+              <th>HORA</th>
+              <th>VENDEDOR / CAJERO</th>
+              <th>COMPROBANTE</th>
+              <th>MÉTODO PAGO</th>
               <th class="text-end">MONTO TOTAL</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let v of allSales">
-              <td class="fw-bold text-primary">#{{ v.id }}</td>
-              <td>{{ v.fechaVenta | date:'medium' }}</td>
-              <td>{{ v.usuario ? v.usuario.username : 'Cajero' }}</td>
-              <td><span class="badge bg-light text-dark border">{{ v.tipoComprobante || 'Boleta' }}</span></td>
-              <td class="text-end fw-bold text-success">S/. {{ v.total | number:'1.2-2' }}</td>
-            </tr>
-            <tr *ngIf="allSales.length === 0">
-              <td colspan="5" class="text-center py-4 text-muted">No existen registros de ventas históricas.</td>
+            <ng-container *ngFor="let v of filteredVentasHoyModal">
+              <tr class="clickable-row" (click)="toggleVentaDetails(v.id)" style="cursor: pointer;">
+                <td>
+                  <i class="bi" [ngClass]="expandedVentaId === v.id ? 'bi-chevron-up text-cyan' : 'bi-chevron-down text-secondary'"></i>
+                </td>
+                <td class="fw-bold text-cyan">#{{ v.id }}</td>
+                <td class="text-secondary">{{ v.fechaVenta | date:'shortTime' }}</td>
+                <td>
+                  <span class="badge badge-recibida">
+                    <i class="bi bi-person me-1"></i> {{ v.usuario ? v.usuario.username : 'Cajero' }}
+                  </span>
+                </td>
+                <td><span class="badge badge-pill-dark">{{ v.tipoComprobante || 'Boleta' }}</span></td>
+                <td>
+                  <span class="badge badge-cyan">{{ v.metodoPago || 'EFECTIVO' }}</span>
+                </td>
+                <td class="text-end fw-bold text-emerald">S/. {{ v.total | number:'1.2-2' }}</td>
+              </tr>
+              <!-- Expanded items detail sub-row -->
+              <tr *ngIf="expandedVentaId === v.id" class="bg-surface-elevated">
+                <td colspan="7" class="p-3">
+                  <div class="p-2 border rounded bg-surface">
+                    <h6 class="fw-bold text-cyan mb-2"><i class="bi bi-basket me-1"></i> Productos Vendidos en esta transacción:</h6>
+                    <div *ngIf="v.detalles && v.detalles.length > 0" class="table-responsive">
+                      <table class="table table-sm text-secondary mb-0">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let d of v.detalles">
+                            <td class="text-main fw-bold">{{ d.producto ? d.producto.nombre : 'Producto' }}</td>
+                            <td class="text-center">{{ d.cantidad }} un.</td>
+                            <td class="text-end text-emerald fw-bold">S/. {{ d.subtotal | number:'1.2-2' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div *ngIf="!v.detalles || v.detalles.length === 0" class="small text-secondary">
+                      No se encontraron detalles de ítems para esta venta.
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="filteredVentasHoyModal.length === 0">
+              <td colspan="7" class="text-center py-4 text-secondary">Aún no se han registrado ventas el día de hoy.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" routerLink="/ventas" (click)="closeModal()">
+        <i class="bi bi-cart-plus"></i> Registrar Nueva Venta
+      </button>
       <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL 4: Alertas Stock -->
-<div class="modal-overlay" *ngIf="activeModal === 'alertasStock'">
-  <div class="modal-card modal-lg">
+<!-- MODAL 3: Compras -->
+<div class="modal-overlay" *ngIf="activeModal === 'compras'" (click)="closeModal()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-exclamation-triangle fs-4 text-warning"></i>
-        <h3 class="mb-0">Productos con Stock Bajo</h3>
+        <i class="bi bi-bag-check fs-4 text-indigo"></i>
+        <div>
+          <h3 class="mb-0 text-main">Registro Histórico de Compras</h3>
+          <small class="text-secondary">Órdenes de compra registradas con proveedores</small>
+        </div>
       </div>
       <button class="btn-close" (click)="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="details-grid mb-4">
+      <div class="details-grid mb-3">
         <div class="grid-item">
-          <strong>Total de Productos Críticos:</strong>
-          <span class="text-danger fw-bold fs-5">{{ lowStockProducts.length }} ítems por reponer</span>
+          <strong>Inversión Total Compras:</strong>
+          <span class="text-indigo fw-bold fs-4">S/. {{ montoTotalCompras | number:'1.2-2' }}</span>
         </div>
         <div class="grid-item">
-          <strong>Umbral Alerta:</strong>
-          <span>Menos de 10 unidades en stock</span>
+          <strong>Órdenes Totales:</strong>
+          <span class="fw-bold fs-5 text-main">{{ totalComprasCount }} compras</span>
+        </div>
+        <div class="grid-item">
+          <strong>Entregas Pendientes:</strong>
+          <span class="text-warning fw-bold fs-5">{{ comprasPendientesCount }} por recibir</span>
         </div>
       </div>
 
-      <div class="table-responsive">
-        <table class="table">
+      <!-- Live Filter Bar -->
+      <div class="mb-3">
+        <div class="input-group">
+          <span class="input-group-text bg-surface-elevated text-secondary border-end-0">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" placeholder="Buscar por código, proveedor o estado..." [(ngModel)]="modalSearchTerm">
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 340px;">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th></th>
+              <th>CÓDIGO</th>
+              <th>FECHA PEDIDO</th>
+              <th>PROVEEDOR</th>
+              <th>ESTADO PAGO</th>
+              <th>ESTADO ENTREGA</th>
+              <th class="text-end">MONTO TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let c of filteredComprasModal">
+              <tr class="clickable-row" (click)="toggleCompraDetails(c.id)" style="cursor: pointer;">
+                <td>
+                  <i class="bi" [ngClass]="expandedCompraId === c.id ? 'bi-chevron-up text-cyan' : 'bi-chevron-down text-secondary'"></i>
+                </td>
+                <td class="fw-bold text-cyan"><code>{{ c.codigo || ('CMP-' + c.id) }}</code></td>
+                <td class="text-secondary">{{ c.fechaPedido | date:'shortDate' }}</td>
+                <td class="fw-bold text-main">{{ c.proveedorNombre || (c.proveedor?.nombre) || 'Proveedor General' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="c.estadoPago === 'PAGADO' ? 'badge-recibida' : 'badge-pendiente'">
+                    {{ c.estadoPago || 'PENDIENTE' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{'badge-recibida': c.estado === 'RECIBIDO', 'badge-pendiente': c.estado === 'PENDIENTE', 'badge-cancelada': c.estado === 'CANCELADO'}">
+                    {{ c.estado || 'RECIBIDO' }}
+                  </span>
+                </td>
+                <td class="text-end fw-bold text-indigo">S/. {{ c.montoTotal | number:'1.2-2' }}</td>
+              </tr>
+              <!-- Expanded purchase items detail sub-row -->
+              <tr *ngIf="expandedCompraId === c.id" class="bg-surface-elevated">
+                <td colspan="7" class="p-3">
+                  <div class="p-2 border rounded bg-surface">
+                    <h6 class="fw-bold text-indigo mb-2"><i class="bi bi-box-seam me-1"></i> Productos Solicitados en esta orden:</h6>
+                    <div *ngIf="c.detalles && c.detalles.length > 0" class="table-responsive">
+                      <table class="table table-sm text-secondary mb-0">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Precio Costo</th>
+                            <th class="text-end">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let d of c.detalles">
+                            <td class="text-main fw-bold">{{ d.productoNombre || (d.producto?.nombre) || 'Producto' }}</td>
+                            <td class="text-center">{{ d.cantidad }} un.</td>
+                            <td class="text-end">S/. {{ d.precioCosto | number:'1.2-2' }}</td>
+                            <td class="text-end text-indigo fw-bold">S/. {{ d.subtotal | number:'1.2-2' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div *ngIf="!c.detalles || c.detalles.length === 0" class="small text-secondary">
+                      No se encontraron detalles de productos en esta compra.
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="filteredComprasModal.length === 0">
+              <td colspan="7" class="text-center py-4 text-secondary">No se registraron compras coincidentes.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" routerLink="/compras" (click)="closeModal()">
+        <i class="bi bi-bag-plus"></i> Registrar Nueva Compra
+      </button>
+      <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 4: Alertas de Stock Mínimo -->
+<div class="modal-overlay" *ngIf="activeModal === 'alertasStock'" (click)="closeModal()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle fs-4 text-warning"></i>
+        <div>
+          <h3 class="mb-0 text-main">Productos con Stock Mínimo</h3>
+          <small class="text-secondary">Lista prioritaria de productos que requieren reposición urgente</small>
+        </div>
+      </div>
+      <button class="btn-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="details-grid mb-3">
+        <div class="grid-item">
+          <strong>Productos Críticos:</strong>
+          <span class="text-rose fw-bold fs-4">{{ lowStockProducts.length }} en alerta</span>
+        </div>
+        <div class="grid-item">
+          <strong>Criterio de Alerta:</strong>
+          <span class="text-secondary">Stock actual &le; Stock mínimo configurado</span>
+        </div>
+        <div class="grid-item">
+          <strong>Acción Sugerida:</strong>
+          <span class="text-cyan fw-bold">Generar orden de compra</span>
+        </div>
+      </div>
+
+      <!-- Live Filter Bar -->
+      <div class="mb-3">
+        <div class="input-group">
+          <span class="input-group-text bg-surface-elevated text-secondary border-end-0">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" placeholder="Buscar producto con stock bajo..." [(ngModel)]="modalSearchTerm">
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 340px;">
+        <table class="table align-middle mb-0">
           <thead>
             <tr>
               <th>CÓDIGO</th>
               <th>PRODUCTO</th>
               <th>CATEGORÍA</th>
-              <th>PRECIO VENTA</th>
               <th>STOCK ACTUAL</th>
-              <th>ACCIÓN</th>
+              <th>STOCK MÍNIMO</th>
+              <th>FECHA VENCIMIENTO</th>
+              <th class="text-end">ACCIÓN</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of lowStockProducts">
+            <tr *ngFor="let p of filteredLowStockModal">
               <td><code>{{ p.codigoBarras || ('PRD-' + p.id) }}</code></td>
-              <td class="fw-bold">{{ p.nombre }}</td>
-              <td>{{ p.categoria?.nombre || 'General' }}</td>
-              <td>S/. {{ p.precioVenta | number:'1.2-2' }}</td>
+              <td class="fw-bold text-main">{{ p.nombre }}</td>
+              <td class="text-secondary">{{ p.categoria?.nombre || 'General' }}</td>
               <td>
-                <span class="badge badge-cancelada fw-bold">
-                  {{ p.stock }} en stock
+                <span class="badge badge-cancelada fw-bold fs-6">
+                  {{ p.stock }} un.
                 </span>
               </td>
+              <td class="fw-bold text-secondary">{{ p.stockMinimo || 10 }} un.</td>
               <td>
+                <span *ngIf="p.fechaVencimiento" class="badge badge-amber font-bold">
+                  <i class="bi bi-calendar-event me-1"></i> {{ p.fechaVencimiento | date:'dd/MM/yyyy' }}
+                </span>
+                <span *ngIf="!p.fechaVencimiento" class="text-muted small">N/A (No perecible)</span>
+              </td>
+              <td class="text-end">
                 <button class="btn btn-primary btn-sm" routerLink="/compras" (click)="closeModal()">
-                  <i class="bi bi-plus-circle"></i> Ordenar Compra
+                  <i class="bi bi-cart-plus me-1"></i> Comprar Stock
                 </button>
               </td>
             </tr>
-            <tr *ngIf="lowStockProducts.length === 0">
-              <td colspan="6" class="text-center py-4 text-muted">
-                <i class="bi bi-check-circle fs-3 text-success d-block mb-1"></i>
-                No hay productos con alerta de stock bajo.
+            <tr *ngIf="filteredLowStockModal.length === 0">
+              <td colspan="7" class="text-center py-4 text-secondary">
+                <i class="bi bi-check-circle fs-3 text-emerald d-block mb-1"></i>
+                No hay productos en estado de stock crítico.
               </td>
             </tr>
           </tbody>
@@ -431,7 +614,9 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" routerLink="/compras" (click)="closeModal()"><i class="bi bi-cart-plus"></i> Ir a Registrar Compra</button>
+      <button class="btn btn-primary" routerLink="/compras" (click)="closeModal()">
+        <i class="bi bi-cart-plus"></i> Registrar Orden de Compra
+      </button>
       <button class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
     </div>
   </div>

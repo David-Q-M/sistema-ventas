@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InventarioService, AlertaVencimiento, MovimientoInventario, PageResponse } from '../../core/services/inventario.service';
@@ -77,6 +77,13 @@ export class InventarioComponent implements OnInit {
         this.loadProductosList();
         this.loadCategorias();
         this.loadVencimientos();
+    }
+
+    @HostListener('document:keydown.escape')
+    onEscapeKey() {
+        if (this.showKardexModal) {
+            this.cerrarModalKardex();
+        }
     }
 
     setTab(tab: 'existencias' | 'vencimientos' | 'movimientos' | 'ajuste') {
@@ -160,7 +167,11 @@ export class InventarioComponent implements OnInit {
         });
     }
 
-    cerrarModalKardex() {
+    cerrarModalKardex(event?: Event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         this.showKardexModal = false;
         this.selectedProductoKardex = null;
         this.kardexMovimientos = [];
@@ -252,55 +263,49 @@ export class InventarioComponent implements OnInit {
         this.selectedProductoAjuste = this.productos.find(p => p.id === id) || null;
         if (this.selectedProductoAjuste) {
             this.nuevoStockAjuste = this.selectedProductoAjuste.stock;
-        } else {
-            this.nuevoStockAjuste = null;
         }
     }
 
     guardarAjuste() {
-        if (!this.selectedProductoAjuste || !this.selectedProductoAjuste.id) {
-            this.toastService.show('Debe seleccionar un producto para ajustar', 'error');
-            return;
-        }
-        if (this.nuevoStockAjuste === null || this.nuevoStockAjuste < 0) {
-            this.toastService.show('El nuevo stock debe ser un número igual o mayor a cero', 'error');
-            return;
-        }
-        if (!this.motivoAjuste || !this.motivoAjuste.trim()) {
-            this.toastService.show('El motivo del ajuste es obligatorio para la auditoría (RF29)', 'error');
+        if (!this.selectedProductoAjuste || this.nuevoStockAjuste === null || !this.motivoAjuste.trim()) {
+            this.toastService.show('Complete todos los campos obligatorios para registrar el ajuste', 'info');
             return;
         }
 
-        if (this.nuevoStockAjuste === this.selectedProductoAjuste.stock) {
-            this.toastService.show('El nuevo stock ingresado es idéntico al actual. Sin cambios.', 'info');
+        if (this.nuevoStockAjuste < 0) {
+            this.toastService.show('El nuevo stock no puede ser un valor negativo', 'info');
             return;
         }
 
         this.loadingService.show();
-
-        const payload = {
-            productoId: this.selectedProductoAjuste.id,
+        this.inventarioService.ajustarStock({
+            productoId: this.selectedProductoAjuste.id || 0,
             nuevoStock: this.nuevoStockAjuste,
-            motivo: this.motivoAjuste.trim()
-        };
-
-        this.inventarioService.ajustarStock(payload).subscribe({
-            next: () => {
+            motivo: this.motivoAjuste
+        }).subscribe({
+            next: (pActualizado: any) => {
                 this.loadingService.hide();
-                this.toastService.show('✅ Stock ajustado y movimiento registrado en auditoría', 'success');
-                
-                // Reset form
+                const nombre = pActualizado?.nombre || this.selectedProductoAjuste?.nombre || 'Producto';
+                const stock = pActualizado?.stock !== undefined ? pActualizado.stock : this.nuevoStockAjuste;
+                this.toastService.show(`Ajuste registrado con éxito para ${nombre}. Nuevo stock: ${stock}`, 'success');
+
+                // Actualizar lista local
+                if (this.selectedProductoAjuste) {
+                    const idx = this.productos.findIndex(p => p.id === this.selectedProductoAjuste!.id);
+                    if (idx !== -1) {
+                        this.productos[idx].stock = stock;
+                    }
+                }
+
+                // Resetear form y volver a la pestaña de existencias
                 this.selectedProductoAjuste = null;
                 this.nuevoStockAjuste = null;
                 this.motivoAjuste = '';
-                
-                // Reload data
-                this.loadProductosList();
-                this.setTab('movimientos');
+                this.setTab('existencias');
             },
-            error: (err) => {
+            error: (err: any) => {
                 this.loadingService.hide();
-                const msg = err.error?.message || err.error || 'Error al ejecutar el ajuste de inventario';
+                const msg = err.error?.mensaje || 'Error al procesar el ajuste de inventario';
                 this.toastService.show(msg, 'error');
             }
         });

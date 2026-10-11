@@ -1,53 +1,233 @@
 <div class="login-container">
-  <!-- Background Overlay -->
-  <div class="background-overlay"></div>
+  <!-- Live 60FPS Deep Space Canvas (Stars, Nebulae, Orbital Rays & Lightning) -->
+  <canvas #cyberCanvas class="cyber-canvas"></canvas>
 
-  <!-- Corporate Glass Card -->
-  <div class="login-card">
-    <div class="login-brand-header text-center">
-      <div class="brand-badge-circle">
-        <i class="bi bi-cart-fill"></i>
+  <!-- Dark Ambient Dynamic Spotlight -->
+  <div class="spotlight-overlay"
+    [style.background]="'radial-gradient(circle at ' + lightPosition + ', rgba(6, 182, 212, 0.18) 0%, rgba(217, 70, 239, 0.1) 35%, transparent 75%)'">
+  </div>
+
+  <!-- Central Holographic Wireframe Core behind Login Box -->
+  <div class="central-hologram-globe">
+    <div class="globe-wireframe"></div>
+    <div class="globe-glow-core"></div>
+    <div class="globe-orbit-ring ring-1"></div>
+    <div class="globe-orbit-ring ring-2"></div>
+  </div>
+
+  <!-- 3D Living Planets System ("Planetas con Vida Propia & Satélites") -->
+  <div class="cosmic-planetary-system">
+    <!-- Planet 1: Tierra + Satélite Lunar (Top-Left) -->
+    <div class="orbit-planet planet-top-left float-planet-1" data-planet-name="Tierra">
+      <div class="planet-atmosphere-glow blue"></div>
+      <div class="planet-ring-orbit cyan"></div>
+      <div class="mini-satellite-orbit earth-satellite">
+        <span class="mini-moon-dot"></span>
       </div>
-      <h2>Sistema de Ventas</h2>
-      <p class="subtitle">Gestión eficiente y confiable</p>
+      <div class="planet-img-wrapper earth-size">
+        <img src="planets/earth.jpg" alt="Tierra" class="planet-img spin-earth" />
+        <div class="planet-shine-overlay"></div>
+      </div>
+      <div class="planet-tag-badge cyan">
+        <span class="pulse-dot"></span>
+        <span>Nodo Tierra</span>
+        <small>Servidor Central</small>
+      </div>
     </div>
 
-    <!-- Form -->
-    <form (ngSubmit)="onSubmit()" class="login-form">
-      <!-- Username Input -->
-      <div class="form-group">
-        <label class="form-label">Usuario</label>
-        <div class="input-wrapper">
-          <i class="bi bi-person input-icon"></i>
-          <input type="text" class="form-control" [(ngModel)]="credentials.username" name="username" required
-            placeholder="Ej: admin" autocomplete="username">
-        </div>
+    <!-- Planet 2: Saturno + Anillos Dorados (Mid-Left) -->
+    <div class="orbit-planet planet-mid-left float-planet-2" data-planet-name="Saturno">
+      <div class="planet-atmosphere-glow gold"></div>
+      <div class="planet-ring-orbit amber"></div>
+      <div class="mini-satellite-orbit saturn-satellite">
+        <span class="mini-moon-dot gold"></span>
       </div>
-
-      <!-- Password Input -->
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <div class="input-wrapper">
-          <i class="bi bi-lock input-icon"></i>
-          <input type="password" class="form-control" [(ngModel)]="credentials.password" name="password" required
-            placeholder="••••••••" autocomplete="current-password">
-        </div>
+      <div class="planet-img-wrapper saturn-size">
+        <img src="planets/saturn.jpg" alt="Saturno" class="planet-img saturn-img spin-saturn" />
+        <div class="planet-shine-overlay"></div>
       </div>
-
-      <!-- Error Alert -->
-      <div *ngIf="error" class="alert alert-danger text-center">
-        <i class="bi bi-exclamation-circle-fill me-1"></i> {{ error }}
+      <div class="planet-tag-badge amber">
+        <span class="pulse-dot amber"></span>
+        <span>Saturno POS</span>
+        <small>Stock & Anaquel</small>
       </div>
+    </div>
 
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-login w-100" [disabled]="loading">
-        <span *ngIf="!loading">Ingresar al Sistema <i class="bi bi-arrow-right-short"></i></span>
-        <span *ngIf="loading" class="spinner-container">
-          <span class="spinner-dot"></span>
-          <span class="spinner-dot"></span>
-          <span class="spinner-dot"></span>
-        </span>
-      </button>
-    </form>
+    <!-- Planet 3: Marte Core (Bottom-Left) -->
+    <div class="orbit-planet planet-bot-left float-planet-3" data-planet-name="Marte">
+      <div class="planet-atmosphere-glow red"></div>
+      <div class="planet-ring-orbit red"></div>
+      <div class="planet-img-wrapper mars-size">
+        <img src="planets/mars.jpg" alt="Marte" class="planet-img spin-mars" />
+        <div class="planet-shine-overlay"></div>
+      </div>
+      <div class="planet-tag-badge pink">
+        <span class="pulse-dot pink"></span>
+        <span>Marte Core</span>
+        <small>Caja & Cobro</small>
+      </div>
+    </div>
+
+    <!-- Planet 4: Luna System (Top-Right) -->
+    <div class="orbit-planet planet-top-right float-planet-2" data-planet-name="Luna">
+      <div class="planet-atmosphere-glow silver"></div>
+      <div class="planet-ring-orbit silver"></div>
+      <div class="planet-img-wrapper moon-size">
+        <img src="planets/moon.jpg" alt="Luna" class="planet-img spin-moon" />
+        <div class="planet-shine-overlay"></div>
+      </div>
+      <div class="planet-tag-badge silver">
+        <span class="pulse-dot silver"></span>
+        <span>Luna System</span>
+        <small>Tickets en Vivo</small>
+      </div>
+    </div>
+
+    <!-- Planet 5: Neptuno Analytics (Bottom-Right) -->
+    <div class="orbit-planet planet-bot-right float-planet-1" data-planet-name="Neptuno">
+      <div class="planet-atmosphere-glow deep-blue"></div>
+      <div class="planet-ring-orbit purple"></div>
+      <div class="mini-satellite-orbit neptune-satellite">
+        <span class="mini-moon-dot cyan"></span>
+      </div>
+      <div class="planet-img-wrapper neptune-size">
+        <img src="planets/neptune.jpg" alt="Neptuno" class="planet-img spin-neptune" />
+        <div class="planet-shine-overlay"></div>
+      </div>
+      <div class="planet-tag-badge purple">
+        <span class="pulse-dot purple"></span>
+        <span>Neptuno Analytics</span>
+        <small>Reportes POS</small>
+      </div>
+    </div>
   </div>
+
+  <!-- Center Professional Futuristic Holographic Login Card -->
+  <div class="login-card-wrapper" #loginCardRef>
+    <div class="login-card" [style.transform]="cardTransform">
+      <!-- Animated Neon Border Ring -->
+      <div class="login-card-border-glow"></div>
+      <div class="login-card-aura"></div>
+
+      <!-- Cyber Tech Corner Notches -->
+      <span class="tech-notch top-left"></span>
+      <span class="tech-notch top-right"></span>
+      <span class="tech-notch bottom-left"></span>
+      <span class="tech-notch bottom-right"></span>
+
+      <!-- Holographic Brand Header -->
+      <div class="login-brand-header text-center">
+        <div class="brand-hologram-badge">
+          <i class="bi bi-cart-fill logo-cart-icon"></i>
+          <span class="holo-glow-ring"></span>
+          <span class="holo-glow-ring-outer"></span>
+        </div>
+        <div class="brand-title-wrap">
+          <h2 class="cyber-title">Sistema de Ventas</h2>
+        </div>
+        <p class="cyber-subtitle">Gestión Eficiente, Inteligente y Confiable</p>
+      </div>
+
+      <!-- Cyber Form -->
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Role Selector Selector de Rol -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>ROL DE INGRESO</span>
+            <span class="label-tech-code">SYS-ROLE</span>
+          </label>
+          <div class="role-selector-grid">
+            <button *ngFor="let role of roles" type="button" 
+              class="role-card-btn" 
+              [class.active]="credentials.role === role.id"
+              [disabled]="isLockedOut"
+              (click)="selectRole(role.id)">
+              <i class="bi" [ngClass]="role.icon"></i>
+              <span>{{ role.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Username Input -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>USUARIO</span>
+            <span class="label-tech-code">ID-AUTH</span>
+          </label>
+          <div class="input-wrapper tech-input">
+            <i class="bi bi-person-fill input-icon"></i>
+            <input type="text" class="form-control" [(ngModel)]="credentials.username" name="username" required
+              [disabled]="isLockedOut" placeholder="Ej: admin" autocomplete="username">
+            <span class="input-active-line"></span>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>CONTRASEÑA</span>
+            <span class="label-tech-code">SEC-KEY</span>
+          </label>
+          <div class="input-wrapper tech-input">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input [type]="showPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="credentials.password"
+              name="password" required [disabled]="isLockedOut" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" (click)="toggleShowPassword()" [disabled]="isLockedOut"
+              [title]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+            </button>
+            <span class="input-active-line"></span>
+          </div>
+        </div>
+
+        <!-- Security Lockout Banner (5 Failed Attempts 30s Timer) -->
+        <div *ngIf="isLockedOut" class="alert alert-warning-lockout text-center animate-shake">
+          <div class="lockout-header">
+            <i class="bi bi-shield-slash-fill me-1"></i> <strong>BLOQUEO DE SEGURIDAD</strong>
+          </div>
+          <p class="lockout-text">Superó los 5 intentos fallidos.</p>
+          <div class="lockout-timer-display">
+            <span>Reintente en:</span>
+            <span class="timer-countdown-badge">{{ lockoutTimer }}s</span>
+          </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div *ngIf="error && !isLockedOut" class="alert alert-danger text-center animate-shake">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}
+        </div>
+
+        <!-- Cyber Action Button -->
+        <button type="submit" class="btn btn-login-cyber w-100" [disabled]="loading || isLockedOut">
+          <span *ngIf="!loading" class="btn-content">
+            Ingresar al Sistema <span class="chevron-badge"><i class="bi bi-chevron-right"></i></span>
+          </span>
+          <span *ngIf="loading" class="spinner-container">
+            <span class="spinner-dot"></span>
+            <span class="spinner-dot"></span>
+            <span class="spinner-dot"></span>
+          </span>
+          <span class="btn-shimmer"></span>
+        </button>
+      </form>
+
+      <!-- Security Meta Footer inside Login Box -->
+      <div class="card-meta-footer">
+        <div class="meta-item">
+          <i class="bi bi-lock-fill text-cyan"></i> <span>MiniMarket Z</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cyberpunk Footer Bar -->
+  <footer class="login-footer">
+    <div class="footer-brand">
+      <i class="bi bi-cpu-fill text-cyan"></i> ENTERPRISE POS SYSTEM
+    </div>
+    <div class="footer-status">
+      <span class="status-pulse-dot"></span>
+      v2.5.1 | MiniMarket Z
+    </div>
+  </footer>
 </div>
